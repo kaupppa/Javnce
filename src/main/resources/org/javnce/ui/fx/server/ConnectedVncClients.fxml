@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" styleClass="background" xmlns:fx="http://javafx.com/fxml" fx:controller="org.javnce.ui.fx.server.ConnectedVncClients">
+  <children>
+    <VBox id="VBox" alignment="CENTER" spacing="5.0" AnchorPane.bottomAnchor="120.0" AnchorPane.leftAnchor="108.0" AnchorPane.rightAnchor="105.0" AnchorPane.topAnchor="83.0">
+      <children>
+        <Label text="Connected clients" />
+        <ListView fx:id="listView" editable="false" prefHeight="173.0" prefWidth="387.0" />
+      </children>
+    </VBox>
+  </children>
+  <stylesheets>
+    <URL value="@../Javnce.css" />
+  </stylesheets>
+</AnchorPane>

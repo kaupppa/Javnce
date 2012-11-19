@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="480.0" prefWidth="800.0" styleClass="background" xmlns:fx="http://javafx.com/fxml" fx:controller="org.javnce.ui.fx.client.SelectServer">
+  <children>
+    <VBox id="VBox" alignment="CENTER" spacing="20.0" AnchorPane.bottomAnchor="121.0" AnchorPane.leftAnchor="108.0" AnchorPane.rightAnchor="92.0" AnchorPane.topAnchor="131.0">
+      <children>
+        <ListView fx:id="listView" editable="false" prefHeight="-1.0" prefWidth="-1.0" />
+        <Button fx:id="connectButton" mnemonicParsing="false" onAction="#connect" prefWidth="-1.0" text="Connect" />
+      </children>
+    </VBox>
+    <VBox id="VBox" alignment="CENTER" spacing="5.0" AnchorPane.bottomAnchor="221.0" AnchorPane.leftAnchor="382.0" AnchorPane.rightAnchor="381.0" AnchorPane.topAnchor="222.0">
+      <children>
+        <ProgressIndicator fx:id="progressIndicator" disable="false" opacity="1.0" prefHeight="-1.0" prefWidth="-1.0" progress="-1.0" visible="true" />
+      </children>
+    </VBox>
+  </children>
+  <stylesheets>
+    <URL value="@../Javnce.css" />
+  </stylesheets>
+</AnchorPane>

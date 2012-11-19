@@ -1,0 +1,84 @@
+.titlebackground{
+    -fx-background-color: linear-gradient(white 0%, #cbd0d7 100%);
+}
+
+.background{
+        -fx-background-color: linear-gradient(#cbd0d7 0%,  white 100%);
+}
+.hyperlink{
+    -fx-font-size: 14pt;
+    -fx-text-fill: #5086bb;
+}
+
+.label {
+    -fx-font-size: 16pt;
+}
+
+.titleText {
+    -fx-font-size: 20pt;
+    -fx-font-weight:bold;
+    -fx-text-fill: #325c5b;
+}
+
+
+.button {
+    -fx-background-color: linear-gradient(white 0%, #cbd0d7 100%);
+    -fx-font-size: 16pt;
+    -fx-text-fill: #5086bb;
+    -fx-padding: 8;
+    -fx-background-radius: 23;
+    -fx-border-radius: 23;
+}
+
+.button:hover {
+    -fx-background-color: linear-gradient(#cbd0d7 0%, white 100%);
+}
+
+.list-view {
+    -fx-background-color: linear-gradient(#cbd0d7 0%,  white 100%);
+}
+.list-cell {
+    -fx-padding: 3 3 3 3;
+    -fx-background-color: linear-gradient(white 0%, #cbd0d7 100%);
+    -fx-font-size: 16pt;
+    -fx-text-fill: #5086bb;
+    -fx-background-radius: 23;
+    -fx-border-radius: 23;
+    -fx-alignment:center 
+}
+ 
+.list-cell:empty {
+   -fx-opacity: 0.0
+}
+
+.list-cell:selected {
+    -fx-font-weight:bold;
+    -fx-text-fill: #325c5b;
+    -fx-background-color: linear-gradient(#cbd0d7 0%,  white 100%);
+}
+
+.check-box {
+    -fx-font-size: 16pt;
+    -fx-text-fill: #5086bb;
+    -fx-background-color: linear-gradient(white 0%, #cbd0d7 100%);
+    -fx-padding: 10;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+
+.check-box:selected {
+    -fx-font-weight:bold;
+    -fx-text-fill: #325c5b;
+    -fx-background-color: linear-gradient(#cbd0d7 0%,  white 100%);
+}
+
+.text-input {
+    -fx-font-size: 16pt;
+    -fx-text-fill: #325c5b;
+    -fx-background-color: linear-gradient(white 0%, #cbd0d7 100%);
+    -fx-padding: 10;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #767676;
+}
+
