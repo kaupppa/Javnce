@@ -20,6 +20,7 @@
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
         <javafx.lib.ant-javafx.jar>${java.home}/../lib/ant-javafx.jar</javafx.lib.ant-javafx.jar>
+        <javafx.lib.jfxrt.jar>${java.home}/lib/jfxrt.jar</javafx.lib.jfxrt.jar>
         <application.dist>${project.build.directory}/dist</application.dist>
     </properties>
     <developers>  
@@ -169,7 +170,7 @@
             <groupId>com.oracle</groupId>
             <artifactId>javafx</artifactId>
             <version>2.2</version>
-            <systemPath>${java.home}/lib/jfxrt.jar</systemPath>
+            <systemPath>${javafx.lib.jfxrt.jar}</systemPath>
             <scope>system</scope>
         </dependency>        
     </dependencies>
