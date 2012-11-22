@@ -31,7 +31,7 @@ class VncService {
      * The state variable port .
      */
     @UpnpStateVariable(sendEvents = false)
-    private int port = 0;
+    static private int port = 0;
 
     /**
      * The UPnP action.
@@ -48,7 +48,7 @@ class VncService {
      *
      * @param port the new port
      */
-    void setPort(int port) {
-        this.port = port;
+    static void setPort(int newport) {
+        port = newport;
     }
 }

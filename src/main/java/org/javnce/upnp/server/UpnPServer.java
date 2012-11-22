@@ -51,9 +51,13 @@ class UpnPServer extends Thread {
      * @param port the port
      */
     UpnPServer(String name, int port) {
+        //FIXME
+        VncService.setPort(port);
         upnpService = new UpnpServiceImpl();
         this.name = name;
         this.port = port;
+        
+
     }
 
     /* (non-Javadoc)
@@ -92,7 +96,6 @@ class UpnPServer extends Thread {
 
         LocalService<VncService> service = new AnnotationLocalServiceBinder().read(VncService.class);
         service.setManager(new DefaultServiceManager(service, VncService.class));
-        service.getManager().getImplementation().setPort(port);
         return new LocalDevice(identity, type, details, icon, service);
     }
 
