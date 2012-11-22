@@ -1,0 +1,136 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.javnce</groupId>
+        <artifactId>vnc-bundle</artifactId>
+        <version>0.1-SNAPSHOT</version>
+    </parent>
+
+    <groupId>org.javnce</groupId>
+    <artifactId>vnc</artifactId>
+    <version>0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    
+    <properties>
+        <jni.build>${project.build.directory}/libs</jni.build>
+    </properties>
+  
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.12</version>
+                <configuration>
+                    <forkMode>once</forkMode>
+                    <argLine>-XX:-UseSplitVerifier -Djava.library.path=${jni.build}</argLine>
+                </configuration>    
+            </plugin>   
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9</version>
+                <configuration>
+                    <show>private</show>
+                    <nohelp>true</nohelp>
+                </configuration>
+            </plugin>
+            <plugin>  
+                <groupId>org.codehaus.mojo</groupId>  
+                <artifactId>cobertura-maven-plugin</artifactId>  
+                <version>2.5.2</version>  
+            </plugin>
+        </plugins>
+    </build>
+    <profiles>    
+        <profile>
+            <id>linux</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.7</version>
+                        <executions>
+                            <execution>
+                                <phase>process-classes</phase>
+                                <configuration>
+                                    <target
+                                        name="jni"
+                                        description="javah and qmake, for now">
+                                        <exec executable="javah" >
+                                            <arg value="-d" />
+                                            <arg value="${jni.build}" />
+                                            <arg value="-classpath" />
+                                            <arg value="${project.build.outputDirectory}" />
+                                            <arg value="-force" />
+                                            <arg value="org.javnce.vnc.server.platform.XTestPointerInputDevice" />
+                                        </exec>
+                                        <exec executable="javah" >
+                                            <arg value="-d" />
+                                            <arg value="${jni.build}" />
+                                            <arg value="-classpath" />
+                                            <arg value="${project.build.outputDirectory}" />
+                                            <arg value="-force" />
+                                            <arg value="org.javnce.vnc.server.platform.XShmFramebuffer" />
+                                        </exec>
+                                        <exec executable="javah" >
+                                            <arg value="-d" />
+                                            <arg value="${jni.build}" />
+                                            <arg value="-classpath" />
+                                            <arg value="${project.build.outputDirectory}" />
+                                            <arg value="-force" />
+                                            <arg value="org.javnce.vnc.server.platform.XTestKeyBoard" />
+                                        </exec>
+
+                                        <exec dir="${jni.build}" executable="qmake" failonerror="true" >
+                                            <arg value="${project.basedir}/src/main/c++/jni.pro" />
+                                        </exec>
+                                        <exec dir="${jni.build}" executable="make" failonerror="true" >
+                                            <arg value="CXX:=g++ -I ${jni.build} -I ${java.home}/../include -I ${java.home}/../include/linux" />
+                                        </exec>
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.10</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.javnce</groupId>
+            <artifactId>eventing</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+</project>

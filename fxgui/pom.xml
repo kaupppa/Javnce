@@ -1,0 +1,153 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.javnce</groupId>
+        <artifactId>javnce</artifactId>
+        <version>0.1-SNAPSHOT</version>
+    </parent>
+
+    <groupId>org.javnce</groupId>
+    <artifactId>fxgui</artifactId>
+    <version>0.1-SNAPSHOT</version>
+
+    <properties>
+        <javafx.lib.ant-javafx.jar>${java.home}/../lib/ant-javafx.jar</javafx.lib.ant-javafx.jar>
+        <javafx.lib.jfxrt.jar>${java.home}/lib/jfxrt.jar</javafx.lib.jfxrt.jar>
+        <application.dist>${project.build.directory}/dist</application.dist>
+    </properties>
+  
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeScope>runtime</includeScope>
+                            <outputDirectory>${application.dist}/lib</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <configuration>
+                            <target xmlns:fx="javafx:com.sun.javafx.tools.ant">
+                                <property name="applet.width" value="800"/>
+                                <property name="applet.height" value="480"/>
+                                <property name="application.title" value="${project.name}"/>
+                                <property name="application.vendor" value="${project.name}"/>
+                                <manifestclasspath property="manifest.classpath"
+                                                   jarfile="${application.dist}/${project.build.finalName}.jar">
+                                    <classpath>
+                                        <path id="build.classpath">
+                                            <fileset dir="${application.dist}/lib">
+                                                <include name="*.jar"/>
+                                            </fileset>
+                                        </path>
+                                    </classpath>
+                                </manifestclasspath>
+ 
+                                <taskdef resource="com/sun/javafx/tools/ant/antlib.xml"
+                                         uri="javafx:com.sun.javafx.tools.ant"
+                                         classpath="${javafx.lib.ant-javafx.jar}"/>
+                                <fx:application id="myApp"
+                                                name="${project.name}"
+                                                mainClass="org.javnce.ui.fx.FxGui"/>
+                                <fx:jar destfile="${application.dist}/${project.build.finalName}.jar">
+                                    <fx:application refid="myApp"/>
+ 
+                                    <manifest>
+                                        <attribute name="Class-Path" value="${manifest.classpath}"/>
+                                    </manifest>
+                                    <fileset dir="${project.build.outputDirectory}"/>
+                                </fx:jar>
+                                <fx:resources id="appRes">
+                                    <fx:fileset dir="${application.dist}" includes="*.jar"/>
+                                    <fx:fileset dir="${application.dist}" includes="lib/*.jar"/>
+                                </fx:resources>
+                             
+                                <signjar keyStore="${user.home}/.keystore"
+                                         destdir="${application.dist}"
+                                         alias="javnce" storePass="password" keyPass="password">
+                                    <fileset dir="${application.dist}" includes="*.jar"/>
+                                    <fileset dir="${application.dist}" includes="lib/*.jar"/>
+                                </signjar>
+                                <fx:deploy width="${applet.width}" height="${applet.height}"
+                                           outdir="${application.dist}" embedJNLP="true"
+                                           outfile="${application.title}">
+ 
+                                    <fx:application refId="myApp"/>
+ 
+                                    <fx:resources refid="appRes"/>
+                                    <fx:info title="${application.title}"
+                                             vendor="${application.vendor}"/>
+                                    <fx:permissions elevated="true"/>
+                                </fx:deploy>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>  
+                <groupId>org.codehaus.mojo</groupId>  
+                <artifactId>cobertura-maven-plugin</artifactId>  
+                <version>2.5.2</version>  
+            </plugin>      
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.10</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>javafx</artifactId>
+            <version>2.2</version>
+            <systemPath>${javafx.lib.jfxrt.jar}</systemPath>
+            <scope>system</scope>
+        </dependency>        
+        <dependency>
+            <groupId>org.javnce</groupId>
+            <artifactId>vnc</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>        
+        <dependency>
+            <groupId>org.javnce</groupId>
+            <artifactId>upnp</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
+       
+    </dependencies>
+</project>

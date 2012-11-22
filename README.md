@@ -6,4 +6,3 @@ desktop.
 
 The Javnce is just a simple VNC and UPnP server/client pairs.
 
- 
