@@ -48,17 +48,9 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.12</version>
                 <configuration>
-                    <!---
-                    FIXME
-                    FIXME Integrate jni part
-                    FIXME
-                    <excludes>
-                        <exclude>**/*TestX*</exclude>
-                    </excludes>
-                    -->
                     <forkMode>once</forkMode>
-                    <argLine>-Djava.library.path=${jni.build}</argLine>
-                </configuration>
+                    <argLine>-XX:-UseSplitVerifier -Djava.library.path=${jni.build}</argLine>
+                </configuration>    
             </plugin>   
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -202,6 +194,11 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>  
+                <groupId>org.codehaus.mojo</groupId>  
+                <artifactId>cobertura-maven-plugin</artifactId>  
+                <version>2.5.2</version>  
+            </plugin>      
         </plugins>
     </build>
     <dependencies>
