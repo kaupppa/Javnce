@@ -6,6 +6,8 @@ TEMPLATE = lib
 COMMON_FOLDER = $$IN_PWD/../common
 INCLUDEPATH += $$COMMON_FOLDER
 
+TARGET = ../XTestPointerInputDevice
+
 LIBS += -lX11 -lXext -lXtst
 
 HEADERS += ../common/logger.h \

@@ -22,6 +22,8 @@
         <javafx.lib.ant-javafx.jar>${java.home}/../lib/ant-javafx.jar</javafx.lib.ant-javafx.jar>
         <javafx.lib.jfxrt.jar>${java.home}/lib/jfxrt.jar</javafx.lib.jfxrt.jar>
         <application.dist>${project.build.directory}/dist</application.dist>
+        <jni.build>${project.build.directory}/libs/natives/linux</jni.build>
+        <netbeans.compile.on.save>all</netbeans.compile.on.save>
     </properties>
     <developers>  
         <developer>
@@ -50,10 +52,12 @@
                     FIXME
                     FIXME Integrate jni part
                     FIXME
-                    -->
                     <excludes>
                         <exclude>**/*TestX*</exclude>
                     </excludes>
+                    -->
+                    <forkMode>once</forkMode>
+                    <argLine>-Djava.library.path=${jni.build}</argLine>
                 </configuration>
             </plugin>   
             <plugin>
@@ -86,10 +90,12 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.7</version>
                 <executions>
                     <execution>
+                        <id>0</id>
                         <phase>install</phase>
                         <configuration>
                             <target xmlns:fx="javafx:com.sun.javafx.tools.ant">
@@ -144,6 +150,50 @@
                                              vendor="${application.vendor}"/>
                                     <fx:permissions elevated="true"/>
                                 </fx:deploy>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>1</id>
+                        <phase>process-classes</phase>
+                        <configuration>
+                            <target
+                                name="jni"
+                                description="javah and qmake, for now">
+                                <exec executable="javah" >
+                                    <arg value="-d" />
+                                    <arg value="${jni.build}" />
+                                    <arg value="-classpath" />
+                                    <arg value="${project.build.outputDirectory}" />
+                                    <arg value="-force" />
+                                    <arg value="org.javnce.vnc.server.platform.XTestPointerInputDevice" />
+                                </exec>
+                                <exec executable="javah" >
+                                    <arg value="-d" />
+                                    <arg value="${jni.build}" />
+                                    <arg value="-classpath" />
+                                    <arg value="${project.build.outputDirectory}" />
+                                    <arg value="-force" />
+                                    <arg value="org.javnce.vnc.server.platform.XShmFramebuffer" />
+                                </exec>
+                                <exec executable="javah" >
+                                    <arg value="-d" />
+                                    <arg value="${jni.build}" />
+                                    <arg value="-classpath" />
+                                    <arg value="${project.build.outputDirectory}" />
+                                    <arg value="-force" />
+                                    <arg value="org.javnce.vnc.server.platform.XTestKeyBoard" />
+                                </exec>
+
+                                <exec dir="${jni.build}" executable="qmake" failonerror="true" >
+                                    <arg value="${project.basedir}/src/main/native/jni.pro" />
+                                </exec>
+                                <exec dir="${jni.build}" executable="make" failonerror="true" >
+                                    <arg value="CXX:=g++ -I ${jni.build} -I ${java.home}/../include -I ${java.home}/../include/linux" />
+                                </exec>
                             </target>
                         </configuration>
                         <goals>

@@ -7,9 +7,10 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Xbootclasspath/a:${javafx.lib.jfxrt.jar} -classpath %classpath org.javnce.ui.fx.FxGui</exec.args>
+                <exec.args>-Djava.library.path=${project.build.directory}/libs/natives/linux -Xbootclasspath/a:${java.home}/lib/jfxrt.jar -classpath %classpath org.javnce.ui.fx.FxGui</exec.args>
                 <exec.executable>java</exec.executable>
                 <exec.classpathScope>runtime</exec.classpathScope>
+                <exec.workingdir></exec.workingdir>
             </properties>
         </action>
         <action>
@@ -19,10 +20,11 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -Xbootclasspath/a:${javafx.lib.jfxrt.jar} -classpath %classpath org.javnce.ui.fx.FxGui</exec.args>
+                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -Djava.library.path=${project.build.directory}/libs/natives/linux -Xbootclasspath/a:${java.home}/lib/jfxrt.jar -classpath %classpath org.javnce.ui.fx.FxGui</exec.args>
                 <exec.executable>java</exec.executable>
                 <exec.classpathScope>runtime</exec.classpathScope>
                 <jpda.listen>true</jpda.listen>
+                <exec.workingdir></exec.workingdir>
             </properties>
         </action>
         <action>
@@ -32,8 +34,9 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2:exec</goal>
             </goals>
             <properties>
-                <exec.args>${profiler.args} -Xbootclasspath/a:${javafx.lib.jfxrt.jar} -classpath %classpath org.javnce.ui.fx.FxGui</exec.args>
+                <exec.args>${profiler.args} -Djava.library.path=${project.build.directory}/libs/natives/linux -Xbootclasspath/a:${java.home}/lib/jfxrt.jar -classpath %classpath org.javnce.ui.fx.FxGui</exec.args>
                 <exec.executable>${profiler.java}</exec.executable>
+                <exec.workingdir></exec.workingdir>
             </properties>
         </action>
     </actions>
