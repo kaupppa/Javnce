@@ -12,6 +12,7 @@
     <artifactId>vnc-bundle</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
+    <name>${project.artifactId}</name>
     <modules>
         <module>vnc</module>
         <module>vnc-runtime</module>

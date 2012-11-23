@@ -4,16 +4,9 @@
 *.jar
 *.war
 *.ear
-/target/
-/vnc-core/target/
-/platform/java/target/
-/vnc-core (copy)/target/
-/rfb/target/
-/platform/vncplatform/target/
-/upnp/target/
-/vnc/vnc-core/target/
-/vnc/vnc-runtime/target/
-/fxgui/target/
-/vnc-bundle/vnc-core/target/
-/vnc-bundle/vnc-runtime/target/
-/vnc-bundle/vnc/target/
+
+.project
+.settings
+.classpath
+target
+

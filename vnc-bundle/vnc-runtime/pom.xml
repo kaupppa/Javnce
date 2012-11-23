@@ -12,6 +12,7 @@
     <artifactId>vnc-runtime</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
+    <name>${project.artifactId}</name>
 
     <build>
         <plugins>
@@ -34,12 +35,5 @@
         </plugins>
     </build>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.javnce</groupId>
-            <artifactId>vnc</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
 
 </project>

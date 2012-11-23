@@ -19,10 +19,4 @@
         </fileSet>
 
     </fileSets>
-    <repositories>
-        <repository>
-            <includeMetadata>true</includeMetadata>
-            <outputDirectory>maven2</outputDirectory>
-        </repository>
-    </repositories>
 </assembly>
