@@ -14,7 +14,7 @@
             <directory>../vnc/target/libs</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
-                <include>*.so.*</include>
+                <include>*.so</include>
             </includes>
         </fileSet>
 
