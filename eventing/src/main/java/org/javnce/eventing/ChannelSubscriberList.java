@@ -71,20 +71,21 @@ class ChannelSubscriberList {
      * @return true, if is empty
      */
     boolean isEmpty() {
-        return (null == selector || 
-                false == selector.isOpen() || 
-                selector.keys().isEmpty());
+        return (null == selector
+                || false == selector.isOpen()
+                || selector.keys().isEmpty());
     }
 
     /**
-     * Process the selector once. Blocks until channel event occurs or wakeup
-     * called.
+     * Process the selector. Blocks until channel event occurs, wakeup is called
+     * or timeouts.
      *
+     * @param timeOut Max wait time
      * @throws IOException Signals that an I/O exception has occurred.
      */
-    void processOnce() throws IOException {
+    void process(long timeOut) throws IOException {
         if (!isEmpty()) {
-            if (0 != selector.select()) {
+            if (0 != selector.select(Math.max(timeOut, 0))) {
                 Set<SelectionKey> selectedKeys = selector.selectedKeys();
                 process(selectedKeys.iterator());
             }

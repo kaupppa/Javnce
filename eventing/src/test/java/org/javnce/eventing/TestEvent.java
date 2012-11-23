@@ -17,6 +17,7 @@
 package org.javnce.eventing;
 
 public class TestEvent implements Event {
+
     String name;
 
     TestEvent(String name) {

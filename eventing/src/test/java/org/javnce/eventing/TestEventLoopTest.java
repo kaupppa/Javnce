@@ -339,4 +339,29 @@ public class TestEventLoopTest {
         assertTrue(h.called);
         EventLoop.setErrorHandler(old);
     }
+
+    @Test
+    public void testAddTimer() {
+        final EventLoop eventLoop = new EventLoop();
+        //Add timer
+        long timeOut = 100;
+        Timer timer = new Timer(new TimeOutCallback() {
+            @Override
+            public void timeout() {
+                eventLoop.shutdown();
+            }
+        }, timeOut);
+        long startTime = System.currentTimeMillis();
+
+        eventLoop.addTimer(timer);
+
+        //We get stuck in case of failure
+        eventLoop.process();
+
+        long elapsedTime = System.currentTimeMillis() - startTime;
+
+        //Check that time matches timeout
+        assertTrue((timeOut + 10) >= elapsedTime);
+        assertTrue((timeOut) <= elapsedTime);
+    }
 }

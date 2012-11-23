@@ -20,10 +20,13 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 public class TestEventSubscriberListTest {
+
     private EventSubscriberList list;
 
     class EventHandler implements EventSubscriber {
+
         Event lastEvent;
+
         @Override
         public void event(Event event) {
             lastEvent = event;
@@ -49,7 +52,6 @@ public class TestEventSubscriberListTest {
         list.remove(event.Id(), handler);
         assertFalse(list.contains(event.Id()));
     }
-
 
     @Test
     public void testProcess() {

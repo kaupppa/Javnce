@@ -20,7 +20,7 @@ package org.javnce.eventing;
  * The error handler interface
  */
 public interface EventLoopErrorHandler {
-    
+
     /**
      * Handler for unrecoverable error.
      *

@@ -32,17 +32,17 @@ public class EventTester implements EventSubscriber, ChannelSubscriber {
     ByteBuffer buffer;
     EventTester testers[];
     Thread thread;
-    
+
     EventTester(EventLoop parent) {
         eventLoop = new EventLoop(parent);
         events = new ArrayList<>();
         buffer = ByteBuffer.allocate(100);
         thread = new Thread(eventLoop);
     }
-    
+
     void createValidGroup(int count) {
         testers = new EventTester[count];
-        
+
         for (int i = 0; i < testers.length; i++) {
             testers[i] = new EventTester(eventLoop);
             try {
@@ -53,12 +53,12 @@ public class EventTester implements EventSubscriber, ChannelSubscriber {
             }
         }
     }
-    
+
     @Override
     public void event(Event event) {
         events.add(event);
     }
-    
+
     @Override
     public void channel(SelectionKey key) {
         Pipe.SourceChannel ch = (SourceChannel) key.channel();
@@ -69,17 +69,17 @@ public class EventTester implements EventSubscriber, ChannelSubscriber {
             System.exit(1);
         }
     }
-    
+
     public void handleEvent(EventId id) {
         eventLoop.subscribe(id, this);
-        
+
         for (int i = 0; null != testers && i < testers.length; i++) {
             testers[i].eventLoop.subscribe(id, testers[i]);
         }
     }
-    
+
     void startAll() {
-        
+
         for (int i = 0; null != testers && i < testers.length; i++) {
             try {
                 testers[i].thread.start();

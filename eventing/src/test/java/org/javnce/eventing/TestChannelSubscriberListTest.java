@@ -64,7 +64,7 @@ public class TestChannelSubscriberListTest {
             @Override
             public void run() {
                 try {
-                    list.processOnce();
+                    list.process(0);
                 } catch (IOException ex) {
                     Logger.getLogger(TestChannelSubscriberListTest.class.getName()).log(Level.SEVERE, null, ex);
                     System.exit(1);
@@ -124,7 +124,7 @@ public class TestChannelSubscriberListTest {
     }
 
     @Test
-    public void testProcessOnce() throws Exception {
+    public void testProcess() throws Exception {
         list = new ChannelSubscriberList();
 
         Pipe pipe = Pipe.open();

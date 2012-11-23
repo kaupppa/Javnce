@@ -62,7 +62,12 @@
             <plugin>  
                 <groupId>org.codehaus.mojo</groupId>  
                 <artifactId>cobertura-maven-plugin</artifactId>  
-                <version>2.5.2</version>  
+                <version>2.5.2</version>
+                <configuration>
+                    <forkMode>once</forkMode>
+                    <argLine>-XX:-UseSplitVerifier</argLine>
+                </configuration>    
+
             </plugin>
         </plugins>
     </build>

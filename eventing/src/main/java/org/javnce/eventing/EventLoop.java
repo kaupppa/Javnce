@@ -16,6 +16,7 @@
  */
 package org.javnce.eventing;
 
+import java.io.IOException;
 import java.nio.channels.SelectableChannel;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -23,25 +24,38 @@ import java.util.concurrent.LinkedBlockingQueue;
  * The class for processing events and non-blocking sockets.
  */
 public class EventLoop implements Runnable {
-    /** The error handler. */
-    static private EventLoopErrorHandler errorHandler= new DefaultErrorHandler();
 
-    /** The event queue. */
+    /**
+     * The error handler.
+     */
+    static private EventLoopErrorHandler errorHandler = new DefaultErrorHandler();
+    /**
+     * The event queue.
+     */
     final private LinkedBlockingQueue<Event> queue;
-    
-    /** The event subscribers. */
+    /**
+     * The event subscribers.
+     */
     final private EventSubscriberList eventSubscribers;
-    
-    /** The channel subscribers. */
+    /**
+     * The channel subscribers.
+     */
     final private ChannelSubscriberList channelSubscribers;
-    
-    /** The allow processing. */
+    /**
+     * The allow processing.
+     */
     private volatile boolean allowRunning;
-    
-    /** The event group. */
+    /**
+     * The event group.
+     */
     private EventLoopGroup group;
-    
-    /** An event object used for wakeup. */
+    /**
+     * The timer handler.
+     */
+    final private TimerContainer timers;
+    /**
+     * An event object used for wakeup.
+     */
     static final private Event wakeupEvent = new Event() {
         @Override
         public EventId Id() {
@@ -65,13 +79,14 @@ public class EventLoop implements Runnable {
         queue = new LinkedBlockingQueue<>();
         eventSubscribers = new EventSubscriberList();
         channelSubscribers = new ChannelSubscriberList();
+        timers = new TimerContainer();
         allowRunning = true;
 
         initGroup(otherLoop);
     }
 
     /**
-     * Adds event loop into event group. 
+     * Adds event loop into event group.
      *
      * @param otherLoop the otherLoop. If null the root group is used.
      */
@@ -128,8 +143,12 @@ public class EventLoop implements Runnable {
         }
     }
 
+    public void addTimer(Timer timer) {
+        timers.add(timer);
+    }
+
     /**
-     * Publish an event. 
+     * Publish an event.
      *
      * @param event the event
      */
@@ -178,9 +197,20 @@ public class EventLoop implements Runnable {
      */
     private void waitEvent(Thread thread) throws InterruptedException {
 
+        long timeOut = 0;
         if (canProcess(thread)) {
-            Event event = queue.take();
-            processEvent(thread, event);
+            timeOut = timers.process();
+        }
+        if (canProcess(thread)) {
+            Event event = null;
+            if (0 == timeOut) {
+                event = queue.take();
+            } else {
+                event = queue.poll(timeOut, timers.getUnit());
+            }
+            if (null != event) {
+                processEvent(thread, event);
+            }
         }
     }
 
@@ -198,7 +228,7 @@ public class EventLoop implements Runnable {
                 canProcess = true;
             }
 
-            if (channelSubscribers.isEmpty() && eventSubscribers.isEmpty()) {
+            if (channelSubscribers.isEmpty() && eventSubscribers.isEmpty() && timers.isEmpty()) {
                 canProcess = false;
             }
         } catch (Throwable e) {
@@ -208,20 +238,27 @@ public class EventLoop implements Runnable {
         return canProcess;
     }
 
+    private void processChannels(Thread thread) throws IOException {
+
+        if (canProcess(thread)) {
+            long timeOut = timers.process();
+            channelSubscribers.process(timeOut);
+        }
+    }
+
     /**
-     * The event loop that processes event and sockets.
-     * Returns when current thread is interrupted or {@link #shutdown() } is called.
+     * The event loop that processes event and sockets. Returns when current
+     * thread is interrupted or {@link #shutdown() } is called.
      */
     public void process() {
         Thread currentThread = Thread.currentThread();
 
         while (canProcess(currentThread)) {
             try {
+                timers.process();
                 processPendingEvents(currentThread);
 
-                if (canProcess(currentThread)) {
-                    channelSubscribers.processOnce();
-                }
+                processChannels(currentThread);
 
                 if (channelSubscribers.isEmpty()) {
                     waitEvent(currentThread);
@@ -269,8 +306,8 @@ public class EventLoop implements Runnable {
     }
 
     /**
-     * Channel subscribing of given non-blocking channel.
-     * Overrides previous subscriber as channel can have only one subscriber.
+     * Channel subscribing of given non-blocking channel. Overrides previous
+     * subscriber as channel can have only one subscriber.
      *
      * @param channel the non-blocking channel
      * @param object the callback object
@@ -286,7 +323,6 @@ public class EventLoop implements Runnable {
             }
         }
     }
-
 
     /**
      * Removes the channel subscriber.
@@ -314,8 +350,7 @@ public class EventLoop implements Runnable {
      */
     synchronized static public void fatalError(Object object, Throwable throwable) {
 
-        if (null != errorHandler)
-        {
+        if (null != errorHandler) {
             errorHandler.fatalError(object, throwable);
         }
     }
@@ -363,15 +398,14 @@ public class EventLoop implements Runnable {
             temp.remove(this);
         }
     }
-    
+
     /**
      * Set error handler.
      *
      * @param handler the new error handler
      * @return previous handler
      */
-    synchronized public static EventLoopErrorHandler setErrorHandler(EventLoopErrorHandler handler)
-    {
+    synchronized public static EventLoopErrorHandler setErrorHandler(EventLoopErrorHandler handler) {
         EventLoopErrorHandler old = errorHandler;
         errorHandler = handler;
         return old;

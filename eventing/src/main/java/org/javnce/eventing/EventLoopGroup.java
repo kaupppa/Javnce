@@ -23,16 +23,21 @@ import java.util.List;
  */
 class EventLoopGroup {
 
-    /** The event loops in this group. */
+    /**
+     * The event loops in this group.
+     */
     final private ConcurrentSet<EventLoop> loops;
-    
-    /** The child groups. */
+    /**
+     * The child groups.
+     */
     final private ConcurrentSet<EventLoopGroup> children;
-    
-    /** The parent. */
+    /**
+     * The parent.
+     */
     final private EventLoopGroup parent;
-    
-    /** The root instance. */
+    /**
+     * The root instance.
+     */
     static final private EventLoopGroup root = new EventLoopGroup(null);
 
     /**
@@ -95,14 +100,13 @@ class EventLoopGroup {
     }
 
     /**
-     * Refresh given group. 
-     * Removes empty children.
+     * Refresh given group. Removes empty children.
      *
      * @param group the group
      */
     static private void refresh(EventLoopGroup group) {
         if (null != group) {
-            for (EventLoopGroup child: group.getChildren()) {
+            for (EventLoopGroup child : group.getChildren()) {
                 refresh(child);
 
                 if (child.isEmpty()) {
@@ -122,9 +126,8 @@ class EventLoopGroup {
     }
 
     /**
-     * Publish an event. 
-     * If event is not processed within this group or it's child groups then
-     * event is broadcasted.
+     * Publish an event. If event is not processed within this group or it's
+     * child groups then event is broadcasted.
      *
      * @param event the event
      */
@@ -149,7 +152,7 @@ class EventLoopGroup {
         boolean handled = false;
 
 
-        for (EventLoop loop: getLoops()) {
+        for (EventLoop loop : getLoops()) {
             if (loop.isEventSupported(event.Id())) {
                 loop.addEvent(event);
                 handled = true;
@@ -168,7 +171,7 @@ class EventLoopGroup {
 
         process(event);
 
-        for (EventLoopGroup child: getChildren()) {
+        for (EventLoopGroup child : getChildren()) {
             child.broadcast(event);
         }
     }
@@ -180,7 +183,7 @@ class EventLoopGroup {
      */
     static void shutdown(EventLoopGroup group) {
         if (null != group) {
-            for (EventLoopGroup child: group.getChildren()) {
+            for (EventLoopGroup child : group.getChildren()) {
                 shutdown(child);
             }
 
@@ -194,7 +197,7 @@ class EventLoopGroup {
      */
     private void stopLoops() {
 
-        for (EventLoop loop: getLoops()) {
+        for (EventLoop loop : getLoops()) {
             loop.shutdown();
         }
     }
@@ -225,5 +228,4 @@ class EventLoopGroup {
     List<EventLoop> getLoops() {
         return loops.get();
     }
-
 }

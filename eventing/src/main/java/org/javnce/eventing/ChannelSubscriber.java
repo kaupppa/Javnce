@@ -25,7 +25,7 @@ import java.nio.channels.SelectionKey;
 public interface ChannelSubscriber {
 
     /**
-     * The method channel is called when socket can be handled. 
+     * The method channel is called when socket can be handled.
      *
      * @param key the key is the selector key for the socket.
      *

@@ -17,23 +17,14 @@
 /**
  * The package provides event publish/subscribe between threads.
  *
- * <p>
- * The event loop are implemented as runnable with following features:
- * <ul>
- * <li>Events between threads</li>
- * <li>Non-blocking socket handling</li>
- * <li>Event groups</li>
- * </ul>
- * </p>
+ * <p> The event loop are implemented as runnable with following features: <ul>
+ * <li>Events between threads</li> <li>Non-blocking socket handling</li>
+ * <li>Event groups</li> </ul> </p>
  *
- * <p>
- * An event loop always belong to one group. The published event is handled by 
- * all subscribers within the group. If no subscriber is found in group then 
- * event is published to all groups.
- * </p>
- * <p>
- * For example VNC server creates new sub group for each client.
- * </p>
- * 
+ * <p> An event loop always belong to one group. The published event is handled
+ * by all subscribers within the group. If no subscriber is found in group then
+ * event is published to all groups. </p> <p> For example VNC server creates new
+ * sub group for each client. </p>
+ *
  */
 package org.javnce.eventing;
