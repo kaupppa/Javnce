@@ -25,13 +25,13 @@ import org.fourthline.cling.binding.annotations.*;
     serviceId = @UpnpServiceId("VncService"),
     serviceType = @UpnpServiceType(value = "VncService", version = 1))
 
-class VncService {
+public class VncService {
 
     /**
      * The state variable port .
      */
     @UpnpStateVariable(sendEvents = false)
-    static private int port = 0;
+    private int port = 0;
 
     /**
      * The UPnP action.
@@ -39,16 +39,11 @@ class VncService {
      * @return the port
      */
     @UpnpAction(out = @UpnpOutputArgument(name = "vncPort"))
-    int getPort() {
+    public int getPort() {
         return port;
     }
 
-    /**
-     * Sets the port.
-     *
-     * @param port the new port
-     */
-    static void setPort(int newport) {
-        port = newport;
+    void setPort(int newPort) {
+        port = newPort;
     }
 }
