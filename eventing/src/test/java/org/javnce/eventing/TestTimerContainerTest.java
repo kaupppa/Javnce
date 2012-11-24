@@ -32,7 +32,6 @@ public class TestTimerContainerTest {
     public void testGetUnit() {
         TimerContainer container = new TimerContainer();
         assertEquals(TimeUnit.MILLISECONDS, container.getUnit());
-
     }
 
     @Test
@@ -43,25 +42,42 @@ public class TestTimerContainerTest {
         //Empty container
         assertEquals(0, container.process());
 
-        //Add timer
-        TestTimerCallback callback = new TestTimerCallback();
-        long timeOut = 100;
-        Timer timer = new Timer(callback, timeOut);
-        container.add(timer);
-        assertTrue(100 >= container.process());
-        assertTrue(90 <= container.process());
-        assertFalse(callback.called);
+        final long Interval = 20;
+        final int TimerCount = 4;
+        TestTimerCallback[] callbacks = new TestTimerCallback[TimerCount];
 
-        //Add second timer
-        timer = new Timer(callback, timeOut * 2);
-        container.add(timer);
-        assertTrue(200 >= container.process());
-        assertTrue(190 <= container.process());
-        assertFalse(callback.called);
-        //Timeout
-        Thread.sleep(timeOut);
-        container.process();
-        assertTrue(callback.called);
+        //Add timers in an interval
+        for (int i = 0; i < callbacks.length; i++) {
+            callbacks[i] = new TestTimerCallback();
+            //Add timers in interval
+            container.add(new Timer(callbacks[i], (i + 1) * Interval));
+        }
+
+
+        long nextTimeOut = Interval;
+        for (int i = 0; i < callbacks.length; i++) {
+
+            Thread.sleep(nextTimeOut);
+
+            nextTimeOut = container.process();
+            //nextTimeOut cannot be bigger then Interval
+            assertTrue(Interval >= nextTimeOut);
+            if ((i + 1) == callbacks.length) {
+                //if last then nextTimeOut is zero
+                assertTrue(0 == nextTimeOut);
+            } else {
+                //nextTimeOut is not zero if timers left
+                assertTrue(0 < nextTimeOut);
+            }
+
+            for (int j = 0; j < callbacks.length; j++) {
+                if (j <= i) {
+                    assertEquals(1, callbacks[j].callCount);
+                } else {
+                    assertEquals(0, callbacks[j].callCount);
+                }
+            }
+        }
     }
 
     @Test
@@ -76,6 +92,6 @@ public class TestTimerContainerTest {
 
         Thread.sleep(timeOut);
         container.process();
-        assertTrue(callback.called);
+        assertEquals(1, callback.callCount);
     }
 }

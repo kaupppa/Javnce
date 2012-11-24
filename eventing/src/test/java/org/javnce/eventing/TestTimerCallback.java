@@ -18,14 +18,14 @@ package org.javnce.eventing;
 
 public class TestTimerCallback implements TimeOutCallback {
 
-    boolean called;
+    int callCount;
 
     TestTimerCallback() {
-        called = false;
+        callCount = 0;
     }
 
     @Override
     public void timeout() {
-        called = true;
+        callCount++;
     }
 }

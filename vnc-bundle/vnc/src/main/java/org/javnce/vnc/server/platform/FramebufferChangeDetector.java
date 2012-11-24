@@ -20,6 +20,8 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.zip.Adler32;
 import org.javnce.eventing.EventLoop;
+import org.javnce.eventing.TimeOutCallback;
+import org.javnce.eventing.Timer;
 import org.javnce.rfb.types.PixelFormat;
 import org.javnce.rfb.types.Point;
 import org.javnce.rfb.types.Rect;
@@ -30,7 +32,7 @@ import org.javnce.vnc.common.FbChangeEvent;
  * The Class FramebufferChangeDetector is an platform independent class to
  * detect framebuffer changes.
  */
-class FramebufferChangeDetector extends Thread {
+class FramebufferChangeDetector extends Thread implements TimeOutCallback {
 
     /**
      * The checksums for each row in framebuffer.
@@ -83,20 +85,8 @@ class FramebufferChangeDetector extends Thread {
      */
     @Override
     public void run() {
-
-        //FIXME ...
-        while (true) {
-            boolean changed = compare();
-            int waitTime = 250;
-            if (changed) {
-                waitTime = 150;
-            }
-            try {
-                sleep(waitTime);
-            } catch (InterruptedException ex) {
-                break;
-            }
-        }
+        timeout();
+        eventLoop.process();
     }
 
     /**
@@ -178,5 +168,17 @@ class FramebufferChangeDetector extends Thread {
         }
 
         return list;
+    }
+
+    @Override
+    public void timeout() {
+        boolean changed = compare();
+        int waitTime = 50;
+        if (!changed) {
+            //If nothing changed then increase wait time to reduce cpu load
+            waitTime += 50;
+        }
+        Timer timer = new Timer(this, waitTime);
+        eventLoop.addTimer(timer);
     }
 }

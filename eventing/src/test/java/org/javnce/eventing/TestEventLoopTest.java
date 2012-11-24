@@ -341,10 +341,79 @@ public class TestEventLoopTest {
     }
 
     @Test
-    public void testAddTimer() {
+    public void testAddTimerWhenOnlyTimers() {
         final EventLoop eventLoop = new EventLoop();
         //Add timer
-        long timeOut = 100;
+        long timeOut = 50;
+        Timer timer = new Timer(new TimeOutCallback() {
+            @Override
+            public void timeout() {
+                eventLoop.shutdown();
+            }
+        }, timeOut);
+        long startTime = System.currentTimeMillis();
+
+        eventLoop.addTimer(timer);
+
+        //We get stuck in case of failure
+        eventLoop.process();
+
+        long elapsedTime = System.currentTimeMillis() - startTime;
+
+        //Check that time matches timeout
+        assertTrue((timeOut + 10) >= elapsedTime);
+        assertTrue((timeOut) <= elapsedTime);
+    }
+
+    @Test
+    public void testAddTimerWithEvents() {
+        final EventLoop eventLoop = new EventLoop();
+
+        TestEvent event = new TestEvent("Event");
+        //Add event
+        eventLoop.subscribe(event.Id(), new EventSubscriber() {
+            @Override
+            public void event(Event event) {
+                // Do nothing
+            }
+        });
+
+
+        //Add timer
+        long timeOut = 50;
+        Timer timer = new Timer(new TimeOutCallback() {
+            @Override
+            public void timeout() {
+                eventLoop.shutdown();
+            }
+        }, timeOut);
+        long startTime = System.currentTimeMillis();
+
+        eventLoop.addTimer(timer);
+
+        //We get stuck in case of failure
+        eventLoop.process();
+
+        long elapsedTime = System.currentTimeMillis() - startTime;
+
+        //Check that time matches timeout
+        assertTrue((timeOut + 10) >= elapsedTime);
+        assertTrue((timeOut) <= elapsedTime);
+    }
+
+    @Test
+    public void testAddTimerWithSockets() {
+        final EventLoop eventLoop = new EventLoop();
+
+        eventLoop.subscribe(pipe.source(), new ChannelSubscriber() {
+            @Override
+            public void channel(SelectionKey key) {
+                //Do nothing
+            }
+        }, SelectionKey.OP_READ);
+
+        //Add timer
+        long timeOut = 50;
         Timer timer = new Timer(new TimeOutCallback() {
             @Override
             public void timeout() {

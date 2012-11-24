@@ -22,51 +22,47 @@ package org.javnce.eventing;
 public class Timer {
 
     /**
-     * The timeout of timer in milliseconds.
+     * The timeout of timer in milliseconds. Zero if not active.
      */
     private long timeout;
     /**
      * The callback.
      */
     final private TimeOutCallback callback;
-    /**
-     * The active.
-     */
-    private boolean active;
 
     /**
      * Instantiates a new timer.
      *
-     * @param object the callback object
+     * @param callback the callback object
      * @param timeInMilliSeconds the time in milliseconds
      */
-    public Timer(TimeOutCallback object, long timeInMilliSeconds) {
-        timeout = timeInMilliSeconds;
-        callback = object;
-        active = (null != callback);
+    public Timer(TimeOutCallback callback, long timeInMilliSeconds) {
+        timeout = 0;
+        if (null != callback) {
+            timeout = timeInMilliSeconds + System.currentTimeMillis();
+        }
+        this.callback = callback;
     }
 
     /**
      * Process timer.
      *
-     * @param elapsedTime the elapsed time
-     * @return the time left to timer expires, zero or negative if expired
+     * @param currentTime as in {@link System.currentTimeMillis();
+     * @return the time left to timer expires, zero if expired
      */
-    long process(long elapsedTime) {
-        timeout -= elapsedTime;
-        if (0 >= timeout && isActive()) {
+    long process(long currentTime) {
+        if (isActive() && currentTime >= timeout) {
+            stop();
             callback.timeout();
-            active = false;
         }
-
-        return (isActive() ? timeout : 0);
+        return Math.max(timeout - currentTime, 0);
     }
 
     /**
-     * Disable timer expire.
+     * Disable timer.
      */
     public void stop() {
-        active = false;
+        timeout = 0;
     }
 
     /**
@@ -75,6 +71,6 @@ public class Timer {
      * @return true, if is active
      */
     boolean isActive() {
-        return active && null != callback;
+        return (timeout != 0);
     }
 }

@@ -17,9 +17,17 @@
 package org.javnce.eventing;
 
 import static org.junit.Assert.*;
+import org.junit.Before;
 import org.junit.Test;
 
 public class TestTimerTest {
+
+    private long currentTime;
+
+    @Before
+    public void setUp() throws Exception {
+        currentTime = System.currentTimeMillis();
+    }
 
     @Test
     public void testTimer() {
@@ -34,25 +42,24 @@ public class TestTimerTest {
         Timer timer = new Timer(callback, timeOut);
 
         //No elapsed time
-        long nextTimeOut = timer.process(0);
+        long nextTimeOut = timer.process(currentTime);
         assertTrue(timeOut == nextTimeOut);
-        assertFalse(callback.called);
+        assertEquals(0, callback.callCount);
 
         //half of elapsed time
-        nextTimeOut = timer.process(timeOut / 2);
+        nextTimeOut = timer.process(currentTime + timeOut / 2);
         assertTrue(timeOut / 2 == nextTimeOut);
-        assertFalse(callback.called);
+        assertEquals(0, callback.callCount);
 
         //timeout
-        nextTimeOut = timer.process(timeOut / 2);
+        nextTimeOut = timer.process(currentTime + timeOut);
         assertTrue(0 == nextTimeOut);
-        assertTrue(callback.called);
+        assertEquals(1, callback.callCount);
 
         //overtime
-        callback.called = false;
-        nextTimeOut = timer.process(timeOut / 2);
+        nextTimeOut = timer.process(currentTime + timeOut * 2);
         assertTrue(0 == nextTimeOut);
-        assertFalse(callback.called);
+        assertEquals(1, callback.callCount);
 
     }
 
@@ -60,9 +67,8 @@ public class TestTimerTest {
     public void testProcessNull() {
         long timeOut = 100;
         Timer timer = new Timer(null, timeOut);
-        long nextTimeOut = timer.process(0);
-        assertTrue(0 >= nextTimeOut);
-
+        long nextTimeOut = timer.process(currentTime);
+        assertEquals(0, nextTimeOut);
 
     }
 
@@ -71,11 +77,11 @@ public class TestTimerTest {
         long timeOut = -100;
         TestTimerCallback callback = new TestTimerCallback();
         Timer timer = new Timer(callback, timeOut);
-        long nextTimeOut = timer.process(0);
-        assertTrue(0 >= nextTimeOut);
+        long nextTimeOut = timer.process(currentTime);
+        assertEquals(0, nextTimeOut);
 
         //Timeout smaller the 1 millisecond -> called immediately
-        assertTrue(callback.called);
+        assertEquals(1, callback.callCount);
     }
 
     @Test
@@ -85,21 +91,21 @@ public class TestTimerTest {
         Timer timer = new Timer(callback, timeOut);
 
         //No elapsed time
-        long nextTimeOut = timer.process(0);
+        long nextTimeOut = timer.process(currentTime);
         assertTrue(timeOut == nextTimeOut);
-        assertFalse(callback.called);
+        assertEquals(0, callback.callCount);
 
         //half of elapsed time
-        nextTimeOut = timer.process(timeOut / 2);
+        nextTimeOut = timer.process(currentTime + timeOut / 2);
         assertTrue(timeOut / 2 == nextTimeOut);
-        assertFalse(callback.called);
+        assertEquals(0, callback.callCount);
 
         timer.stop();
 
-        //timeout
-        nextTimeOut = timer.process(timeOut / 2);
+        //timeout even if half of elapsed time 
+        nextTimeOut = timer.process(currentTime + timeOut / 2);
         assertTrue(0 == nextTimeOut);
-        assertFalse(callback.called);
+        assertEquals(0, callback.callCount);
     }
 
     @Test
@@ -112,7 +118,7 @@ public class TestTimerTest {
         timer = new Timer(callback, timeOut);
         assertTrue(timer.isActive());
 
-        timer.process(timeOut);
+        timer.process(currentTime + timeOut);
         assertFalse(timer.isActive());
     }
 }

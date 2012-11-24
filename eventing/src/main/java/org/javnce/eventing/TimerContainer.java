@@ -25,10 +25,6 @@ import java.util.concurrent.TimeUnit;
 class TimerContainer {
 
     /**
-     * The last process time stamp.
-     */
-    private long lastTime;
-    /**
      * The collection of timers.
      */
     final private ConcurrentSet<Timer> timers;
@@ -37,7 +33,6 @@ class TimerContainer {
      * Instantiates a new timer container.
      */
     public TimerContainer() {
-        lastTime = System.currentTimeMillis();
         timers = new ConcurrentSet<>();
     }
 
@@ -53,47 +48,46 @@ class TimerContainer {
     /**
      * Process timers.
      *
-     * @return the long
+     * @return the timeout of next timer. Zero if no timers
      */
     public long process() {
-        long now = System.currentTimeMillis();
-        long timeout = process(now - lastTime);
-        lastTime = now;
-
+        long timeout = 0;
+        if (!isEmpty()) {
+            timeout = process(System.currentTimeMillis());
+        }
         return timeout;
     }
 
     /**
      * Do the process.
      *
-     * @param elapsedTime the elapsed time
-     * @return the long
+     * @param currentTime the current time
+     * @return the timeout of next timer. Zero if no timers
      */
-    private long process(long elapsedTime) {
+    private long process(long currentTime) {
         long timeout = 0;
         List<Timer> list = timers.get();
         for (Timer timer : list) {
-            long timerTimeout = timer.process(elapsedTime);
+            long timerTimeout = timer.process(currentTime);
             if (0 >= timerTimeout) {
                 timers.remove(timer);
+            } else if (0 == timeout) {
+                timeout = timerTimeout;
             } else {
-                timeout = Math.max(timeout, timerTimeout);
+                timeout = Math.min(timeout, timerTimeout);
+
             }
         }
-
-
         return timeout;
     }
 
     /**
-     * Adds the timer.
+     * Adds a timer.
      *
      * @param timer the timer
      */
     public void add(Timer timer) {
         if (null != timer) {
-            //process to sync time
-            process();
             timers.add(timer);
         }
     }
