@@ -54,7 +54,7 @@ public class TestEventLoopTest {
         Thread thread = new Thread(eventLoop);
         thread.start();
 
-        thread.join(2);
+        thread.join(20);
         assertFalse(thread.isAlive());
     }
 
@@ -108,6 +108,8 @@ public class TestEventLoopTest {
         tester.thread.join(10);
 
         assertEquals(1, tester.events.size());
+        EventLoop.shutdownAll();
+        tester.eventLoop.publish(event);
     }
 
     @Test
@@ -432,5 +434,24 @@ public class TestEventLoopTest {
         //Check that time matches timeout
         assertTrue((timeOut + 10) >= elapsedTime);
         assertTrue((timeOut) <= elapsedTime);
+    }
+
+    @Test
+    public void testShutdownAll() throws InterruptedException {
+
+        EventTester tester = new EventTester(null);
+        TestEvent event = new TestEvent("Event");
+        tester.eventLoop.subscribe(event.Id(), tester);
+        tester.thread.start();
+
+        //Wait
+        tester.thread.join(10);
+        assertTrue(tester.thread.isAlive());
+
+        EventLoop.shutdownAll();
+        //Wait
+        tester.thread.join(10);
+
+        assertFalse(tester.thread.isAlive());
     }
 }

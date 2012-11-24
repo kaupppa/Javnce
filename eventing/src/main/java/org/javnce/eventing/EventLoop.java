@@ -42,9 +42,9 @@ public class EventLoop implements Runnable {
      */
     final private ChannelSubscriberList channelSubscribers;
     /**
-     * The allow processing.
+     * The processing state.
      */
-    private volatile boolean allowRunning;
+    final private EventLoopState state;
     /**
      * The event group.
      */
@@ -80,7 +80,7 @@ public class EventLoop implements Runnable {
         eventSubscribers = new EventSubscriberList();
         channelSubscribers = new ChannelSubscriberList();
         timers = new TimerContainer();
-        allowRunning = true;
+        state = new EventLoopState();
 
         initGroup(otherLoop);
     }
@@ -115,15 +115,6 @@ public class EventLoop implements Runnable {
     }
 
     /**
-     * Checks if is runnable.
-     *
-     * @return true, if is runnable
-     */
-    private boolean isRunnable() {
-        return allowRunning;
-    }
-
-    /**
      * Wakeup the event loop.
      */
     private void wakeup() {
@@ -137,14 +128,16 @@ public class EventLoop implements Runnable {
      * @param event the event
      */
     void addEvent(Event event) {
-        if (isRunnable()) {
+        if (state.isRunnable()) {
             queue.add(event);
             wakeup();
         }
     }
 
     public void addTimer(Timer timer) {
-        timers.add(timer);
+        if (state.isRunnable()) {
+            timers.add(timer);
+        }
     }
 
     /**
@@ -161,13 +154,26 @@ public class EventLoop implements Runnable {
     }
 
     /**
+     * Process timers.
+     *
+     * @return timeout of next timer in milliseconds, aero if none
+     */
+    private long processTimers() {
+
+        long timeOut = 0;
+        if (state.isRunnable()) {
+            timeOut = timers.process();
+        }
+        return timeOut;
+    }
+
+    /**
      * Process an event.
      *
-     * @param thread the current thread
      * @param event the event
      */
-    private void processEvent(Thread thread, Event event) {
-        if (null != event && wakeupEvent != event && canProcess(thread)) {
+    private void processEvent(Event event) {
+        if (null != event && wakeupEvent != event && state.isRunnable()) {
             eventSubscribers.process(event);
         }
     }
@@ -175,13 +181,12 @@ public class EventLoop implements Runnable {
     /**
      * Process all pending event (none-blocking).
      *
-     * @param thread the current thread
      */
-    private void processPendingEvents(Thread thread) {
+    private void processPendingEvents() {
 
-        while (canProcess(thread)) {
+        while (true) {
             Event event = queue.poll();
-            processEvent(thread, event);
+            processEvent(event);
 
             if (null == event) {
                 break;
@@ -192,16 +197,13 @@ public class EventLoop implements Runnable {
     /**
      * Waits for next event (blocking).
      *
-     * @param thread the thread
      * @throws InterruptedException the interrupted exception
      */
-    private void waitEvent(Thread thread) throws InterruptedException {
+    private void waitEvent() throws InterruptedException {
 
-        long timeOut = 0;
-        if (canProcess(thread)) {
-            timeOut = timers.process();
-        }
-        if (canProcess(thread)) {
+        long timeOut = processTimers();
+
+        if (state.isRunnable()) {
             Event event = null;
             if (0 == timeOut) {
                 event = queue.take();
@@ -209,39 +211,29 @@ public class EventLoop implements Runnable {
                 event = queue.poll(timeOut, timers.getUnit());
             }
             if (null != event) {
-                processEvent(thread, event);
+                processEvent(event);
             }
         }
     }
 
     /**
-     * Checks if processing can be done.
+     * Checks if event loop has something to process.
      *
-     * @param thread the thread
-     * @return true, if successful
+     * @return true, if no timers or subscribers
      */
-    private boolean canProcess(Thread thread) {
-        boolean canProcess = false;
+    private boolean isEmpty() {
+        boolean empty = false;
 
-        try {
-            if (isRunnable() && !thread.isInterrupted()) {
-                canProcess = true;
-            }
-
-            if (channelSubscribers.isEmpty() && eventSubscribers.isEmpty() && timers.isEmpty()) {
-                canProcess = false;
-            }
-        } catch (Throwable e) {
-            canProcess = false;
+        if (channelSubscribers.isEmpty() && eventSubscribers.isEmpty() && timers.isEmpty()) {
+            empty = true;
         }
-
-        return canProcess;
+        return empty;
     }
 
-    private void processChannels(Thread thread) throws IOException {
+    private void processChannels() throws IOException {
 
-        if (canProcess(thread)) {
-            long timeOut = timers.process();
+        long timeOut = processTimers();
+        if (state.isRunnable()) {
             channelSubscribers.process(timeOut);
         }
     }
@@ -251,17 +243,18 @@ public class EventLoop implements Runnable {
      * thread is interrupted or {@link #shutdown() } is called.
      */
     public void process() {
-        Thread currentThread = Thread.currentThread();
+        state.attachCurrentThread();
 
-        while (canProcess(currentThread)) {
+        while (!isEmpty() && state.isRunnable()) {
             try {
-                timers.process();
-                processPendingEvents(currentThread);
+                processTimers();
 
-                processChannels(currentThread);
+                processPendingEvents();
+
+                processChannels();
 
                 if (channelSubscribers.isEmpty()) {
-                    waitEvent(currentThread);
+                    waitEvent();
                 }
             } catch (InterruptedException e) {
                 break;
@@ -270,7 +263,8 @@ public class EventLoop implements Runnable {
             }
         }
 
-        clear();
+        state.detachCurrentThread();
+        exit();
     }
 
     /**
@@ -280,7 +274,7 @@ public class EventLoop implements Runnable {
      * @param object the callback object
      */
     public void subscribe(EventId id, EventSubscriber object) {
-        if (isRunnable()) {
+        if (state.isRunnable()) {
             eventSubscribers.add(id, object);
         }
     }
@@ -292,7 +286,9 @@ public class EventLoop implements Runnable {
      * @param object the callback object
      */
     public void removeSubscribe(EventId id, EventSubscriber object) {
-        eventSubscribers.remove(id, object);
+        if (state.isRunnable()) {
+            eventSubscribers.remove(id, object);
+        }
     }
 
     /**
@@ -302,7 +298,11 @@ public class EventLoop implements Runnable {
      * @return true, if is event supported
      */
     public boolean isEventSupported(EventId id) {
-        return (isRunnable() && eventSubscribers.contains(id));
+        boolean supported = false;
+        if (state.isRunnable()) {
+            supported = eventSubscribers.contains(id);
+        }
+        return supported;
     }
 
     /**
@@ -315,7 +315,7 @@ public class EventLoop implements Runnable {
      */
     public void subscribe(SelectableChannel channel, ChannelSubscriber object, int ops) {
 
-        if (isRunnable()) {
+        if (state.isRunnable()) {
             try {
                 channelSubscribers.add(channel, object, ops);
             } catch (Throwable t) {
@@ -330,7 +330,9 @@ public class EventLoop implements Runnable {
      * @param channel the channel
      */
     public void removeSubscribe(SelectableChannel channel) {
-        channelSubscribers.remove(channel);
+        if (state.isRunnable()) {
+            channelSubscribers.remove(channel);
+        }
     }
 
     /**
@@ -373,27 +375,29 @@ public class EventLoop implements Runnable {
      * Shutdown this event loop.
      */
     public void shutdown() {
-        allowRunning = false;
+        state.shutdown();
         wakeup();
-        clear();
+        exit();
     }
 
     /**
      * Clear event loop.
      */
-    private void clear() {
-        allowRunning = false;
-        try {
-            eventSubscribers.clear();
-        } catch (Throwable e) {
+    synchronized private void exit() {
+        state.shutdown();
+        if (!state.isAttached()) {
+            try {
+                eventSubscribers.clear();
+            } catch (Throwable e) {
+            }
+            try {
+                channelSubscribers.close();
+            } catch (Throwable e) {
+            }
         }
-        try {
-            channelSubscribers.close();
-        } catch (Throwable e) {
-        }
+        EventLoopGroup temp = group;
+        if (null != temp) {
 
-        if (null != group) {
-            EventLoopGroup temp = group;
             group = null;
             temp.remove(this);
         }
