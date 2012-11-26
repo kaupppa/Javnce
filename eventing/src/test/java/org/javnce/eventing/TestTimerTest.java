@@ -116,6 +116,7 @@ public class TestTimerTest {
 
         TestTimerCallback callback = new TestTimerCallback();
         timer = new Timer(callback, timeOut);
+        currentTime = System.currentTimeMillis();
         assertTrue(timer.isActive());
 
         timer.process(currentTime + timeOut);

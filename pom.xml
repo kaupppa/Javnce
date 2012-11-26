@@ -28,8 +28,8 @@
     <modules>
         <module>eventing</module>
         <module>upnp</module>
-        <module>vnc-bundle</module>
         <module>fxgui</module>
+        <module>vnc</module>
     </modules>
     <build>
         <plugins>
@@ -58,6 +58,9 @@
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
+                        <configuration> 
+                            <propertyName>coverageAgent</propertyName> 
+                        </configuration>
                     </execution>
                     <execution>
                         <id>report</id>

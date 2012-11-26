@@ -47,7 +47,8 @@
                         </goals>
                         <configuration>
                             <includeGroupIds>org.javnce</includeGroupIds>
-                            <includeArtifactIds>vnc-runtime</includeArtifactIds>
+                            <includeArtifactIds>vnc</includeArtifactIds>
+                            <includeTypes>zip</includeTypes>
                             <outputDirectory>${application.lib}</outputDirectory>
                         </configuration>
                     </execution>
@@ -187,7 +188,7 @@
         </dependency>
         <dependency>
             <groupId>org.javnce</groupId>
-            <artifactId>vnc-runtime</artifactId>
+            <artifactId>vnc</artifactId>
             <version>0.1-SNAPSHOT</version>
             <type>zip</type>
             <classifier>bin</classifier>
