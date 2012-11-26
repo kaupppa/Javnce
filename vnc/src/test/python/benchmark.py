@@ -17,17 +17,28 @@
 import unittest
 import benchmarks.handshaking
 import benchmarks.framebuffer
-from example.VncServer import VncServer
+import sys
+
+isJava = sys.platform.startswith('java')
+
+if isJava:
+    from example.VncServer import VncServer
 
 if __name__ == '__main__':
+    if isJava:
+        vncServer = VncServer()
+        vncServer.launch()
+
     suite = unittest.TestSuite()
-    vncServer = VncServer()
-    vncServer.launch()
     
     suite.addTest(benchmarks.handshaking.suite())
     suite.addTest(benchmarks.framebuffer.suite())
     
 
     unittest.TextTestRunner(verbosity=2).run(suite)
-    vncServer.shutdown()
+    
+    if isJava:
+        vncServer.shutdown()
+        
+    print " done."
 

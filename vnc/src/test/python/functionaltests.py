@@ -19,11 +19,18 @@ import testsuites.connection
 import testsuites.handshaking
 import testsuites.setup
 import testsuites.framebuffer
-import example.VncServer.VncServer
+import sys
+
+isJava = sys.platform.startswith('java')
+
+if isJava:
+    from example.VncServer import VncServer
+
 
 if __name__ == '__main__':
-    vncServer = example.VncServer.VncServer()
-    vncServer.launch()
+    if isJava:
+        vncServer = VncServer()
+        vncServer.launch()
     
     suite = unittest.TestSuite()
     suite.addTest(testsuites.connection.suite())
@@ -34,7 +41,9 @@ if __name__ == '__main__':
 
     unittest.TextTestRunner(verbosity=2).run(suite)
     
-    vncServer.shutdown()
+    if isJava:
+        vncServer.shutdown()
+
     
     print " done."
 

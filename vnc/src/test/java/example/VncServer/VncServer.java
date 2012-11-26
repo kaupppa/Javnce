@@ -54,4 +54,11 @@ public class VncServer implements VncServerObserver {
         
     }
     
+    public static void main(String[] args) {
+    	VncServer server = new VncServer();
+    	server.controller.start(true, server);
+    	server.eventLoop.process();
+    }
+
+    
 }
