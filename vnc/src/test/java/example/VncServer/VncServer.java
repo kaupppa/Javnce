@@ -21,39 +21,69 @@ import org.javnce.eventing.EventLoop;
 import org.javnce.vnc.server.VncServerController;
 import org.javnce.vnc.server.VncServerObserver;
 
+/**
+ * The Class VncServer is simple vnc server.
+ * The VncServer is needed for functional and benchmark testing.
+ */
 public class VncServer implements VncServerObserver {
 
+    /** The controller. */
     final private VncServerController controller;
+    
+    /** The event loop. */
     final private EventLoop eventLoop;
 
+    /**
+     * Instantiates a new vnc server.
+     */
     public VncServer() {
         controller = VncServerController.instance();
         eventLoop = new EventLoop();
     }
 
+    /**
+     * Launch server in new thread.
+     */
     public void launch() {
         controller.start(true, this);
         new Thread(eventLoop).start();
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.vnc.server.VncServerObserver#listening(int)
+     */
     @Override
     public void listening(int port) {
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.vnc.server.VncServerObserver#connectionClosed(java.lang.Object)
+     */
     @Override
     public void connectionClosed(Object userData) {
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.vnc.server.VncServerObserver#newConnection(java.nio.channels.SocketChannel)
+     */
     @Override
     public void newConnection(SocketChannel channel) {
         controller.acceptConnection(this, channel, true, null);
     }
 
+    /**
+     * Shutdown.
+     */
     public void shutdown() {
     	eventLoop.shutdownAllInTheGroup();
         
     }
     
+    /**
+     * The main method.
+     *
+     * @param args the arguments
+     */
     public static void main(String[] args) {
     	VncServer server = new VncServer();
     	server.controller.start(true, server);
