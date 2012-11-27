@@ -8,7 +8,7 @@
     </parent>
 
     <groupId>org.javnce</groupId>
-    <artifactId>fxgui</artifactId>
+    <artifactId>javnce-application</artifactId>
     <version>0.1-SNAPSHOT</version>
     <name>${project.artifactId}</name>
 
@@ -16,7 +16,7 @@
         <javafx.lib.ant-javafx.jar>${java.home}/../lib/ant-javafx.jar</javafx.lib.ant-javafx.jar>
         <javafx.lib.jfxrt.jar>${java.home}/lib/jfxrt.jar</javafx.lib.jfxrt.jar>
         <application.dist>${project.build.directory}/dist</application.dist>
-        <application.lib>${application.dist}/lib</application.lib>
+        <application.lib>${project.build.directory}/dist</application.lib>
     </properties>
   
     <build>
@@ -26,19 +26,32 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>copy-dependencies</id>
+                        <id>unpack-javnce-jars</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeGroupIds>org.javnce</includeGroupIds>
+                            <includeTypes>jar</includeTypes>
+                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>copy-dependencies-of-third-party</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
+                            <excludeGroupIds>org.javnce</excludeGroupIds>
                             <includeScope>runtime</includeScope>
+                            <includeTypes>jar</includeTypes>
                             <outputDirectory>${application.lib}</outputDirectory>
-                            <overWriteReleases>false</overWriteReleases>
-                            <overWriteSnapshots>true</overWriteSnapshots>
-                            <overWriteIfNewer>true</overWriteIfNewer>
                         </configuration>
                     </execution>
+                    
                     <execution>
                         <id>unpack-vnc-runtime</id>
                         <phase>generate-resources</phase>
@@ -52,6 +65,7 @@
                             <outputDirectory>${application.lib}</outputDirectory>
                         </configuration>
                     </execution>
+                    
                 </executions>
             </plugin>
             <plugin>
@@ -59,18 +73,6 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.7</version>
                 <executions>
-                    <execution>
-                        <id>Hack the libs</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <chmod file="${application.lib}/*so*" perm="ugo+rx"/>
-                            </target>
-                        </configuration>
-                    </execution>
                     <execution>
                         <phase>install</phase>
                         <configuration>
@@ -83,8 +85,14 @@
                                                    jarfile="${application.dist}/${project.build.finalName}.jar">
                                     <classpath>
                                         <path id="build.classpath">
+                                            <fileset dir="${application.dist}">
+                                                <include name="*.jar"/>
+                                            </fileset>
                                             <fileset dir="${application.lib}">
                                                 <include name="*.jar"/>
+                                            </fileset>
+                                            <fileset dir="${application.lib}">
+                                                <include name="*.so"/>
                                             </fileset>
                                         </path>
                                     </classpath>
@@ -93,37 +101,47 @@
                                 <taskdef resource="com/sun/javafx/tools/ant/antlib.xml"
                                          uri="javafx:com.sun.javafx.tools.ant"
                                          classpath="${javafx.lib.ant-javafx.jar}"/>
-                                <fx:application id="myApp"
+                                <fx:application id="${project.name}"
                                                 name="${project.name}"
                                                 mainClass="org.javnce.ui.fx.FxGui"/>
+                                <fx:resources id="appRes">
+                                    <fx:fileset dir="${application.lib}" includes="*.jar"/>
+                                    <fx:fileset dir="${application.lib}" includes="*.so"/>
+                                </fx:resources>
+
                                 <fx:jar destfile="${application.dist}/${project.build.finalName}.jar">
-                                    <fx:application refid="myApp"/>
- 
+                                    <fx:application refid="${project.name}"/>
+                                    <fx:resources refid="appRes"/>
                                     <manifest>
                                         <attribute name="Class-Path" value="${manifest.classpath}"/>
                                     </manifest>
                                     <fileset dir="${project.build.outputDirectory}"/>
                                 </fx:jar>
-                                <fx:resources id="appRes">
-                                    <fx:fileset dir="${application.dist}" includes="*.jar"/>
-                                    <fx:fileset dir="${application.lib}" includes="*.jar"/>
-                                </fx:resources>
-                             
-                                <jfxsignjar keystore="${my.keystore.path}"
+                                
+                                <fx:signjar keystore="${my.keystore.path}"
+                                            storetype="JKS" 
+                                            destdir="${application.dist}"
+                                            alias="javnce" 
+                                            storepass="password" 
+                                            keyPass="password" >
+                                    <fileset dir="${application.dist}" includes="**/*.jar"/>
+                                </fx:signjar>
+                                <!--
+                                How to get this to work, passwords from settings file  ?
+                                <signjar keystore="${my.keystore.path}"
                                          storetype="$(my.keystore.type)" 
                                          destdir="${application.dist}"
                                          alias="$(my.keystore.alias)" 
                                          storepass="$(my.keystore.store.password)" 
-                                         keyPass="$(my.keystore.key.password)" >
-                                    <fileset dir="${application.dist}" includes="*.jar"/>
-                                    <fileset dir="${application.lib}" includes="*.jar"/>
-                                </jfxsignjar>
-                                <fx:deploy width="${applet.width}" height="${applet.height}"
-                                           outdir="${application.dist}" embedJNLP="true"
-                                           outfile="${application.title}">
- 
-                                    <fx:application refId="myApp"/>
- 
+                                         keyPass="$(my.keystore.key.password)" ......
+                                -->
+                                <fx:deploy width="${applet.width}" 
+                                           height="${applet.height}"
+                                           outdir="${project.build.directory}/application" 
+                                           embedJNLP="true"
+                                           nativeBundles="all"
+                                           outfile="${application.title}" >
+                                    <fx:application refId="${project.name}"/>
                                     <fx:resources refid="appRes"/>
                                     <fx:info title="${application.title}"
                                              vendor="${application.vendor}"/>
@@ -131,67 +149,52 @@
                                 </fx:deploy>
                             </target>
                         </configuration>
-                        <!--
-                        <settings xmlns="http://maven.apache.org/SETTINGS/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.org/xsd/settings-1.1.0.xsd">
-    <profiles>
-        <profile>
-            <id>codesigning</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <my.keystore.path>/home/nettiradio/.keystore</my.keystore.path> 
-                <my.keystore.alias>mykey</my.keystore.alias>
-                <my.keystore.type>JKS</my.keystore.type>
-                <my.keystore.store.password>qwerty</my.keystore.store.password>
-                <my.keystore.key.password>qwerty</my.keystore.key.password>
-            </properties>
-        </profile>
-    </profiles>
-        
-</settings>
-
                         <goals>
                             <goal>run</goal>
                         </goals>
-                        -->
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
         <pluginManagement>
-            <plugins>
-                <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-                <plugin>
-                    <groupId>org.eclipse.m2e</groupId>
-                    <artifactId>lifecycle-mapping</artifactId>
-                    <version>1.0.0</version>
-                    <configuration>
-                        <lifecycleMappingMetadata>
-                            <pluginExecutions>
-                                <pluginExecution>
-                                    <pluginExecutionFilter>
-                                        <groupId>org.apache.maven.plugins</groupId>
-                                        <artifactId>maven-dependency-plugin</artifactId>
-                                        <versionRange>[2.1,)</versionRange>
-                                        <goals>
-                                            <goal>copy-dependencies</goal>
-                                            <goal>
-                                                unpack-dependencies
-                                            </goal>
-                                        </goals>
-                                    </pluginExecutionFilter>
-                                    <action>
-                                        <ignore></ignore>
-                                    </action>
-                                </pluginExecution>
-                            </pluginExecutions>
-                        </lifecycleMappingMetadata>
-                    </configuration>
-                </plugin>
-            </plugins>
+        	<plugins>
+        		<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+        		<plugin>
+        			<groupId>org.eclipse.m2e</groupId>
+        			<artifactId>lifecycle-mapping</artifactId>
+        			<version>1.0.0</version>
+        			<configuration>
+        				<lifecycleMappingMetadata>
+        					<pluginExecutions>
+        						<pluginExecution>
+        							<pluginExecutionFilter>
+        								<groupId>
+        									org.apache.maven.plugins
+        								</groupId>
+        								<artifactId>
+        									maven-dependency-plugin
+        								</artifactId>
+        								<versionRange>
+        									[2.1,)
+        								</versionRange>
+        								<goals>
+        									<goal>
+        										unpack-dependencies
+        									</goal>
+        									<goal>
+        										copy-dependencies
+        									</goal>
+        								</goals>
+        							</pluginExecutionFilter>
+        							<action>
+        								<ignore></ignore>
+        							</action>
+        						</pluginExecution>
+        					</pluginExecutions>
+        				</lifecycleMappingMetadata>
+        			</configuration>
+        		</plugin>
+        	</plugins>
         </pluginManagement>
     </build>
     <dependencies>
