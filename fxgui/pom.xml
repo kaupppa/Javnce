@@ -109,12 +109,15 @@
                                     <fx:fileset dir="${application.lib}" includes="*.jar"/>
                                 </fx:resources>
                              
-                                <signjar keyStore="${user.home}/.keystore"
+                                <jfxsignjar keystore="${my.keystore.path}"
+                                         storetype="$(my.keystore.type)" 
                                          destdir="${application.dist}"
-                                         alias="javnce" storePass="password" keyPass="password">
+                                         alias="$(my.keystore.alias)" 
+                                         storepass="$(my.keystore.store.password)" 
+                                         keyPass="$(my.keystore.key.password)" >
                                     <fileset dir="${application.dist}" includes="*.jar"/>
                                     <fileset dir="${application.lib}" includes="*.jar"/>
-                                </signjar>
+                                </jfxsignjar>
                                 <fx:deploy width="${applet.width}" height="${applet.height}"
                                            outdir="${application.dist}" embedJNLP="true"
                                            outfile="${application.title}">
@@ -129,6 +132,26 @@
                             </target>
                         </configuration>
                         <!--
+                        <settings xmlns="http://maven.apache.org/SETTINGS/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.org/xsd/settings-1.1.0.xsd">
+    <profiles>
+        <profile>
+            <id>codesigning</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <my.keystore.path>/home/nettiradio/.keystore</my.keystore.path> 
+                <my.keystore.alias>mykey</my.keystore.alias>
+                <my.keystore.type>JKS</my.keystore.type>
+                <my.keystore.store.password>qwerty</my.keystore.store.password>
+                <my.keystore.key.password>qwerty</my.keystore.key.password>
+            </properties>
+        </profile>
+    </profiles>
+        
+</settings>
+
                         <goals>
                             <goal>run</goal>
                         </goals>
@@ -155,6 +178,9 @@
                                         <versionRange>[2.1,)</versionRange>
                                         <goals>
                                             <goal>copy-dependencies</goal>
+                                            <goal>
+                                                unpack-dependencies
+                                            </goal>
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>

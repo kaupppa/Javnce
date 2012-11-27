@@ -101,7 +101,7 @@
                                     <target
                                         name="jni"
                                         description="javah and qmake, for now">
-                                        <exec executable="javah" >
+                                        <exec executable="${java.home}/../bin/javah" >
                                             <arg value="-d" />
                                             <arg value="${jni.build}" />
                                             <arg value="-classpath" />
@@ -109,7 +109,7 @@
                                             <arg value="-force" />
                                             <arg value="org.javnce.vnc.server.platform.XTestPointerInputDevice" />
                                         </exec>
-                                        <exec executable="javah" >
+                                        <exec executable="${java.home}/../bin/javah" >
                                             <arg value="-d" />
                                             <arg value="${jni.build}" />
                                             <arg value="-classpath" />
@@ -117,7 +117,7 @@
                                             <arg value="-force" />
                                             <arg value="org.javnce.vnc.server.platform.XShmFramebuffer" />
                                         </exec>
-                                        <exec executable="javah" >
+                                        <exec executable="${java.home}/../bin/javah" >
                                             <arg value="-d" />
                                             <arg value="${jni.build}" />
                                             <arg value="-classpath" />
