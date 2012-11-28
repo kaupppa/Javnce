@@ -56,8 +56,8 @@ public class TestSocketReaderTest {
     @Before
     public void setUp() throws Exception {
         pipe = Pipe.open();
-        pipe.source().configureBlocking(false);
-        pipe.sink().configureBlocking(false);
+        pipe.source().configureBlocking(true);
+        pipe.sink().configureBlocking(true);
 
         int bytePerPixel = format.bytesPerPixel();
         Rect rect = new Rect(new Point(0, 0), new Size(10, 10));
@@ -167,6 +167,9 @@ public class TestSocketReaderTest {
         //Logger logger = Logger.getLogger(TestSocketReaderTest.class.getName());
         ReceiveMsgFactory f = new ReceiveMsgFactory();
         reader = new SocketReader(f);
+
+        pipe.source().configureBlocking(false);
+        pipe.sink().configureBlocking(false);
 
         for (int i = 0; i < toBeSent.length; i++) {
             ArrayList<ByteBuffer> list = toBeSent[i].marshal();

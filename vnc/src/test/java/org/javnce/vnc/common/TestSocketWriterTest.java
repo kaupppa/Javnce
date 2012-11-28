@@ -50,7 +50,8 @@ public class TestSocketWriterTest {
     @Before
     public void setUp() throws Exception {
         pipe = Pipe.open();
-        pipe.source().configureBlocking(false);
+        pipe.source().configureBlocking(true);
+        pipe.sink().configureBlocking(true);
         int bytePerPixel = format.bytesPerPixel();
         Rect rect = new Rect(new Point(0, 0), new Size(10, 10));
         int fbSize = rect.width() * rect.height() * bytePerPixel;
