@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
-
 package org.javnce.vnc.server.platform;
 
 import static org.junit.Assert.*;
@@ -22,17 +21,19 @@ import org.junit.Test;
 
 public class TestXTestKeyBoardTest {
 
+    final private static boolean isLinux = System.getProperty("os.name").startsWith("Linux");
+
     @Test
     public void testIsKeyBoardSupported() {
 
-        assertTrue(XTestKeyBoard.isKeyBoardSupported());
+        assertEquals(isLinux, XTestKeyBoard.isKeyBoardSupported());
     }
-
 
     @Test
     public void testHasXTest() {
-        XTestKeyBoard t = new XTestKeyBoard();
-        assertTrue(t.hasXTest());
+        if (isLinux) {
+            XTestKeyBoard t = new XTestKeyBoard();
+            assertTrue(t.hasXTest());
+        }
     }
-
 }

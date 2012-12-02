@@ -14,19 +14,52 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef LOGGER_H
-#define LOGGER_H
+#include "StdAfx.h"
 
-#include <stdio.h>
-#ifndef __PRETTY_FUNCTION__
-    #define __PRETTY_FUNCTION__ __FUNCTION__
-#endif
+#include "mutex.h"
 
-
-#define LOG_TRACE()                 printf("TRACE: %s\n", __PRETTY_FUNCTION__)
-#define LOG_DEBUG(format, ...)      printf("DEBUG %s : ", __PRETTY_FUNCTION__);printf(format, ##__VA_ARGS__);printf("\n")
-#define LOG_WARNING(format, ...)    fprintf(stderr, "WARNING %s : ", __PRETTY_FUNCTION__);fprintf(stderr, format, ##__VA_ARGS__);fprintf(stderr,"\n")
-#define LOG_ERROR(format, ...)      fprintf(stderr, "ERROR %s : ", __PRETTY_FUNCTION__);fprintf(stderr, format, ##__VA_ARGS__);fprintf(stderr,"\n")
+class Mutex::PrivateData
+{
+public:
+    PrivateData()
+    {
+        mutex = CreateMutex( NULL, FALSE, NULL);
 
 
-#endif // LOGGER_H
+    }
+    ~PrivateData()
+    {
+		if (NULL != mutex)
+		{
+			CloseHandle(mutex);
+		}
+    }
+    HANDLE mutex; 
+};
+
+Mutex::Mutex()
+    : d(new PrivateData)
+{
+}
+
+Mutex::~Mutex()
+{
+    delete d;
+    d = 0;
+}
+
+void Mutex::lock()
+{
+    if (NULL != d->mutex)
+	{
+		WaitForSingleObject(d->mutex, INFINITE);
+	}
+}
+
+void Mutex::unlock()
+{
+    if (NULL != d->mutex)
+	{
+		ReleaseMutex(d->mutex);
+	}
+}

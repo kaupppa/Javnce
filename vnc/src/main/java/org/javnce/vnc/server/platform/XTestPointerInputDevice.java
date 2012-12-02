@@ -35,8 +35,10 @@ class XTestPointerInputDevice implements PointerDevice {
         try {
             System.loadLibrary(libName);
         } catch (UnsatisfiedLinkError e) {
-            Logger.getLogger(XTestPointerInputDevice.class.getName())
-                    .log(Level.INFO, "Couldn't load " + libName, e);
+            /*
+             Logger.getLogger(XTestPointerInputDevice.class.getName())
+             .log(Level.INFO, "Couldn't load " + libName, e);
+             */
         }
     }
 
@@ -51,8 +53,7 @@ class XTestPointerInputDevice implements PointerDevice {
         try {
             valid = new XTestPointerInputDevice().canSupport();
         } catch (Throwable e) {
-            Logger.getLogger(XTestPointerInputDevice.class.getName())
-                    .log(Level.INFO, "Couldn't load " + libName, e);
+            //Logger.getLogger(XTestPointerInputDevice.class.getName()).log(Level.INFO, "Couldn't load " + libName, e);
         }
         return valid;
     }

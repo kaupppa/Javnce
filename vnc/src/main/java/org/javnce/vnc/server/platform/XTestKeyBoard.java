@@ -34,8 +34,10 @@ class XTestKeyBoard implements KeyBoardDevice {
         try {
             System.loadLibrary(libName);
         } catch (UnsatisfiedLinkError e) {
-            Logger.getLogger(XTestKeyBoard.class.getName())
-                    .log(Level.INFO, "Couldn't load " + libName, e);
+            /*
+             Logger.getLogger(XTestKeyBoard.class.getName())
+             .log(Level.INFO, "Couldn't load " + libName, e);
+             */
         }
     }
 
@@ -50,8 +52,7 @@ class XTestKeyBoard implements KeyBoardDevice {
         try {
             valid = new XTestKeyBoard().hasXTest();
         } catch (Throwable e) {
-            Logger.getLogger(XTestKeyBoard.class.getName())
-                    .log(Level.INFO, "Couldn't load " + libName, e);
+            //Logger.getLogger(XTestKeyBoard.class.getName()).log(Level.INFO, "Couldn't load " + libName, e);
         }
 
         return valid;

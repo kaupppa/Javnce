@@ -21,14 +21,18 @@ import org.junit.Test;
 
 public class TestXTestPointerInputDeviceTest {
 
+    final private static boolean isLinux = System.getProperty("os.name").startsWith("Linux");
+
     @Test
     public void testIsPointerSupported() {
-        assertTrue(XTestPointerInputDevice.isPointerSupported());
+        assertEquals(isLinux, XTestPointerInputDevice.isPointerSupported());
     }
 
     @Test
     public void testCanSupport() {
-        XTestPointerInputDevice t = new XTestPointerInputDevice();
-        assertTrue(t.canSupport());
+        if (isLinux) {
+            XTestPointerInputDevice t = new XTestPointerInputDevice();
+            assertTrue(t.canSupport());
+        }
     }
 }

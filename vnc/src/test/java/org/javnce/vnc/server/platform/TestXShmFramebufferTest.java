@@ -25,30 +25,32 @@ import org.junit.Test;
 
 public class TestXShmFramebufferTest {
 
+    final private static boolean isLinux = System.getProperty("os.name").startsWith("Linux");
     private XShmFramebuffer dev;
 
     @Test
     public void testIsSupported() {
-        assertTrue(XShmFramebuffer.isSupported());
+        assertEquals(isLinux, XShmFramebuffer.isSupported());
     }
 
     @Test
     public void testSize() {
-        dev = new XShmFramebuffer();
-
-        assertTrue(0 != dev.size().width());
-        assertTrue(0 != dev.size().height());
-
+        if (isLinux) {
+            dev = new XShmFramebuffer();
+            assertTrue(0 != dev.size().width());
+            assertTrue(0 != dev.size().height());
+        }
     }
 
     @Test
     public void testFormat() {
-        dev = new XShmFramebuffer();
+        if (isLinux) {
+            dev = new XShmFramebuffer();
 
-        assertTrue(dev.format().trueColour());
-        assertTrue(!dev.format().bigEndian());
-        assertTrue(dev.format().bitsPerPixel() >= dev.format().depth());
-
+            assertTrue(dev.format().trueColour());
+            assertTrue(!dev.format().bigEndian());
+            assertTrue(dev.format().bitsPerPixel() >= dev.format().depth());
+        }
     }
 
     class TestData {
@@ -68,35 +70,38 @@ public class TestXShmFramebufferTest {
 
     @Test
     public void testBuffer() {
-        dev = new XShmFramebuffer();
-        PixelFormat format = dev.format();
-        Size size = dev.size();
+        if (isLinux) {
 
-        TestData[] array = new TestData[]{
-            new TestData(0, 0, size.width(), 1), //One full line
-            new TestData(0, 0, size.width(), size.height()), //Whole framebuffer
-            new TestData(0, 100, size.width(), 100), //Several full lines
-            new TestData(0, 0, size.width() - 10, 1),
-            new TestData(0, 0, size.width() - 10, size.height()),
-            new TestData(10, 0, size.width() - 20, size.height()),};
+            dev = new XShmFramebuffer();
+            PixelFormat format = dev.format();
+            Size size = dev.size();
 
-        for (int i = 0; i < array.length; i++) {
-            ByteBuffer[] buffers = dev.buffer(array[i].x, array[i].y, array[i].width, array[i].height);
+            TestData[] array = new TestData[]{
+                new TestData(0, 0, size.width(), 1), //One full line
+                new TestData(0, 0, size.width(), size.height()), //Whole framebuffer
+                new TestData(0, 100, size.width(), 100), //Several full lines
+                new TestData(0, 0, size.width() - 10, 1),
+                new TestData(0, 0, size.width() - 10, size.height()),
+                new TestData(10, 0, size.width() - 20, size.height()),};
 
-            if (array[i].x == 0 && array[i].width == size.width()) {
-                assertEquals(1, buffers.length);
-            } else {
-                assertEquals(array[i].height, buffers.length);
+            for (int i = 0; i < array.length; i++) {
+                ByteBuffer[] buffers = dev.buffer(array[i].x, array[i].y, array[i].width, array[i].height);
+
+                if (array[i].x == 0 && array[i].width == size.width()) {
+                    assertEquals(1, buffers.length);
+                } else {
+                    assertEquals(array[i].height, buffers.length);
+                }
+
+                int length = 0;
+
+                for (ByteBuffer b : buffers) {
+                    length += b.capacity();
+                    assertEquals(ByteOrder.BIG_ENDIAN, b.order());
+                }
+
+                assertEquals(array[i].width * array[i].height * format.bytesPerPixel(), length);
             }
-
-            int length = 0;
-
-            for (ByteBuffer b : buffers) {
-                length += b.capacity();
-                assertEquals(ByteOrder.BIG_ENDIAN, b.order());
-            }
-
-            assertEquals(array[i].width * array[i].height * format.bytesPerPixel(), length);
         }
     }
 }

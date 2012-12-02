@@ -14,19 +14,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef WIN32GDIFRAMEBUFFER_H
+#define WIN32GDIFRAMEBUFFER_H
 
-#include <stdio.h>
-#ifndef __PRETTY_FUNCTION__
-    #define __PRETTY_FUNCTION__ __FUNCTION__
-#endif
+#include "abstractframebuffer.h"
 
 
-#define LOG_TRACE()                 printf("TRACE: %s\n", __PRETTY_FUNCTION__)
-#define LOG_DEBUG(format, ...)      printf("DEBUG %s : ", __PRETTY_FUNCTION__);printf(format, ##__VA_ARGS__);printf("\n")
-#define LOG_WARNING(format, ...)    fprintf(stderr, "WARNING %s : ", __PRETTY_FUNCTION__);fprintf(stderr, format, ##__VA_ARGS__);fprintf(stderr,"\n")
-#define LOG_ERROR(format, ...)      fprintf(stderr, "ERROR %s : ", __PRETTY_FUNCTION__);fprintf(stderr, format, ##__VA_ARGS__);fprintf(stderr,"\n")
+class Win32GdiFramebuffer : public AbstractFrameBuffer
+{
+	class PrivateData;
+public:
+	Win32GdiFramebuffer(void);
+	~Win32GdiFramebuffer(void);
+
+    static bool isSupported();
+
+    int getWidth() const;
+    int getHeight() const;
+    PixelFormat getFormat() const;
+    uint8_t *getData();
+    int getBytesPerPixel() const;
+
+private:
+    void init();
+    void initFormat();
+
+private:
+    PrivateData *d;
+};
 
 
-#endif // LOGGER_H
+#endif // WIN32GDIFRAMEBUFFER_H

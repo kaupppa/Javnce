@@ -38,8 +38,10 @@ class XShmFramebuffer implements FramebufferDevice {
         try {
             System.loadLibrary(libName);
         } catch (UnsatisfiedLinkError e) {
-            Logger.getLogger(XShmFramebuffer.class.getName())
-                    .log(Level.INFO, "Couldn't load " + libName, e);
+            /*
+             Logger.getLogger(XShmFramebuffer.class.getName())
+             .log(Level.INFO, "Couldn't load " + libName, e);
+             */
         }
 
     }
@@ -55,8 +57,7 @@ class XShmFramebuffer implements FramebufferDevice {
         try {
             valid = new XShmFramebuffer().hasXShm();
         } catch (Throwable e) {
-            Logger.getLogger(XShmFramebuffer.class.getName())
-                    .log(Level.INFO, "Couldn't load " + libName, e);
+            //Logger.getLogger(XShmFramebuffer.class.getName()).log(Level.INFO, "Couldn't load " + libName, e);
         }
         return valid;
     }
