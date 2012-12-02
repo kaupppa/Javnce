@@ -12,7 +12,7 @@ SOURCES += xtestkeyboard.cpp \
     modifiermap.cpp \
     keymap.cpp \
     jni_api.cpp \
-    $$COMMON_FOLDER/mutex.cpp
+    $$COMMON_FOLDER/mutex-linux.cpp
 
 HEADERS += xtestkeyboard.h \
     modifiermap.h \

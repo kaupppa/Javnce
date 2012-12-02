@@ -15,7 +15,7 @@
     <name>${project.artifactId}</name>
     
     <properties>
-        <jni.build>${project.build.directory}\libs</jni.build>
+        <jni.build>${project.build.directory}${file.separator}libs</jni.build>
     </properties>
   
     <build>

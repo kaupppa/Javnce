@@ -18,4 +18,4 @@ HEADERS += ../common/logger.h \
 
 SOURCES += jni_api.cpp \
     xtestpointerinputdevice.cpp \
-    $$COMMON_FOLDER/mutex.cpp
+    $$COMMON_FOLDER/mutex-linux.cpp

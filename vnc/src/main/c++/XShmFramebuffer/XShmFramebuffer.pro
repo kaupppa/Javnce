@@ -23,6 +23,6 @@ SOURCES += \
     fbxshm.cpp \
     jni_api.cpp \
     $$COMMON_FOLDER/pixelformat.cpp \
-    $$COMMON_FOLDER/mutex.cpp \
+    $$COMMON_FOLDER/mutex-linux.cpp \
     $$COMMON_FOLDER/framebufferapi.cpp
 
