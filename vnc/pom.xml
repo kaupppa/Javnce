@@ -49,7 +49,6 @@
                     <argLine>-Djava.library.path=${jni.build} ${coverageAgent}</argLine>
                 </configuration>    
             </plugin>
-
         </plugins>
         <pluginManagement>
             <plugins>
@@ -92,54 +91,94 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.7</version>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.2.1</version>
                         <executions>
                             <execution>
                                 <phase>process-classes</phase>
+                                <id>javah XTestPointerInputDevice</id>
                                 <configuration>
-                                    <target name="Build linux jni" >
-                                        <exec executable="${java.home}/../bin/javah" >
-                                            <arg value="-d" />
-                                            <arg value="${jni.build}" />
-                                            <arg value="-classpath" />
-                                            <arg value="${project.build.outputDirectory}" />
-                                            <arg value="-force" />
-                                            <arg value="org.javnce.vnc.server.platform.XTestPointerInputDevice" />
-                                        </exec>
-                                        <exec executable="${java.home}/../bin/javah" >
-                                            <arg value="-d" />
-                                            <arg value="${jni.build}" />
-                                            <arg value="-classpath" />
-                                            <arg value="${project.build.outputDirectory}" />
-                                            <arg value="-force" />
-                                            <arg value="org.javnce.vnc.server.platform.XShmFramebuffer" />
-                                        </exec>
-                                        <exec executable="${java.home}/../bin/javah" >
-                                            <arg value="-d" />
-                                            <arg value="${jni.build}" />
-                                            <arg value="-classpath" />
-                                            <arg value="${project.build.outputDirectory}" />
-                                            <arg value="-force" />
-                                            <arg value="org.javnce.vnc.server.platform.XTestKeyBoard" />
-                                        </exec>
-
-                                        <exec dir="${jni.build}" executable="qmake" failonerror="true" >
-                                            <arg value="${project.basedir}/src/main/c++/jni.pro" />
-                                        </exec>
-                                        <exec dir="${jni.build}" executable="make" failonerror="true" >
-                                            <arg value="CXX:=g++ -I ${jni.build} -I ${java.home}/../include -I ${java.home}/../include/linux" />
-                                        </exec>
-                                    </target>
+                                    <executable>${java.home}/../bin/javah</executable>
+                                    <arguments>
+                                        <argument>-d</argument>
+                                        <argument>${jni.build}</argument>
+                                        <argument>-classpath</argument>
+                                        <argument>${project.build.outputDirectory}</argument>
+                                        <argument>-force</argument>
+                                        <argument>org.javnce.vnc.server.platform.XTestPointerInputDevice</argument>
+                                    </arguments>
                                 </configuration>
                                 <goals>
-                                    <goal>run</goal>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <phase>process-classes</phase>
+                                <id>javah XShmFramebuffer</id>
+                                <configuration>
+                                    <executable>${java.home}/../bin/javah</executable>
+                                    <arguments>
+                                        <argument>-d</argument>
+                                        <argument>${jni.build}</argument>
+                                        <argument>-classpath</argument>
+                                        <argument>${project.build.outputDirectory}</argument>
+                                        <argument>-force</argument>
+                                        <argument>org.javnce.vnc.server.platform.XShmFramebuffer</argument>
+                                    </arguments>
+                                </configuration>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <phase>process-classes</phase>
+                                <id>javah XTestKeyBoard</id>
+                                <configuration>
+                                    <executable>${java.home}/../bin/javah</executable>
+                                    <arguments>
+                                        <argument>-d</argument>
+                                        <argument>${jni.build}</argument>
+                                        <argument>-classpath</argument>
+                                        <argument>${project.build.outputDirectory}</argument>
+                                        <argument>-force</argument>
+                                        <argument>org.javnce.vnc.server.platform.XTestKeyBoard</argument>
+                                    </arguments>
+                                </configuration>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <phase>process-classes</phase>
+                                <id>create linux jni make file</id>
+                                <configuration>
+                                    <workingDirectory>${jni.build}</workingDirectory>
+                                    <executable>qmake</executable>
+                                    <arguments>
+                                        <argument>${project.basedir}/src/main/c++/jni.pro</argument>
+                                    </arguments>
+                                </configuration>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <phase>process-classes</phase>
+                                <id>create linux jni</id>
+                                <configuration>
+                                    <environmentVariables>
+                                        <JAVNCE_INCLUDE_PATHS>${java.home}/../include ${java.home}/../include/linux ${jni.build}</JAVNCE_INCLUDE_PATHS>
+                                    </environmentVariables>                                 
+                                    <workingDirectory>${jni.build}</workingDirectory>
+                                    <executable>make</executable>
+                                </configuration>
+                                <goals>
+                                    <goal>exec</goal>
                                 </goals>
                             </execution>
                         </executions>
                     </plugin>
-                
                 </plugins>
             </build>
         </profile>
