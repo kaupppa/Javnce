@@ -3,11 +3,11 @@ CONFIG -= qt
 
 TEMPLATE = lib
 
-COMMON_FOLDER = $$IN_PWD/../common
-INCLUDEPATH += $$COMMON_FOLDER
 TARGET = ../XShmFramebuffer
 
 LIBS += -lX11 -lXext
+
+include($$IN_PWD/../common.pri)
 
 HEADERS += \
     fbxshm.h \

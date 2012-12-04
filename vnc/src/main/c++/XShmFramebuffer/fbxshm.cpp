@@ -23,6 +23,8 @@
 #include "fbxshm.h"
 #include "logger.h"
 
+namespace Javnce
+{
 class FbXShm::PrivateData
 {
 public:
@@ -221,3 +223,4 @@ int FbXShm::getBytesPerPixel() const
 {
     return d->bytesPerPixel;
 }
+}//End of Javnce

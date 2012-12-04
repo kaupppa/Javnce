@@ -24,6 +24,8 @@
 #include "mutexlocker.h"
 #include "framebufferapi.h"
 
+using namespace Javnce;
+
 static void clear(void);
 static void init();
 

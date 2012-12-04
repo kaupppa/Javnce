@@ -19,6 +19,8 @@
 
 #include "abstractframebuffer.h"
 
+namespace Javnce
+{
 class FbXShm : public AbstractFrameBuffer
 {
     class PrivateData;
@@ -43,5 +45,5 @@ private:
     PrivateData *d;
 
 };
-
+}//End of Javnce
 #endif // FBXSHM_H
