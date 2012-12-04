@@ -19,6 +19,8 @@
 
 #include "constants.h"
 
+namespace Javnce
+{
 class ModifierMap
 {
     class PrivateData;
@@ -42,5 +44,5 @@ private:
     PrivateData *d;
 
 };
-
+}//End of Javnce
 #endif // MODIFIERMAP_H

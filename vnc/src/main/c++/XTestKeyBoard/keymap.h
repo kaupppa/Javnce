@@ -20,6 +20,9 @@
 #include <X11/Xutil.h>
 #include "constants.h"
 
+namespace Javnce
+{
+
 class KeyMap
 {
     class PrivateData;
@@ -38,4 +41,5 @@ private:
 
 };
 
+}//End of Javnce
 #endif // KEYMAP_H

@@ -19,6 +19,8 @@
 
 #include "constants.h"
 
+namespace Javnce
+{
 class XTestKeyBoard
 {
 
@@ -41,5 +43,5 @@ private:
     PrivateData *d;
 
 };
-
+}//End of Javnce
 #endif // XTESTKEYBOARD_H

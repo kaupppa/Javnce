@@ -21,6 +21,8 @@
 #include "xtestkeyboard.h"
 #include "mutexlocker.h"
 
+using namespace Javnce;
+
 static void jni_clear(void);
 static void jni_init(void);
 

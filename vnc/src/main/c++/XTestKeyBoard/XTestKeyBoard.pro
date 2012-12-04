@@ -3,10 +3,10 @@ CONFIG -= qt
 
 TEMPLATE = lib
 
-COMMON_FOLDER = $$IN_PWD/../common
-INCLUDEPATH += $$COMMON_FOLDER
 TARGET = ../XTestKeyBoard
 LIBS += -lX11 -lXext -lXtst
+
+include($$IN_PWD/../common.pri)
 
 SOURCES += xtestkeyboard.cpp \
     modifiermap.cpp \

@@ -22,6 +22,8 @@
 #include "modifiermap.h"
 #include "xtestkeyboard.h"
 
+namespace Javnce
+{
 
 class XTestKeyBoard::PrivateData
 {
@@ -152,3 +154,5 @@ bool XTestKeyBoard::isSupported()
     XCloseDisplay(display);
     return supported;
 }
+
+}//End of Javnce

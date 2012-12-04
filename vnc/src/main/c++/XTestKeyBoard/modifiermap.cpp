@@ -22,6 +22,8 @@
 #include "logger.h"
 #include "modifiermap.h"
 
+namespace Javnce
+{
 
 class ModifierMap::PrivateData
 {
@@ -175,3 +177,4 @@ void ModifierMap::dump() const
               kbstate.ptr_buttons);
 
 }
+}//End of Javnce

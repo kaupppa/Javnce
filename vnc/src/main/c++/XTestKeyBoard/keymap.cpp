@@ -20,6 +20,8 @@
 #include "keymap.h"
 #include "logger.h"
 
+namespace Javnce
+{
 class KeyMap::PrivateData
 {
 public:
@@ -104,3 +106,4 @@ void KeyMap::dump() const
     }
 }
 
+}//End of Javnce

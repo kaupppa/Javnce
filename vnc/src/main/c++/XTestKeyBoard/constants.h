@@ -19,6 +19,8 @@
 
 #include <stdint.h>
 #include <X11/extensions/XTest.h>
+namespace Javnce
+{
 
 #define KEYCODE_NONE 0 //<! Invalid key code
 
@@ -47,5 +49,5 @@ typedef struct
 
 typedef Modifierdata_t ModifierArray_t[MODIFIER_COUNT];
 
-
+}//End of Javnce
 #endif // CONSTANTS_H
