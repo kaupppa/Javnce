@@ -19,10 +19,11 @@
 
 #include <jni.h>
 #include "abstractframebuffer.h"
-
+namespace Javnce
+{
 jobject getSize(AbstractFrameBuffer *fb, JNIEnv *env);
 jobject getFormat(AbstractFrameBuffer *fb, JNIEnv *env);
 jobjectArray getBuffer(AbstractFrameBuffer *fb, JNIEnv *env, jint x, jint y, jint width, jint height);
-
+}//End of Javnce
 
 #endif // FRAMEBUFFERAPI_H

@@ -17,6 +17,8 @@
 #include <pthread.h>
 
 #include "mutex.h"
+namespace Javnce
+{
 
 class Mutex::PrivateData
 {
@@ -52,3 +54,4 @@ void Mutex::unlock()
 {
     pthread_mutex_unlock(&d->mutex);
 }
+}//End of Javnce

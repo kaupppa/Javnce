@@ -15,6 +15,8 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 #include "framebufferapi.h"
+namespace Javnce
+{
 
 jobject getSize(AbstractFrameBuffer *fb, JNIEnv *env)
 {
@@ -79,3 +81,4 @@ jobjectArray getBuffer(AbstractFrameBuffer *fb, JNIEnv *env, jint x, jint y, jin
 
     return array;
 }
+}//End of Javnce

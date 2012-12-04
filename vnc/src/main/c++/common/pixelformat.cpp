@@ -17,6 +17,8 @@
 
 #include "logger.h"
 #include "pixelformat.h"
+namespace Javnce
+{
 
 PixelFormat::PixelFormat()
     : bitsPerPixel(0)
@@ -89,3 +91,4 @@ jobject PixelFormat::toJavaObject(JNIEnv *env)
 
     return object;
 }
+}//End of Javnce

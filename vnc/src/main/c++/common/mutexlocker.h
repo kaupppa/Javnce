@@ -18,6 +18,8 @@
 #define MUTEXLOCKER_H
 
 #include <mutex.h>
+namespace Javnce
+{
 
 class MutexLocker
 {
@@ -35,5 +37,5 @@ public:
 private:
     Mutex *mutex;
 };
-
+}//End of Javnce
 #endif // MUTEXLOCKER_H

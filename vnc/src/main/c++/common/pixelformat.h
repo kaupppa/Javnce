@@ -18,6 +18,8 @@
 #define PIXELFORMAT_H
 
 #include <jni.h>
+namespace Javnce
+{
 
 class PixelFormat
 {
@@ -40,5 +42,5 @@ public:
     int         greenShift;
     int         blueShift;
 };
-
+}//End of Javnce
 #endif // PIXELFORMAT_H

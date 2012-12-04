@@ -29,12 +29,12 @@ public:
     }
     ~PrivateData()
     {
-		if (NULL != mutex)
-		{
-			CloseHandle(mutex);
-		}
+        if (NULL != mutex)
+        {
+            CloseHandle(mutex);
+        }
     }
-    HANDLE mutex; 
+    HANDLE mutex;
 };
 
 Mutex::Mutex()
@@ -51,15 +51,15 @@ Mutex::~Mutex()
 void Mutex::lock()
 {
     if (NULL != d->mutex)
-	{
-		WaitForSingleObject(d->mutex, INFINITE);
-	}
+    {
+        WaitForSingleObject(d->mutex, INFINITE);
+    }
 }
 
 void Mutex::unlock()
 {
     if (NULL != d->mutex)
-	{
-		ReleaseMutex(d->mutex);
-	}
+    {
+        ReleaseMutex(d->mutex);
+    }
 }

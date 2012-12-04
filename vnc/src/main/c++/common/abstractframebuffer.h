@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include "pixelformat.h"
 
+namespace Javnce
+{
+
 class AbstractFrameBuffer
 {
 public:
@@ -13,5 +16,5 @@ public:
     virtual PixelFormat getFormat() const = 0;
     virtual uint8_t *getData()  = 0;
 };
-
+}//End of Javnce
 #endif // FRAMEBUFFER_H

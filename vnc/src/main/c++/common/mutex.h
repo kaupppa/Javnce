@@ -16,6 +16,8 @@
  */
 #ifndef MUTEX_H
 #define MUTEX_H
+namespace Javnce
+{
 
 class Mutex
 {
@@ -29,5 +31,5 @@ public:
 private:
     PrivateData *d;
 };
-
+}//End of Javnce
 #endif // MUTEX_H
