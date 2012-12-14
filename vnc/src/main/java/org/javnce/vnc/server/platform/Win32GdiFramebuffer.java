@@ -31,7 +31,7 @@ public class Win32GdiFramebuffer implements FramebufferDevice {
         try {
             System.loadLibrary(libName);
         } catch (UnsatisfiedLinkError e) {
-            Logger.getLogger(Win32GdiFramebuffer.class.getName()).log(Level.INFO, "Couldn't load " + libName, e);
+            //Logger.getLogger(Win32GdiFramebuffer.class.getName()).log(Level.INFO, "Couldn't load " + libName, e);
         }
     }
 

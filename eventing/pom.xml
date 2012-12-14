@@ -12,6 +12,4 @@
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
 
-    <groupId>org.javnce</groupId>
-    <version>0.1-SNAPSHOT</version>
 </project>

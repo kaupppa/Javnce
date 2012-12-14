@@ -29,18 +29,18 @@ class Measurement:
     def start(self):
         if self._counter == 0 : 
             sys.stdout.write(" Test progress (" + str(self.count) + " " + self.name + ") : "),
-        # sys.stdout.write(str(self._counter + 1))
-        # if self._counter < 9 : 
-        #    sys.stdout.write(" ")
-        # sys.stdout.flush()
+        sys.stdout.write(str(self._counter + 1))
+        if self._counter < 9 : 
+            sys.stdout.write(" ")
+        sys.stdout.flush()
 
         self._tstart = time.time()
 
     def stop(self):
         self._counter += 1
         self._elapsedTime += time.time() - self._tstart
-        # sys.stdout.write("\b\b")
-        # sys.stdout.flush()
+        sys.stdout.write("\b\b")
+        sys.stdout.flush()
 
         
     def output(self):
