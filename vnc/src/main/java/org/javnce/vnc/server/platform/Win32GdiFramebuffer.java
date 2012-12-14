@@ -25,20 +25,22 @@ import org.javnce.rfb.types.Size;
 
 public class Win32GdiFramebuffer implements FramebufferDevice {
 
-    static private String libName = "Win32GdiFramebuffer_x64";
+    final static private String libName = getLibName();
 
     static {
-        if (System.getProperty("os.arch").startsWith("x86"))
-            {
-            libName = "Win32GdiFramebuffer_Win32";
-        }
         try {
             System.loadLibrary(libName);
         } catch (UnsatisfiedLinkError e) {
-            Logger.getLogger(Win32GdiFramebuffer.class.getName())
-                    .log(Level.INFO, "Couldn't load " + libName, e);
+            Logger.getLogger(Win32GdiFramebuffer.class.getName()).log(Level.INFO, "Couldn't load " + libName, e);
         }
+    }
 
+    static private String getLibName() {
+        String name = "Win32GdiFramebuffer_x64";
+        if (System.getProperty("os.arch").startsWith("x86")) {
+            name = "Win32GdiFramebuffer_Win32";
+        }
+        return name;
     }
 
     static boolean isSupported() {
@@ -47,8 +49,7 @@ public class Win32GdiFramebuffer implements FramebufferDevice {
         try {
             valid = new Win32GdiFramebuffer().hasGdiFramebuffer();
         } catch (Throwable e) {
-            Logger.getLogger(XShmFramebuffer.class.getName())
-                    .log(Level.INFO, "Couldn't load " + libName, e);
+            // Logger.getLogger(XShmFramebuffer.class.getName()).log(Level.INFO, "Couldn't load " + libName, e);
         }
         return valid;
     }

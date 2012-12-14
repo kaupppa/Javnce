@@ -32,6 +32,8 @@ public class FullAccessPlatformFactory implements PlatformFactory {
         FramebufferDevice dev;
         if (XShmFramebuffer.isSupported()) {
             dev = new XShmFramebuffer();
+        } else if (Win32GdiFramebuffer.isSupported()) {
+            dev = new Win32GdiFramebuffer();            
         } else if (RobotDevice.isSupported()) {
             dev = RobotDevice.instance();
         } else {

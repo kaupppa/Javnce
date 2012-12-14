@@ -13,10 +13,10 @@
     <name>${project.artifactId}</name>
 
     <properties>
-        <javafx.lib.ant-javafx.jar>${java.home}/../lib/ant-javafx.jar</javafx.lib.ant-javafx.jar>
-        <javafx.lib.jfxrt.jar>${java.home}/lib/jfxrt.jar</javafx.lib.jfxrt.jar>
-        <application.dist>${project.build.directory}/dist</application.dist>
-        <application.lib>${project.build.directory}/dist</application.lib>
+        <javafx.lib.ant-javafx.jar>${java.home}${file.separator}..${file.separator}lib${file.separator}ant-javafx.jar</javafx.lib.ant-javafx.jar>
+        <javafx.lib.jfxrt.jar>${java.home}${file.separator}lib${file.separator}jfxrt.jar</javafx.lib.jfxrt.jar>
+        <application.dist>${project.build.directory}${file.separator}dist</application.dist>
+        <application.lib>${project.build.directory}${file.separator}dist</application.lib>
     </properties>
   
     <build>
@@ -37,7 +37,6 @@
                             <outputDirectory>${project.build.outputDirectory}</outputDirectory>
                         </configuration>
                     </execution>
-
                     <execution>
                         <id>copy-dependencies-of-third-party</id>
                         <phase>generate-resources</phase>
@@ -51,7 +50,6 @@
                             <outputDirectory>${application.lib}</outputDirectory>
                         </configuration>
                     </execution>
-                    
                     <execution>
                         <id>unpack-vnc-runtime</id>
                         <phase>generate-resources</phase>
@@ -65,7 +63,6 @@
                             <outputDirectory>${application.lib}</outputDirectory>
                         </configuration>
                     </execution>
-                    
                 </executions>
             </plugin>
             <plugin>
@@ -94,6 +91,9 @@
                                             <fileset dir="${application.lib}">
                                                 <include name="*.so"/>
                                             </fileset>
+                                            <fileset dir="${application.lib}">
+                                                <include name="*.dll"/>
+                                            </fileset>
                                         </path>
                                     </classpath>
                                 </manifestclasspath>
@@ -107,6 +107,7 @@
                                 <fx:resources id="appRes">
                                     <fx:fileset dir="${application.lib}" includes="*.jar"/>
                                     <fx:fileset dir="${application.lib}" includes="*.so"/>
+                                    <fx:fileset dir="${application.lib}" includes="*.dll"/>
                                 </fx:resources>
 
                                 <fx:jar destfile="${application.dist}/${project.build.finalName}.jar">
@@ -149,54 +150,42 @@
                                 </fx:deploy>
                             </target>
                         </configuration>
-                        <!--
                         <goals>
                             <goal>run</goal>
                         </goals>
-                        -->
                     </execution>
                 </executions>
             </plugin>
         </plugins>
         <pluginManagement>
-        	<plugins>
-        		<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-        		<plugin>
-        			<groupId>org.eclipse.m2e</groupId>
-        			<artifactId>lifecycle-mapping</artifactId>
-        			<version>1.0.0</version>
-        			<configuration>
-        				<lifecycleMappingMetadata>
-        					<pluginExecutions>
-        						<pluginExecution>
-        							<pluginExecutionFilter>
-        								<groupId>
-        									org.apache.maven.plugins
-        								</groupId>
-        								<artifactId>
-        									maven-dependency-plugin
-        								</artifactId>
-        								<versionRange>
-        									[2.1,)
-        								</versionRange>
-        								<goals>
-        									<goal>
-        										unpack-dependencies
-        									</goal>
-        									<goal>
-        										copy-dependencies
-        									</goal>
-        								</goals>
-        							</pluginExecutionFilter>
-        							<action>
-        								<ignore></ignore>
-        							</action>
-        						</pluginExecution>
-        					</pluginExecutions>
-        				</lifecycleMappingMetadata>
-        			</configuration>
-        		</plugin>
-        	</plugins>
+            <plugins>
+                <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.apache.maven.plugins</groupId>
+                                        <artifactId>maven-dependency-plugin</artifactId>
+                                        <versionRange>[2.1,)</versionRange>
+                                        <goals>
+                                            <goal>unpack-dependencies</goal>
+                                            <goal>copy-dependencies</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore></ignore>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+            </plugins>
         </pluginManagement>
     </build>
     <dependencies>
