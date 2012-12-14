@@ -17,17 +17,25 @@
 #include "StdAfx.h"
 #include "Win32GdiFramebuffer.h"
 #include "logger.h"
+#include "DeviceContext.h"
+
+namespace Javnce
+{
 
 class Win32GdiFramebuffer::PrivateData
 {
 public:
     PrivateData()
+        : mem(root)
     {
     }
 
     ~PrivateData()
     {
     }
+    DeviceContext	root;
+    DeviceContext	mem;
+    PixelFormat     format;
     int             bytesPerPixel;
 };
 
@@ -40,15 +48,47 @@ Win32GdiFramebuffer::Win32GdiFramebuffer()
 
 Win32GdiFramebuffer::~Win32GdiFramebuffer()
 {
+    delete d;
+    d = 0;
 }
 
 
 void Win32GdiFramebuffer::init()
 {
+    d->mem.setBitmap(d->root.createBitmap());
+
+    d->bytesPerPixel = (d->root.getBitsPerPixel() + 7)/8;
 }
 
 void Win32GdiFramebuffer::initFormat()
 {
+    d->format.bigEndian = false;
+    d->format.trueColour = true;
+
+    if (4 == d->bytesPerPixel)
+    {
+        //ARGB888
+        d->format.bitsPerPixel = 32;
+        d->format.depth = 24;
+        d->format.redMax = 255;
+        d->format.greenMax = 255;
+        d->format.blueMax = 255;
+        d->format.redShift = 16;
+        d->format.greenShift = 8;
+        d->format.blueShift = 0;
+    }
+    else if (2 == d->bytesPerPixel)
+    {
+        //RGB565???
+        d->format.bitsPerPixel = 16;
+        d->format.depth = 16;
+        d->format.redMax = 31;
+        d->format.greenMax = 63;
+        d->format.blueMax = 31;
+        d->format.redShift = 11;
+        d->format.greenShift = 5;
+        d->format.blueShift = 0;
+    }
 }
 
 
@@ -56,31 +96,40 @@ bool Win32GdiFramebuffer::isSupported()
 {
     bool hasGdiFramebuffer = false;
 
+    DeviceContext context;
+    if (context.supportsDIBits() && (16==context.getBitsPerPixel()||32==context.getBitsPerPixel()))
+    {
+        hasGdiFramebuffer = true;
+    }
+
     return hasGdiFramebuffer;
 }
 
 int Win32GdiFramebuffer::getWidth() const
 {
-    return 0;
+    return d->root.getWidth();
 }
 
 int Win32GdiFramebuffer::getHeight() const
 {
-    return 0;
+    return d->root.getHeight();
 }
 
 PixelFormat Win32GdiFramebuffer::getFormat() const
 {
-	static PixelFormat pixelFormat;
-    return pixelFormat;
+    return d->format;
 }
 
 uint8_t *Win32GdiFramebuffer::getData()
 {
-    return (uint8_t *)0;
+    d->mem.copyFrom(d->root);
+    Bitmap *bitmap = d->mem.getBitmap();
+
+    return bitmap->getPixels();
 }
 
 int Win32GdiFramebuffer::getBytesPerPixel() const
 {
     return d->bytesPerPixel;
 }
+}//End of Javnce

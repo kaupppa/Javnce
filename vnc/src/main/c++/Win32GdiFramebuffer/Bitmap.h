@@ -14,35 +14,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef WIN32GDIFRAMEBUFFER_H
-#define WIN32GDIFRAMEBUFFER_H
+#ifndef BITMAP_H
+#define BITMAP_H
 
-#include "abstractframebuffer.h"
+#include <stdint.h>
 
 namespace Javnce
 {
+class DeviceContext;
 
-class Win32GdiFramebuffer : public AbstractFrameBuffer
+class Bitmap
 {
     class PrivateData;
+
 public:
-    Win32GdiFramebuffer(void);
-    ~Win32GdiFramebuffer(void);
+    Bitmap(HBITMAP bitmap);
+    ~Bitmap();
 
-    static bool isSupported();
+    void setContext(DeviceContext *context);
+    uint8_t *getPixels();
 
-    int getWidth() const;
-    int getHeight() const;
-    PixelFormat getFormat() const;
-    uint8_t *getData();
-    int getBytesPerPixel() const;
+    void dump() const;
+    DWORD size() const;
 
-private:
-    void init();
-    void initFormat();
+    HBITMAP getHandle();
+    void fixAlpha();
 
 private:
     PrivateData *d;
 };
 }//End of Javnce
-#endif // WIN32GDIFRAMEBUFFER_H
+#endif // BITMAP_H

@@ -17,15 +17,14 @@
 #include "StdAfx.h"
 
 #include "mutex.h"
-
+namespace Javnce
+{
 class Mutex::PrivateData
 {
 public:
     PrivateData()
     {
         mutex = CreateMutex( NULL, FALSE, NULL);
-
-
     }
     ~PrivateData()
     {
@@ -63,3 +62,4 @@ void Mutex::unlock()
         ReleaseMutex(d->mutex);
     }
 }
+}//End of Javnce

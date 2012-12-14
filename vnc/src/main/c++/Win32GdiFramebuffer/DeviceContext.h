@@ -14,35 +14,42 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef WIN32GDIFRAMEBUFFER_H
-#define WIN32GDIFRAMEBUFFER_H
+#ifndef DEVICECONTEXT_H
+#define DEVICECONTEXT_H
 
-#include "abstractframebuffer.h"
+#include "Bitmap.h"
 
 namespace Javnce
 {
-
-class Win32GdiFramebuffer : public AbstractFrameBuffer
+class DeviceContext
 {
     class PrivateData;
 public:
-    Win32GdiFramebuffer(void);
-    ~Win32GdiFramebuffer(void);
+    DeviceContext(const DeviceContext &parent);
+    DeviceContext();
+    ~DeviceContext();
 
-    static bool isSupported();
+    int getBitsPerPixel();
+    DWORD getWidth();
+    DWORD getHeight();
+    bool supportsDIBits();
 
-    int getWidth() const;
-    int getHeight() const;
-    PixelFormat getFormat() const;
-    uint8_t *getData();
-    int getBytesPerPixel() const;
+    //Ownership is given
+    Bitmap *createBitmap();
 
-private:
-    void init();
-    void initFormat();
+    //Ownership is taken
+    void setBitmap(Bitmap *bitmap);
+    //Ownership is not given
+    Bitmap * getBitmap();
 
+    void dump() const;
+
+    void copyFrom(const DeviceContext &source);
+
+    HDC getHandle();
 private:
     PrivateData *d;
 };
 }//End of Javnce
-#endif // WIN32GDIFRAMEBUFFER_H
+#endif // DEVICECONTEXT_H
+
