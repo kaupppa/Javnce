@@ -17,6 +17,8 @@
 #ifndef XTESTPOINTERINPUTDEVICE_H
 #define XTESTPOINTERINPUTDEVICE_H
 
+namespace Javnce
+{
 
 class XTestPointerInputDevice
 {
@@ -38,5 +40,5 @@ private:
     PrivateData *d;
 
 };
-
+}//End of Javnce
 #endif // XTESTPOINTERINPUTDEVICE_H

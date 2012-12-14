@@ -19,6 +19,8 @@
 #include <X11/extensions/XTest.h>
 #include "xtestpointerinputdevice.h"
 #include "logger.h"
+namespace Javnce
+{
 
 class XTestPointerInputDevice::PrivateData
 {
@@ -106,3 +108,4 @@ bool XTestPointerInputDevice::isSupported()
     XCloseDisplay(display);
     return supported;
 }
+}//End of Javnce

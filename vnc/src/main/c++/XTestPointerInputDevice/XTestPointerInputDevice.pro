@@ -3,12 +3,12 @@ CONFIG -= qt
 
 TEMPLATE = lib
 
-COMMON_FOLDER = $$IN_PWD/../common
-INCLUDEPATH += $$COMMON_FOLDER
 
 TARGET = ../XTestPointerInputDevice
 
 LIBS += -lX11 -lXext -lXtst
+
+include($$IN_PWD/../common.pri)
 
 HEADERS += ../common/logger.h \
     xtestpointerinputdevice.h \
