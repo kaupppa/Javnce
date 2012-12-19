@@ -161,34 +161,65 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.7</version>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.2.1</version>
                         <executions>
                             <execution>
                                 <phase>process-classes</phase>
+                                <id>javah Win32GdiFramebuffer</id>
                                 <configuration>
-                                    <target name="build windows jni">
-                                        <exec dir="${project.basedir}/src/main/c++/" executable="${microsoft.tools.msbuild}" failonerror="true" >
-                                            <arg value="${project.basedir}/src/main/c++/win-jni.sln" />
-                                            <arg value="/t:Rebuild" />
-                                            <arg value="/property:Configuration=Release" />
-                                            <arg value="/property:Platform=x64" />
-                                            <arg value="/property:PlatformToolset=Windows7.1SDK" />
-                                            <arg value="/property:OutDir=${jni.build}\\" />
-                                        </exec>
-                                        <exec dir="${project.basedir}/src/main/c++/" executable="${microsoft.tools.msbuild}" failonerror="true" >
-                                            <arg value="${project.basedir}/src/main/c++/win-jni.sln" />
-                                            <arg value="/t:Rebuild" />
-                                            <arg value="/property:Configuration=Release" />
-                                            <arg value="/property:Platform=Win32" />
-                                            <arg value="/property:PlatformToolset=Windows7.1SDK" />
-                                            <arg value="/property:OutDir=${jni.build}\\" />
-                                        </exec>
-                                    </target>
+                                    <executable>${java.home}/../bin/javah</executable>
+                                    <arguments>
+                                        <argument>-o</argument>
+                                        <argument>${project.basedir}/src/main/c++/Win32GdiFramebuffer/jni_api.h</argument>
+                                        <argument>-classpath</argument>
+                                        <argument>${project.build.outputDirectory}</argument>
+                                        <argument>-force</argument>
+                                        <argument>org.javnce.vnc.server.platform.Win32GdiFramebuffer</argument>
+                                    </arguments>
                                 </configuration>
                                 <goals>
-                                    <goal>run</goal>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <phase>process-classes</phase>
+                                <id>build windows 64bit jni</id>
+                                <configuration>
+                                    <workingDirectory>${project.basedir}/src/main/c++/</workingDirectory>
+                                    <executable>${microsoft.tools.msbuild}</executable>
+                                    <arguments>
+                                        <argument>/property:"VCBuildAdditionalOptions=/useenv"</argument>
+                                        <argument>${project.basedir}/src/main/c++/win-jni.sln</argument>
+                                        <argument>/t:Rebuild</argument>
+                                        <argument>/property:Configuration=Release</argument>
+                                        <argument>/property:Platform=x64</argument>
+                                        <argument>/property:PlatformToolset=Windows7.1SDK</argument>
+                                        <argument>/property:OutDir=${jni.build}\\</argument>
+                                    </arguments>
+                                </configuration>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <phase>process-classes</phase>
+                                <id>build windows 32bit jni</id>
+                                <configuration>
+                                    <workingDirectory>${project.basedir}/src/main/c++/</workingDirectory>
+                                    <executable>${microsoft.tools.msbuild}</executable>
+                                    <arguments>
+                                        <argument>${project.basedir}/src/main/c++/win-jni.sln</argument>
+                                        <argument>/t:Rebuild</argument>
+                                        <argument>/property:Configuration=Release</argument>
+                                        <argument>/property:Platform=Win32</argument>
+                                        <argument>/property:PlatformToolset=Windows7.1SDK</argument>
+                                        <argument>/property:OutDir=${jni.build}\</argument>
+                                    </arguments>
+                                </configuration>
+                                <goals>
+                                    <goal>exec</goal>
                                 </goals>
                             </execution>
                         </executions>

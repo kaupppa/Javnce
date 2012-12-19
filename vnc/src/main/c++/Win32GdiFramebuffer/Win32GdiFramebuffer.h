@@ -22,13 +22,22 @@
 namespace Javnce
 {
 
+/**
+ * The Class Win32GdiFramebuffer is an AbstractFrameBuffer implementation with
+ * Windows graphics device interface (GDI).
+ */
 class Win32GdiFramebuffer : public AbstractFrameBuffer
 {
     class PrivateData;
 public:
-    Win32GdiFramebuffer(void);
-    ~Win32GdiFramebuffer(void);
+    Win32GdiFramebuffer();
+    ~Win32GdiFramebuffer();
 
+    /**
+     * Tests if Win32GdiFramebuffer can be used.
+     *
+     * @return true if graphics device interface have needed capabilities.
+     */
     static bool isSupported();
 
     int getWidth() const;
@@ -36,6 +45,7 @@ public:
     PixelFormat getFormat() const;
     uint8_t *getData();
     int getBytesPerPixel() const;
+    void grab();
 
 private:
     void init();

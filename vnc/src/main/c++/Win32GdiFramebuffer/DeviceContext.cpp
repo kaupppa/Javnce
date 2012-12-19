@@ -27,6 +27,8 @@ public:
         : context(NULL)
         , bitmap(NULL)
         , isScreen(false)
+        , width(GetSystemMetrics(SM_CXSCREEN))
+        , height(GetSystemMetrics(SM_CYSCREEN))
     {
     }
 
@@ -53,6 +55,8 @@ public:
     HDC				context;
     Javnce::Bitmap  *bitmap;
     bool			isScreen;
+    DWORD			width;
+    DWORD			height;
 };
 
 DeviceContext::DeviceContext()
@@ -96,22 +100,12 @@ bool DeviceContext::supportsDIBits()
 
 DWORD DeviceContext::getWidth()
 {
-    static DWORD width=-1;
-    if (-1 == width)
-    {
-        width = GetSystemMetrics(SM_CXSCREEN);
-    }
-    return width;
+    return d->width;
 }
 
 DWORD DeviceContext::getHeight()
 {
-    static DWORD height=-1;
-    if (-1 == height)
-    {
-        height = GetSystemMetrics(SM_CYSCREEN);
-    }
-    return height;
+    return d->height;
 }
 
 Bitmap *DeviceContext::createBitmap()
@@ -142,7 +136,7 @@ void DeviceContext::setBitmap(Bitmap *bitmap)
     d->bitmap->setContext(this);
 }
 
-void DeviceContext::copyFrom(const DeviceContext &source)
+void DeviceContext::copy(const DeviceContext &source)
 {
     if (NULL != d->context && NULL != source.d->context)
     {
@@ -156,9 +150,41 @@ void DeviceContext::copyFrom(const DeviceContext &source)
         {
             LOG_ERROR("BitBlt failure");
         }
-
     }
 }
+
+void DeviceContext::copyAndFlip(const DeviceContext &source)
+{
+    if (NULL != d->context && NULL != source.d->context)
+    {
+        POINT points[3];
+
+        //Upper-left point
+        points[0].x=0;
+        points[0].y=getHeight();
+
+        //Upper-right point
+        points[1].x=getWidth();
+        points[1].y=getHeight();
+
+        //Lower-left point
+        points[2].x=0;
+        points[2].y=0;
+
+
+        if(!PlgBlt( d->context,
+                    points,
+                    source.d->context,
+                    0,0,
+                    getWidth(),
+                    getHeight(),
+                    0,0,0))
+        {
+            LOG_ERROR("PlgBlt failure");
+        }
+    }
+}
+
 
 HDC DeviceContext::getHandle()
 {

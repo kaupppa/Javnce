@@ -29,7 +29,7 @@ using namespace Javnce;
 static void clear(void);
 static void init();
 
-static FbXShm *dev = 0;
+static AbstractFrameBuffer *dev = 0;
 static Mutex mutex;
 
 JNIEXPORT jboolean JNICALL Java_org_javnce_vnc_server_platform_XShmFramebuffer_hasXShm(JNIEnv *, jobject)
@@ -69,6 +69,12 @@ JNIEXPORT jobjectArray JNICALL Java_org_javnce_vnc_server_platform_XShmFramebuff
 {
     init();
     return getBuffer(dev, env, x, y, width, height);
+}
+
+JNIEXPORT void JNICALL Java_org_javnce_vnc_server_platform_XShmFramebuffer_grabScreen(JNIEnv *, jobject)
+{
+    init();
+    dev->grab();
 }
 
 static void init()

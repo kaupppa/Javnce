@@ -22,7 +22,9 @@
 #define __PRETTY_FUNCTION__ __FUNCTION__
 #endif
 
-
+/**
+ * Some helper macros.
+ */
 #define LOG_TRACE()                 printf("TRACE: %s\n", __PRETTY_FUNCTION__)
 #define LOG_DEBUG(format, ...)      printf("DEBUG %s : ", __PRETTY_FUNCTION__);printf(format, ##__VA_ARGS__);printf("\n")
 #define LOG_WARNING(format, ...)    fprintf(stderr, "WARNING %s : ", __PRETTY_FUNCTION__);fprintf(stderr, format, ##__VA_ARGS__);fprintf(stderr,"\n")

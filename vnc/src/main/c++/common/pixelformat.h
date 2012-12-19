@@ -21,6 +21,9 @@
 namespace Javnce
 {
 
+/**
+ * The Class PixelFormat contains framebuffer format information.
+ */
 class PixelFormat
 {
 
@@ -29,6 +32,9 @@ public:
 
     PixelFormat &operator=(const PixelFormat &other);
 
+    /**
+     * Gets framebuffer format in Java org.javnce.rfb.types.PixelFormat format.
+     */
     jobject toJavaObject(JNIEnv *env);
 
     int         bitsPerPixel;

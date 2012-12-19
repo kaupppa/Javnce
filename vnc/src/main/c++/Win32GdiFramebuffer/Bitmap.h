@@ -23,6 +23,9 @@ namespace Javnce
 {
 class DeviceContext;
 
+/**
+ * The Class Bitmap wraps handling of HBITMAP and gives access to buffer.
+ */
 class Bitmap
 {
     class PrivateData;
@@ -31,13 +34,49 @@ public:
     Bitmap(HBITMAP bitmap);
     ~Bitmap();
 
+    /**
+     * Method to assign device to bitmap.
+     * The ownership of context is not taken.
+     *
+     * @param context is the new device context.
+     */
     void setContext(DeviceContext *context);
+
+    /**
+     * Buffer pointer getter.
+     *
+     * @return pointer to buffer.
+     */
     uint8_t *getPixels();
 
+    /**
+     * Debugging helper, writes out bitmap info.
+     */
     void dump() const;
+
+    /**
+     * Buffer size getter.
+     *
+     * @return count of bytes in buffer.
+     */
     DWORD size() const;
 
+    /**
+     * Native bitmap handle getter.
+     *
+     * @return native bitmap handle.
+     */
     HBITMAP getHandle();
+
+    /**
+     * Copies buffer from device context
+     */
+    void copy();
+
+protected:
+    /**
+     * Forces transparency to non-transparent
+     */
     void fixAlpha();
 
 private:

@@ -58,6 +58,8 @@ class FramebufferChangeDetector extends Thread implements TimeOutCallback {
      * The event loop.
      */
     final private EventLoop eventLoop;
+    
+    final private FramebufferDevice fb;
 
     /**
      * Instantiates a new framebuffer change detector.
@@ -66,6 +68,7 @@ class FramebufferChangeDetector extends Thread implements TimeOutCallback {
         setName("FramebufferChangeDetector");
         adler32 = new Adler32();
         eventLoop = new EventLoop();
+        fb = PlatformController.instance().getPlatformManager().getFramebufferDevice();
 
         /*
          private MessageDigest md;
@@ -95,7 +98,7 @@ class FramebufferChangeDetector extends Thread implements TimeOutCallback {
      * @return true, if successful
      */
     private boolean compare() {
-        FramebufferDevice fb = PlatformController.instance().getPlatformManager().getFramebufferDevice();
+        
         boolean changeFound = false;
 
         if (!fb.format().equals(format) || !fb.size().equals(size)) {
@@ -172,6 +175,7 @@ class FramebufferChangeDetector extends Thread implements TimeOutCallback {
 
     @Override
     public void timeout() {
+    	fb.grabScreen();
         boolean changed = compare();
         int waitTime = 50;
         if (!changed) {

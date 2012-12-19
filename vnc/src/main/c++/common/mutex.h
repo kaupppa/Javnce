@@ -19,6 +19,9 @@
 namespace Javnce
 {
 
+/**
+ * The Class Mutex is a mutex.
+ */
 class Mutex
 {
     class PrivateData;
@@ -26,7 +29,14 @@ public:
     Mutex();
     ~Mutex();
 
+    /**
+     * Locks mutex.
+     */
     void lock();
+
+    /**
+     * Unlocks mutex.
+     */
     void unlock();
 private:
     PrivateData *d;

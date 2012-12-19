@@ -88,4 +88,12 @@ public class Win32GdiFramebufferTest {
             }
         }
     }
+
+    @Test
+    public void testGrabScreen() {
+        if (isWindows) {
+            dev = new Win32GdiFramebuffer();
+            dev.grabScreen();
+        }
+    }
 }

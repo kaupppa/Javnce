@@ -17,7 +17,8 @@ HEADERS += \
     $$COMMON_FOLDER/mutex.h \
     $$COMMON_FOLDER/framebuffer.h \
     $$COMMON_FOLDER/framebufferapi.h \
-    org_javnce_vnc_server_platform_XShmFramebuffer.h
+    org_javnce_vnc_server_platform_XShmFramebuffer.h \
+    $$COMMON_FOLDER/abstractframebuffer.h
 
 SOURCES += \
     fbxshm.cpp \

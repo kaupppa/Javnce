@@ -61,6 +61,16 @@ public class VncImage {
                 vncFormat = org.javnce.rfb.types.PixelFormat.createARGB888();
                 break;
             //TODO RGB565 needed but how ....
+		case BYTE_INDEXED:
+			break;
+		case BYTE_RGB:
+			break;
+		case INT_ARGB:
+			break;
+		case INT_ARGB_PRE:
+			break;
+		default:
+			break;
         }
 
         return vncFormat;

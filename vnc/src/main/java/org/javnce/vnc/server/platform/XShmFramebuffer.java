@@ -38,10 +38,7 @@ class XShmFramebuffer implements FramebufferDevice {
         try {
             System.loadLibrary(libName);
         } catch (UnsatisfiedLinkError e) {
-            /*
-             Logger.getLogger(XShmFramebuffer.class.getName())
-             .log(Level.INFO, "Couldn't load " + libName, e);
-             */
+             Logger.getLogger(XShmFramebuffer.class.getName()).log(Level.INFO, "Couldn't load " + libName, e);
         }
 
     }
@@ -86,4 +83,7 @@ class XShmFramebuffer implements FramebufferDevice {
      */
     @Override
     public native ByteBuffer[] buffer(int x, int y, int width, int height);
+
+	@Override
+	public native void grabScreen();
 }

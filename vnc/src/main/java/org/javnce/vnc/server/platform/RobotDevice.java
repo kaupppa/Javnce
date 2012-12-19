@@ -315,4 +315,10 @@ class RobotDevice implements FramebufferDevice, KeyBoardDevice, PointerDevice {
             robot.mouseWheel(1);
         }
     }
+
+	@Override
+	public void grabScreen() {
+		// TODO Auto-generated method stub
+		
+	}
 }

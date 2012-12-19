@@ -85,7 +85,7 @@ Bitmap::~Bitmap()
     d = 0;
 }
 
-uint8_t *Bitmap::getPixels()
+void Bitmap::copy()
 {
     if (NULL != d->context && NULL != d->buffer)
     {
@@ -101,6 +101,10 @@ uint8_t *Bitmap::getPixels()
         }
         fixAlpha();
     }
+}
+
+uint8_t *Bitmap::getPixels()
+{
     return d->buffer;
 }
 

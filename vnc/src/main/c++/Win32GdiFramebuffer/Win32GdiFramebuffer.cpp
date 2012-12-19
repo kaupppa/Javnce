@@ -27,6 +27,7 @@ class Win32GdiFramebuffer::PrivateData
 public:
     PrivateData()
         : mem(root)
+        , bitmap(NULL)
     {
     }
 
@@ -37,6 +38,7 @@ public:
     DeviceContext	mem;
     PixelFormat     format;
     int             bytesPerPixel;
+    Bitmap			*bitmap;
 };
 
 Win32GdiFramebuffer::Win32GdiFramebuffer()
@@ -122,11 +124,26 @@ PixelFormat Win32GdiFramebuffer::getFormat() const
 
 uint8_t *Win32GdiFramebuffer::getData()
 {
-    d->mem.copyFrom(d->root);
-    Bitmap *bitmap = d->mem.getBitmap();
+    uint8_t *ptr=NULL;
+    if (NULL == d->bitmap)
+    {
+        grab();
+    }
+    if (NULL != d->bitmap)
+    {
+        ptr=d->bitmap->getPixels();
+    }
 
-    return bitmap->getPixels();
+    return ptr;
 }
+
+void Win32GdiFramebuffer::grab()
+{
+    d->mem.copyAndFlip(d->root);
+    d->bitmap = d->mem.getBitmap();
+    d->bitmap->copy();
+}
+
 
 int Win32GdiFramebuffer::getBytesPerPixel() const
 {

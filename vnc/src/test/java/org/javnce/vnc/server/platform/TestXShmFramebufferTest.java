@@ -104,4 +104,12 @@ public class TestXShmFramebufferTest {
             }
         }
     }
+
+    @Test
+    public void testGrabScreen() {
+        if (isLinux) {
+            dev = new XShmFramebuffer();
+            dev.grabScreen();
+        }
+    }
 }

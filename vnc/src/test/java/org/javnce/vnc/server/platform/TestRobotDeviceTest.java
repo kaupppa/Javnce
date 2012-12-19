@@ -102,6 +102,12 @@ public class TestRobotDeviceTest {
 
             assertEquals(array[i].width * array[i].height * format.bytesPerPixel(), length);
         }
-
     }
+    
+    @Test
+    public void testGrabScreen() {
+        dev = RobotDevice.instance();
+        dev.grabScreen();
+    }
+
 }

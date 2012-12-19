@@ -21,6 +21,9 @@
 namespace Javnce
 {
 
+/**
+ * The Class MutexLocker is helper class for handling Mutex.
+ */
 class MutexLocker
 {
 public:

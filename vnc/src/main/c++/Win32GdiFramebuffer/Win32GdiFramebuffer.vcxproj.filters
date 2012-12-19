@@ -42,9 +42,6 @@
     <ClInclude Include="..\common\pixelformat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="jni_api.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Win32GdiFramebuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -52,6 +49,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Bitmap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jni_api.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

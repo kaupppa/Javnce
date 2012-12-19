@@ -97,4 +97,10 @@ public class TestDummyDeviceTest {
             assertEquals(array[i].width * array[i].height * format.bytesPerPixel(), length);
         }
     }
+
+    @Test
+    public void testGrabScreen() {
+        dev = new DummyDevice();
+        dev.grabScreen();
+    }
 }

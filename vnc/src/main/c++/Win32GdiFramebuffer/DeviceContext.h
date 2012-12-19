@@ -21,32 +21,109 @@
 
 namespace Javnce
 {
+
+/**
+ * The Class DeviceContext wraps handling of device context (HDC).
+ */
 class DeviceContext
 {
     class PrivateData;
 public:
+    /**
+     * Constructor that creates memory device context compatible with given device.
+     *
+     * @param parent is the given device
+     */
     DeviceContext(const DeviceContext &parent);
+
+    /**
+     * Constructor that creates device context of whole screen.
+     *
+     * @param parent is the given device
+     */
     DeviceContext();
+
     ~DeviceContext();
 
+    /**
+     * Bits per pixel getter.
+     *
+     * @return number of bits per pixel.
+     */
     int getBitsPerPixel();
+
+    /**
+     * Width getter.
+     *
+     * @return width in pixels.
+     */
     DWORD getWidth();
+
+    /**
+     * Height getter.
+     *
+     * @return height in pixels.
+     */
     DWORD getHeight();
+
+
+    /**
+     * Tests if needed RASTERCAPS capabilities are supported.
+     *
+     * @return true if needed features are supported.
+     */
     bool supportsDIBits();
 
-    //Ownership is given
+    /**
+     * Creates Bitmap compatible with device context.
+     * The ownership of created object is given.
+     *
+     * @return bitmap object compatible with device context.
+     */
     Bitmap *createBitmap();
 
-    //Ownership is taken
+    /**
+     * Takes given bitmap and assign it to device context.
+     * The ownership of given objet is taken.
+     *
+     * @param bitmap is the new bitmap for device context.
+     */
     void setBitmap(Bitmap *bitmap);
-    //Ownership is not given
+
+    /**
+     * Provides access to device context specific bitmap.
+     * The ownership of bitmap is not given.
+     *
+     * @return bitmap of device context.
+     */
     Bitmap * getBitmap();
 
+    /**
+     * Debugging helper, writes out device context info.
+     */
     void dump() const;
 
-    void copyFrom(const DeviceContext &source);
+    /**
+     * Copies device context.
+     *
+     * @param source is the source device context.
+     */
+    void copy(const DeviceContext &source);
 
+    /**
+     * Similar to copy but flips vertically at copy.
+     *
+     * @param source is the source device context.
+     */
+    void copyAndFlip(const DeviceContext &source);
+
+    /**
+     * Native device context handle getter.
+     *
+     * @return native device context handle.
+     */
     HDC getHandle();
+
 private:
     PrivateData *d;
 };

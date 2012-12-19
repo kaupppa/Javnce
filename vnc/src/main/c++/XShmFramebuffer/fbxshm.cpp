@@ -77,6 +77,7 @@ FbXShm::FbXShm()
     init();
     initFormat();
     d->bytesPerPixel = d->format.bitsPerPixel / 8;
+    grab();
 }
 
 FbXShm::~FbXShm()
@@ -213,11 +214,15 @@ PixelFormat FbXShm::getFormat() const
 
 uint8_t *FbXShm::getData()
 {
-    unsigned long plane_mask = AllPlanes;
-    XShmGetImage(d->display, d->window, d->ximage, 0, 0, plane_mask);
-
     return (uint8_t *)d->ximage->data;
 }
+
+void FbXShm::grab()
+{
+    unsigned long plane_mask = AllPlanes;
+    XShmGetImage(d->display, d->window, d->ximage, 0, 0, plane_mask);
+}
+
 
 int FbXShm::getBytesPerPixel() const
 {

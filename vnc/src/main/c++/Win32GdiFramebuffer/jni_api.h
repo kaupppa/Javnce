@@ -39,6 +39,14 @@ extern "C" {
     JNIEXPORT jobjectArray JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_buffer
     (JNIEnv *, jobject, jint, jint, jint, jint);
 
+    /*
+     * Class:     org_javnce_vnc_server_platform_Win32GdiFramebuffer
+     * Method:    grabScreen
+     * Signature: ()V
+     */
+    JNIEXPORT void JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_grabScreen
+    (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif

@@ -21,6 +21,11 @@
 
 namespace Javnce
 {
+
+/**
+ * The Class FbXShm is an AbstractFrameBuffer implementation with
+ * Linux X and XShm.
+ */
 class FbXShm : public AbstractFrameBuffer
 {
     class PrivateData;
@@ -29,6 +34,11 @@ public:
     FbXShm();
     ~FbXShm();
 
+    /**
+     * Tests if FbXShm can be used.
+     *
+     * @return true if xshm is available.
+     */
     static bool isSupported();
 
     int getWidth() const;
@@ -36,6 +46,7 @@ public:
     PixelFormat getFormat() const;
     uint8_t *getData();
     int getBytesPerPixel() const;
+    void grab();
 
 private:
     void init();

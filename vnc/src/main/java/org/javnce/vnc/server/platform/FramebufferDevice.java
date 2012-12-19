@@ -49,4 +49,10 @@ public interface FramebufferDevice {
      * @return the array of buffers
      */
     public abstract ByteBuffer[] buffer(int x, int y, int width, int height);
+
+    /**
+     * The method to grab screen. The method should take new screen capture.
+     *
+     */
+    public abstract void grabScreen();
 }

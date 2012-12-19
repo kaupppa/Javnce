@@ -31,7 +31,7 @@ using namespace Javnce;
 void clear(void);
 static void init();
 
-static Win32GdiFramebuffer *dev = 0;
+static AbstractFrameBuffer *dev = 0;
 static Mutex mutex;
 
 JNIEXPORT jboolean JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_hasGdiFramebuffer(JNIEnv *, jobject)
@@ -73,6 +73,13 @@ JNIEXPORT jobjectArray JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFrame
     return getBuffer(dev, env, x, y, width, height);
 }
 
+JNIEXPORT void JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_grabScreen(JNIEnv *, jobject)
+{
+    init();
+    dev->grab();
+}
+
+
 static void init()
 {
     MutexLocker locker(&mutex);
@@ -90,3 +97,4 @@ void clear(void)
     delete dev;
     dev = 0;
 }
+

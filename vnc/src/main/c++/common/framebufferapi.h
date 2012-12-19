@@ -21,8 +21,20 @@
 #include "abstractframebuffer.h"
 namespace Javnce
 {
+
+/**
+ * The getSize function gets AbstractFrameBuffer size in Java org.javnce.rfb.types.Size format.
+ */
 jobject getSize(AbstractFrameBuffer *fb, JNIEnv *env);
+
+/**
+ * The getFormat function gets AbstractFrameBuffer format in Java org.javnce.rfb.types.PixelFormat format.
+ */
 jobject getFormat(AbstractFrameBuffer *fb, JNIEnv *env);
+
+/**
+ * The getBuffer function gets AbstractFrameBuffer data in Java java.nio.ByteBuffer format.
+ */
 jobjectArray getBuffer(AbstractFrameBuffer *fb, JNIEnv *env, jint x, jint y, jint width, jint height);
 }//End of Javnce
 

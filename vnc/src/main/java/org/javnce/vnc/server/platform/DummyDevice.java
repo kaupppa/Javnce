@@ -116,4 +116,9 @@ class DummyDevice implements FramebufferDevice, PointerDevice, KeyBoardDevice {
     public void pointerEvent(int mask, int x, int y) {
         //Do nothing
     }
+
+	@Override
+	public void grabScreen() {
+		//Do nothing
+	}
 }
