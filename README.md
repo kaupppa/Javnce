@@ -13,23 +13,7 @@ the access only if you accept the connection.
 When connecting to remote desktop, the Javnce shows desktops that 
 are shared. All you need to do is pick one and wait that it is accepted.
 
-# The dirty details
-## Build requirements.
-### Linux
-- Java jdk with JavaFX support, that is latest oracle jdk.
-- qt4-dev-tools package for jni part
-- build-essential package for jni part
-- libxtst-dev package for jni part
-
-## Known issues.
-1. JavaFX Native Installers for linux has a bug with Java runtime libraries
-   Workaround is the manually fix it after installing javnce-application-1.0.deb.
-   Just create symolic link as following:
-   - mkdir -p /opt/javnce-application/runtime/jre/lib/amd64/client/
-   - cd /opt/javnce-application/runtime/jre/lib/amd64/client/
-   - ln -s /opt/javnce-application/runtime/jre/lib/amd64/server/libjvm.so
-
-2. JavaFX ImageView and WritableImage
-   The new JavaFX image is missing lost of features that Swing image have. 
-   Run the example.swingclient.SwingClient to see the difference.
+# Documentation  and third party SW links
+1. [Javance Wiki] (https://github.com/kaupppa/Javnce/wiki)
+1. [Cling - Java/Android UPnP library and tools] (http://4thline.org/projects/cling/)
 
