@@ -7,45 +7,45 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    /*
-     * Class:     org_javnce_vnc_server_platform_Win32GdiFramebuffer
-     * Method:    hasGdiFramebuffer
-     * Signature: ()Z
-     */
-    JNIEXPORT jboolean JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_hasGdiFramebuffer
-    (JNIEnv *, jobject);
+/*
+ * Class:     org_javnce_vnc_server_platform_Win32GdiFramebuffer
+ * Method:    hasGdiFramebuffer
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_hasGdiFramebuffer
+  (JNIEnv *, jobject);
 
-    /*
-     * Class:     org_javnce_vnc_server_platform_Win32GdiFramebuffer
-     * Method:    size
-     * Signature: ()Lorg/javnce/rfb/types/Size;
-     */
-    JNIEXPORT jobject JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_size
-    (JNIEnv *, jobject);
+/*
+ * Class:     org_javnce_vnc_server_platform_Win32GdiFramebuffer
+ * Method:    size
+ * Signature: ()Lorg/javnce/rfb/types/Size;
+ */
+JNIEXPORT jobject JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_size
+  (JNIEnv *, jobject);
 
-    /*
-     * Class:     org_javnce_vnc_server_platform_Win32GdiFramebuffer
-     * Method:    format
-     * Signature: ()Lorg/javnce/rfb/types/PixelFormat;
-     */
-    JNIEXPORT jobject JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_format
-    (JNIEnv *, jobject);
+/*
+ * Class:     org_javnce_vnc_server_platform_Win32GdiFramebuffer
+ * Method:    format
+ * Signature: ()Lorg/javnce/rfb/types/PixelFormat;
+ */
+JNIEXPORT jobject JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_format
+  (JNIEnv *, jobject);
 
-    /*
-     * Class:     org_javnce_vnc_server_platform_Win32GdiFramebuffer
-     * Method:    buffer
-     * Signature: (IIII)[Ljava/nio/ByteBuffer;
-     */
-    JNIEXPORT jobjectArray JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_buffer
-    (JNIEnv *, jobject, jint, jint, jint, jint);
+/*
+ * Class:     org_javnce_vnc_server_platform_Win32GdiFramebuffer
+ * Method:    buffer
+ * Signature: (IIII)[Ljava/nio/ByteBuffer;
+ */
+JNIEXPORT jobjectArray JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_buffer
+  (JNIEnv *, jobject, jint, jint, jint, jint);
 
-    /*
-     * Class:     org_javnce_vnc_server_platform_Win32GdiFramebuffer
-     * Method:    grabScreen
-     * Signature: ()V
-     */
-    JNIEXPORT void JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_grabScreen
-    (JNIEnv *, jobject);
+/*
+ * Class:     org_javnce_vnc_server_platform_Win32GdiFramebuffer
+ * Method:    grabScreen
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_grabScreen
+  (JNIEnv *, jobject);
 
 #ifdef __cplusplus
 }
