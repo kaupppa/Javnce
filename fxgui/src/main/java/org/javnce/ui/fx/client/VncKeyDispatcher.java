@@ -18,9 +18,11 @@ package org.javnce.ui.fx.client;
 
 import javafx.event.EventHandler;
 import javafx.scene.Node;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import org.javnce.ui.model.ClientConfiguration;
 import org.javnce.vnc.client.VncClientController;
+import org.javnce.vnc.common.KeyMap;
 
 /**
  * The class for dispatch key events to server.
@@ -31,12 +33,51 @@ public class VncKeyDispatcher {
      * The controller.
      */
     final private VncClientController controller;
+    /**
+     * The key mapping.
+     */
+    final private KeyMap<KeyCode> map;
 
     /**
      * Instantiates a new dispatcher.
      */
     public VncKeyDispatcher() {
         controller = ClientConfiguration.instance().getVncController();
+        map = new KeyMap<>();
+
+        map.addMapping(KeyCode.ALT, KeyMap.XK_Alt_L);
+        map.addMapping(KeyCode.SHIFT, KeyMap.XK_Shift_L);
+        map.addMapping(KeyCode.CONTROL, KeyMap.XK_Control_L);
+        map.addMapping(KeyCode.CAPS, KeyMap.XK_Caps_Lock);
+        map.addMapping(KeyCode.NUM_LOCK, KeyMap.XK_Num_Lock);
+        map.addMapping(KeyCode.WINDOWS, KeyMap.XK_Super_L);
+
+        map.addMapping(KeyCode.TAB, KeyMap.XK_Tab);
+        map.addMapping(KeyCode.BACK_SPACE, KeyMap.XK_BackSpace);
+        map.addMapping(KeyCode.ENTER, KeyMap.XK_Return);
+        map.addMapping(KeyCode.PAUSE, KeyMap.XK_Pause);
+        map.addMapping(KeyCode.SCROLL_LOCK, KeyMap.XK_Scroll_Lock);
+        map.addMapping(KeyCode.ESCAPE, KeyMap.XK_Escape);
+        map.addMapping(KeyCode.DELETE, KeyMap.XK_Delete);
+
+        map.addMapping(KeyCode.HOME, KeyMap.XK_Home);
+        map.addMapping(KeyCode.LEFT, KeyMap.XK_Left);
+        map.addMapping(KeyCode.UP, KeyMap.XK_Up);
+        map.addMapping(KeyCode.RIGHT, KeyMap.XK_Right);
+        map.addMapping(KeyCode.DOWN, KeyMap.XK_Down);
+        map.addMapping(KeyCode.PAGE_UP, KeyMap.XK_Page_Up);
+        map.addMapping(KeyCode.PAGE_DOWN, KeyMap.XK_Page_Down);
+        map.addMapping(KeyCode.END, KeyMap.XK_End);
+        map.addMapping(KeyCode.BEGIN, KeyMap.XK_Begin);
+        map.addMapping(KeyCode.PRINTSCREEN, KeyMap.XK_Sys_Req);
+        map.addMapping(KeyCode.INSERT, KeyMap.XK_Insert);
+        map.addMapping(KeyCode.UNDO, KeyMap.XK_Undo);
+        map.addMapping(KeyCode.CONTEXT_MENU, KeyMap.XK_Menu);
+        map.addMapping(KeyCode.FIND, KeyMap.XK_Find);
+        map.addMapping(KeyCode.CANCEL, KeyMap.XK_Cancel);
+        map.addMapping(KeyCode.HELP, KeyMap.XK_Help);
+        map.addMapping(KeyCode.MODECHANGE, KeyMap.XK_Mode_switch);
+
     }
 
     /**
@@ -82,13 +123,26 @@ public class VncKeyDispatcher {
      * @param event the event
      */
     private void sendKeyEvent(boolean down, KeyEvent event) {
-        String keyChar = event.getText();
-        //KeyCode keyCode = event.getCode();
+
+        final String keyChar = event.getText();
+        int keysym = KeyMap.None;
 
         if (keyChar.length() == 1) {
-            controller.keyEvent(down, keyChar.charAt(0));
-        } else {
-            //FIXME Missing proper Java key to VNC key conversion
+            //If char then check if unicode
+            keysym = KeyMap.unicodeToKeySym(keyChar.charAt(0));
         }
+
+        if (KeyMap.None == keysym) {
+            //Check if mapped value
+            KeyCode keyCode = event.getCode();
+            if (KeyCode.UNDEFINED != keyCode) {
+                keysym = map.getMapped(keyCode);
+            }
+        }
+
+        if (KeyMap.None != keysym) {
+            controller.keyEvent(down, keysym);
+        }
+
     }
 }

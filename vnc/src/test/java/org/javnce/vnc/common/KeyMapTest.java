@@ -37,7 +37,6 @@ public class KeyMapTest {
             new TestData(KeyMap.None, 0x19), //None unicode
             new TestData(0x20, 0x20), //First unicode
             new TestData(0xff, 0xff),
-            new TestData(KeyMap.XK_soliddiamond, 0x25C6), //Unicode with mapping
             new TestData(KeyMap.XK_Aogonek, 0x104), //Unicode with mapping
             new TestData(KeyMap.None, 0x10FFFF + 1), //None unicode
             new TestData(0x1000174, 0x174), //Unicode with plus 0x1000000

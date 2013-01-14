@@ -26,11 +26,57 @@
 ################################################################################
 
 BEGIN { 
-        nonUnicodeIndex = 0
-        unicodeIndex = 0
-        className = "KeyMap"
-        packageName ="org.javnce.vnc.common"
+    nonUnicodeIndex = 0
+    unicodeIndex = 0
+    className = "KeyMap"
+    packageName ="org.javnce.vnc.common"
+        
+    #sections defines what ifdefs are parsed
+    sections["XK_MISCELLANY"] = 1
+    sections["XK_XKB_KEYS"] = 0
+    sections["XK_3270"] = 0
+    sections["XK_LATIN1"] = 1
+    sections["XK_LATIN2"] = 1
+    sections["XK_LATIN3"] = 1
+    sections["XK_LATIN4"] = 1
+    sections["XK_LATIN8"] = 1
+    sections["XK_LATIN9"] = 1
+    sections["XK_KATAKANA"] = 0
+    sections["XK_ARABIC"] = 0
+    sections["XK_CYRILLIC"] = 0
+    sections["XK_GREEK"] = 0
+    sections["XK_TECHNICAL"] = 0
+    sections["XK_SPECIAL"] = 0
+    sections["XK_PUBLISHING"] = 0
+    sections["XK_APL"] = 0
+    sections["XK_HEBREW"] = 0
+    sections["XK_THAI"] = 0
+    sections["XK_KOREAN"] = 0
+    sections["XK_ARMENIAN"] = 0
+    sections["XK_GEORGIAN"] = 0
+    sections["XK_CAUCASUS"] = 0
+    sections["XK_VIETNAMESE"] = 0
+    sections["XK_CURRENCY"] = 0
+    sections["XK_MATHEMATICAL"] = 0
+    sections["XK_BRAILLE"] = 0
+    sections["XK_SINHALA"] = 0
+
+    sectionAllowed = 0
+    keyIndex = 0
+
 }
+/^#ifdef/    {
+                section = $2
+                #print "section " $2
+                sectionAllowed = 0;
+                if ($2 in sections)
+                {
+                    sectionAllowed = sections[$2]
+                }
+            }
+/^#endif/    {
+                sectionAllowed = 0
+            }
 
 /deprecated/ { 
                 #Ignore deprecated
@@ -42,11 +88,19 @@ BEGIN {
                 next 
              }
 /^#define/   {
-                if (5 < NF)
+                if (!sectionAllowed)
                 {
-                    if ($5 ~ /U+/ )
+                    next
+                }
+                if (5 < NF && $0 ~ /U+/)
+                {
+                    pos = index($0, "U+")
+                    if (0 != pos)
                     {
-                        addUnicode($2, $3, $5)
+                        unicode = substr($0, pos)
+                        split(unicode, array, " ")
+                        unicode = array[1]
+                        addUnicode($2, $3, unicode)
                         next
                     }
                 }
@@ -148,9 +202,9 @@ function writeClassHeader()
     printf(" *\n")
     printf(" * Generated file, do not edit manually.\n")
     printf(" * Generated with command : tools/generate_keymappingclass.awk")
-    for (i = 1; i < ARGC; i++)
+    for (i = 0; i < ARGC; i++)
     {
-            printf( "%s ", ARGV[i])
+            printf( " %s", ARGV[i])
     }
     printf("\n")
     printf(" */\n")
@@ -168,7 +222,7 @@ function writeClassHeader()
     printf("    final private Map<T, Integer> map;\n")
 
     printf("\n")
-    printf("    %s() {\n", className)
+    printf("    public %s() {\n", className)
     printf("        this.map = new HashMap<>();\n")
     printf("    }\n")
 }
