@@ -13,6 +13,8 @@ namespace Javnce
 class AbstractFrameBuffer
 {
 public:
+
+    virtual ~AbstractFrameBuffer(){}
     /**
      * Width getter.
      *

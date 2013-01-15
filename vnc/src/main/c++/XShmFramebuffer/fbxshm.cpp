@@ -42,7 +42,7 @@ public:
 
     ~PrivateData()
     {
-        if (0 < shminfo.shmaddr)
+        if (0 != shminfo.shmaddr)
         {
             XShmDetach(display, &shminfo);
         }
@@ -52,7 +52,7 @@ public:
             XDestroyImage(ximage);
         }
 
-        if (0 < shminfo.shmaddr)
+        if (0 != shminfo.shmaddr)
         {
             shmdt(shminfo.shmaddr);
         }

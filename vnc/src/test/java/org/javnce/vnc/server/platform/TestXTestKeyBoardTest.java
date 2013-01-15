@@ -17,6 +17,7 @@
 package org.javnce.vnc.server.platform;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.*;
 import org.junit.Test;
 
 public class TestXTestKeyBoardTest {
@@ -31,9 +32,8 @@ public class TestXTestKeyBoardTest {
 
     @Test
     public void testHasXTest() {
-        if (isLinux) {
-            XTestKeyBoard t = new XTestKeyBoard();
-            assertTrue(t.hasXTest());
-        }
+        assumeTrue(isLinux);
+        XTestKeyBoard t = new XTestKeyBoard();
+        assertTrue(t.hasXTest());
     }
 }

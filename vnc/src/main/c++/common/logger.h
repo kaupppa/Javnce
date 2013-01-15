@@ -25,10 +25,10 @@
 /**
  * Some helper macros.
  */
-#define LOG_TRACE()                 printf("TRACE: %s\n", __PRETTY_FUNCTION__)
-#define LOG_DEBUG(format, ...)      printf("DEBUG %s : ", __PRETTY_FUNCTION__);printf(format, ##__VA_ARGS__);printf("\n")
-#define LOG_WARNING(format, ...)    fprintf(stderr, "WARNING %s : ", __PRETTY_FUNCTION__);fprintf(stderr, format, ##__VA_ARGS__);fprintf(stderr,"\n")
-#define LOG_ERROR(format, ...)      fprintf(stderr, "ERROR %s : ", __PRETTY_FUNCTION__);fprintf(stderr, format, ##__VA_ARGS__);fprintf(stderr,"\n")
+#define LOG_TRACE()                 printf("TRACE: %s\n", __PRETTY_FUNCTION__);fflush(stdout)
+#define LOG_DEBUG(format, ...)      printf("DEBUG %s : ", __PRETTY_FUNCTION__);printf(format, ##__VA_ARGS__);printf("\n");fflush(stdout)
+#define LOG_WARNING(format, ...)    fprintf(stderr, "WARNING %s : ", __PRETTY_FUNCTION__);fprintf(stderr, format, ##__VA_ARGS__);fprintf(stderr,"\n");fflush(stderr)
+#define LOG_ERROR(format, ...)      fprintf(stderr, "ERROR %s : ", __PRETTY_FUNCTION__);fprintf(stderr, format, ##__VA_ARGS__);fprintf(stderr,"\n");fflush(stderr)
 
 
 #endif // LOGGER_H

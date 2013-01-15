@@ -17,6 +17,7 @@
 package org.javnce.vnc.server.platform;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.*;
 import org.junit.Test;
 
 public class TestXTestPointerInputDeviceTest {
@@ -30,9 +31,8 @@ public class TestXTestPointerInputDeviceTest {
 
     @Test
     public void testCanSupport() {
-        if (isLinux) {
-            XTestPointerInputDevice t = new XTestPointerInputDevice();
-            assertTrue(t.canSupport());
-        }
+        assumeTrue(isLinux);
+        XTestPointerInputDevice t = new XTestPointerInputDevice();
+        assertTrue(t.canSupport());
     }
 }

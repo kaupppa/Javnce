@@ -4,7 +4,7 @@ TEMP_INCLUDE_PATHS=$$(JAVNCE_INCLUDE_PATHS)
 
 #if TEMP_INCLUDE_PATHS variable is empty set hardcode for qcreator useage
 isEmpty( TEMP_INCLUDE_PATHS ) {
-    JDK_ROOT=/home/pauli/jdk1.7.0_09
+    JDK_ROOT=/usr/lib/jvm/java-7-oracle
     INCLUDEPATH += $$JDK_ROOT/include/
     INCLUDEPATH += $$JDK_ROOT/include/linux/
     INCLUDEPATH += $$IN_PWD/../../../target/libs/

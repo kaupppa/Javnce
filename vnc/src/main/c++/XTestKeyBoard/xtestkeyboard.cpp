@@ -21,6 +21,7 @@
 #include "keymap.h"
 #include "modifiermap.h"
 #include "xtestkeyboard.h"
+#include "logger.h"
 
 namespace Javnce
 {
@@ -55,9 +56,30 @@ XTestKeyBoard::~XTestKeyBoard()
     delete d;
     d = 0;
 }
-
+#if 1
+//This version just forwards what it get
 void XTestKeyBoard::event(const KeySym keySym,  bool down)
 {
+    //LOG_DEBUG("event(down='%s, code=0x%lX (%ld)')", (down?"True":"False"), keySym, keySym);
+    if (NoSymbol != keySym)
+    {
+        KeyCode code;
+        d->keyMap.findKeyCode(keySym, code);
+
+        if (KEYCODE_NONE != code)
+        {
+            send(code, down);
+
+            XSync(d->display, false);
+        }
+    }
+}
+
+#else
+//This version send press and release when down is true
+void XTestKeyBoard::event(const KeySym keySym,  bool down)
+{
+    //LOG_DEBUG("event(down='%s, code=0x%lX (%ld)')", (down?"True":"False"), keySym, keySym);
     if (down && isValid(keySym))
     {
         KeyCode code;
@@ -75,7 +97,6 @@ void XTestKeyBoard::event(const KeySym keySym,  bool down)
                 {
                     break;
                 }
-
                 send(array[i].code, true);
             }
 
@@ -95,16 +116,16 @@ void XTestKeyBoard::event(const KeySym keySym,  bool down)
                 send(array[i].code, false);
             }
 
-            XFlush(d->display);
-
+            XSync(d->display, false);
         }
     }
 }
-
+#endif
 void XTestKeyBoard::send(KeyCode code,  bool down) const
 {
     if (KEYCODE_NONE != code)
     {
+        //LOG_DEBUG("XTestFakeKeyEvent(down='%s, code=0x%X (%d)')", (down?"True":"False"), code, code);
         XTestFakeKeyEvent(d->display, code, down, CurrentTime);
     }
 }

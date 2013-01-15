@@ -78,7 +78,6 @@ void XTestPointerInputDevice::pointerEvent(int mask, int x, int y)
         }
         d->mask = mask;
     }
-    //XFlush(d->display);
     XSync(d->display,  False);
 }
 
