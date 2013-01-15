@@ -70,35 +70,16 @@ public class VncPointerDispatcher {
      */
     public void register(Node nodeToBeWatched) {
         node = nodeToBeWatched;
-        node.setOnMouseMoved(
-                new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent t) {
-                        mouseEvent(t);
-                    }
-                });
-        node.setOnMousePressed(
-                new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent t) {
-                        mouseEvent(t);
-                    }
-                });
-        node.setOnMouseReleased(
-                new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent t) {
-                        mouseEvent(t);
-                    }
-                });
-
-        node.setOnMouseDragged(
-                new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent t) {
-                        mouseEvent(t);
-                    }
-                });
+        final EventHandler<MouseEvent> handler = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent t) {
+                mouseEvent(t);
+            }
+        };
+        node.setOnMouseMoved(handler);
+        node.setOnMousePressed(handler);
+        node.setOnMouseReleased(handler);
+        node.setOnMouseDragged(handler);
 
         node.setOnScroll(
                 new EventHandler<ScrollEvent>() {

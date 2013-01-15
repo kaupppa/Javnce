@@ -49,9 +49,12 @@ public class VncKeyDispatcher implements KeyEventDispatcher {
         map.addMapping(KeyEvent.VK_ALT, KeyMap.XK_Alt_L);
         map.addMapping(KeyEvent.VK_SHIFT, KeyMap.XK_Shift_L);
         map.addMapping(KeyEvent.VK_CONTROL, KeyMap.XK_Control_L);
+        map.addMapping(KeyEvent.VK_ALT_GRAPH, KeyMap.XK_Super_L);
+        map.addMapping(KeyEvent.VK_WINDOWS, KeyMap.XK_Hyper_L);
+        map.addMapping(KeyEvent.VK_CONTEXT_MENU, KeyMap.XK_Menu);
+
         map.addMapping(KeyEvent.VK_CAPS_LOCK, KeyMap.XK_Caps_Lock);
         map.addMapping(KeyEvent.VK_NUM_LOCK, KeyMap.XK_Num_Lock);
-        map.addMapping(KeyEvent.VK_WINDOWS, KeyMap.XK_Super_L);
 
         map.addMapping(KeyEvent.VK_TAB, KeyMap.XK_Tab);
         map.addMapping(KeyEvent.VK_BACK_SPACE, KeyMap.XK_BackSpace);
@@ -70,10 +73,9 @@ public class VncKeyDispatcher implements KeyEventDispatcher {
         map.addMapping(KeyEvent.VK_PAGE_DOWN, KeyMap.XK_Page_Down);
         map.addMapping(KeyEvent.VK_END, KeyMap.XK_End);
         map.addMapping(KeyEvent.VK_BEGIN, KeyMap.XK_Begin);
-        map.addMapping(KeyEvent.VK_PRINTSCREEN, KeyMap.XK_Sys_Req);
+        map.addMapping(KeyEvent.VK_PRINTSCREEN, KeyMap.XK_Print);
         map.addMapping(KeyEvent.VK_INSERT, KeyMap.XK_Insert);
         map.addMapping(KeyEvent.VK_UNDO, KeyMap.XK_Undo);
-        map.addMapping(KeyEvent.VK_CONTEXT_MENU, KeyMap.XK_Menu);
         map.addMapping(KeyEvent.VK_FIND, KeyMap.XK_Find);
         map.addMapping(KeyEvent.VK_CANCEL, KeyMap.XK_Cancel);
         map.addMapping(KeyEvent.VK_HELP, KeyMap.XK_Help);
@@ -128,6 +130,5 @@ public class VncKeyDispatcher implements KeyEventDispatcher {
         if (KeyMap.None != keysym) {
             controller.keyEvent(down, keysym);
         }
-
     }
 }

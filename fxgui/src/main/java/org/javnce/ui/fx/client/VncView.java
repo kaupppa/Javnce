@@ -190,22 +190,14 @@ public class VncView extends AnchorPane implements Initializable, VncClientObser
      */
     private void initResizeObservers() {
         resize();
-
-        anchorPane.widthProperty().addListener(
-                new ChangeListener<Number>() {
-                    @Override
-                    public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
-                        resize();
-                    }
-                });
-
-        anchorPane.heightProperty().addListener(
-                new ChangeListener<Number>() {
-                    @Override
-                    public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
-                        resize();
-                    }
-                });
+        final ChangeListener<Number> listener = new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
+                resize();
+            }
+        };
+        anchorPane.widthProperty().addListener(listener);
+        anchorPane.heightProperty().addListener(listener);
     }
 
     /**
@@ -236,6 +228,7 @@ public class VncView extends AnchorPane implements Initializable, VncClientObser
 
         keyEventDispatcher = new VncKeyDispatcher();
         keyEventDispatcher.register(imageView);
+        imageView.requestFocus();
     }
 
     /* (non-Javadoc)

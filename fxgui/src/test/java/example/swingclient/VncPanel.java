@@ -155,6 +155,7 @@ public class VncPanel extends JPanel implements VncClientObserver {
         keyEventDispatcher.register(this);
 
         controller.requestFramebuffer(false, rect);
+        requestFocus();
     }
 
     /* (non-Javadoc)
