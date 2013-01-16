@@ -30,7 +30,7 @@ public class KeyMap<T> {
     /**
      * The unicode to keysym map.
      */
-    static final private Map<Integer, Integer> unicodeToKeysymMap = createUnicodeMap();
+    static final private Map<Integer, Integer> unicodeToKeysymMap = createUnicodeMap(); //Unicode as key and keysym as value
     /**
      * The custom map.
      */
@@ -42,6 +42,201 @@ public class KeyMap<T> {
 
     public static final int None = 0x0;
     public static final int KeySym_base = 0x1000000;
+
+    //Next are ASCII constants. See keysymdef.h
+    public static final int XK_space = 0x20;
+    public static final int XK_exclam = 0x21;
+    public static final int XK_quotedbl = 0x22;
+    public static final int XK_numbersign = 0x23;
+    public static final int XK_dollar = 0x24;
+    public static final int XK_percent = 0x25;
+    public static final int XK_ampersand = 0x26;
+    public static final int XK_apostrophe = 0x27;
+    public static final int XK_parenleft = 0x28;
+    public static final int XK_parenright = 0x29;
+    public static final int XK_asterisk = 0x2a;
+    public static final int XK_plus = 0x2b;
+    public static final int XK_comma = 0x2c;
+    public static final int XK_minus = 0x2d;
+    public static final int XK_period = 0x2e;
+    public static final int XK_slash = 0x2f;
+    public static final int XK_0 = 0x30;
+    public static final int XK_1 = 0x31;
+    public static final int XK_2 = 0x32;
+    public static final int XK_3 = 0x33;
+    public static final int XK_4 = 0x34;
+    public static final int XK_5 = 0x35;
+    public static final int XK_6 = 0x36;
+    public static final int XK_7 = 0x37;
+    public static final int XK_8 = 0x38;
+    public static final int XK_9 = 0x39;
+    public static final int XK_colon = 0x3a;
+    public static final int XK_semicolon = 0x3b;
+    public static final int XK_less = 0x3c;
+    public static final int XK_equal = 0x3d;
+    public static final int XK_greater = 0x3e;
+    public static final int XK_question = 0x3f;
+    public static final int XK_at = 0x40;
+    public static final int XK_A = 0x41;
+    public static final int XK_B = 0x42;
+    public static final int XK_C = 0x43;
+    public static final int XK_D = 0x44;
+    public static final int XK_E = 0x45;
+    public static final int XK_F = 0x46;
+    public static final int XK_G = 0x47;
+    public static final int XK_H = 0x48;
+    public static final int XK_I = 0x49;
+    public static final int XK_J = 0x4a;
+    public static final int XK_K = 0x4b;
+    public static final int XK_L = 0x4c;
+    public static final int XK_M = 0x4d;
+    public static final int XK_N = 0x4e;
+    public static final int XK_O = 0x4f;
+    public static final int XK_P = 0x50;
+    public static final int XK_Q = 0x51;
+    public static final int XK_R = 0x52;
+    public static final int XK_S = 0x53;
+    public static final int XK_T = 0x54;
+    public static final int XK_U = 0x55;
+    public static final int XK_V = 0x56;
+    public static final int XK_W = 0x57;
+    public static final int XK_X = 0x58;
+    public static final int XK_Y = 0x59;
+    public static final int XK_Z = 0x5a;
+    public static final int XK_bracketleft = 0x5b;
+    public static final int XK_backslash = 0x5c;
+    public static final int XK_bracketright = 0x5d;
+    public static final int XK_asciicircum = 0x5e;
+    public static final int XK_underscore = 0x5f;
+    public static final int XK_grave = 0x60;
+    public static final int XK_a = 0x61;
+    public static final int XK_b = 0x62;
+    public static final int XK_c = 0x63;
+    public static final int XK_d = 0x64;
+    public static final int XK_e = 0x65;
+    public static final int XK_f = 0x66;
+    public static final int XK_g = 0x67;
+    public static final int XK_h = 0x68;
+    public static final int XK_i = 0x69;
+    public static final int XK_j = 0x6a;
+    public static final int XK_k = 0x6b;
+    public static final int XK_l = 0x6c;
+    public static final int XK_m = 0x6d;
+    public static final int XK_n = 0x6e;
+    public static final int XK_o = 0x6f;
+    public static final int XK_p = 0x70;
+    public static final int XK_q = 0x71;
+    public static final int XK_r = 0x72;
+    public static final int XK_s = 0x73;
+    public static final int XK_t = 0x74;
+    public static final int XK_u = 0x75;
+    public static final int XK_v = 0x76;
+    public static final int XK_w = 0x77;
+    public static final int XK_x = 0x78;
+    public static final int XK_y = 0x79;
+    public static final int XK_z = 0x7a;
+    public static final int XK_braceleft = 0x7b;
+    public static final int XK_bar = 0x7c;
+    public static final int XK_braceright = 0x7d;
+    public static final int XK_asciitilde = 0x7e;
+    public static final int XK_nobreakspace = 0xa0;
+    public static final int XK_exclamdown = 0xa1;
+    public static final int XK_cent = 0xa2;
+    public static final int XK_sterling = 0xa3;
+    public static final int XK_currency = 0xa4;
+    public static final int XK_yen = 0xa5;
+    public static final int XK_brokenbar = 0xa6;
+    public static final int XK_section = 0xa7;
+    public static final int XK_diaeresis = 0xa8;
+    public static final int XK_copyright = 0xa9;
+    public static final int XK_ordfeminine = 0xaa;
+    public static final int XK_guillemotleft = 0xab;
+    public static final int XK_notsign = 0xac;
+    public static final int XK_hyphen = 0xad;
+    public static final int XK_registered = 0xae;
+    public static final int XK_macron = 0xaf;
+    public static final int XK_degree = 0xb0;
+    public static final int XK_plusminus = 0xb1;
+    public static final int XK_twosuperior = 0xb2;
+    public static final int XK_threesuperior = 0xb3;
+    public static final int XK_acute = 0xb4;
+    public static final int XK_mu = 0xb5;
+    public static final int XK_paragraph = 0xb6;
+    public static final int XK_periodcentered = 0xb7;
+    public static final int XK_cedilla = 0xb8;
+    public static final int XK_onesuperior = 0xb9;
+    public static final int XK_masculine = 0xba;
+    public static final int XK_guillemotright = 0xbb;
+    public static final int XK_onequarter = 0xbc;
+    public static final int XK_onehalf = 0xbd;
+    public static final int XK_threequarters = 0xbe;
+    public static final int XK_questiondown = 0xbf;
+    public static final int XK_Agrave = 0xc0;
+    public static final int XK_Aacute = 0xc1;
+    public static final int XK_Acircumflex = 0xc2;
+    public static final int XK_Atilde = 0xc3;
+    public static final int XK_Adiaeresis = 0xc4;
+    public static final int XK_Aring = 0xc5;
+    public static final int XK_AE = 0xc6;
+    public static final int XK_Ccedilla = 0xc7;
+    public static final int XK_Egrave = 0xc8;
+    public static final int XK_Eacute = 0xc9;
+    public static final int XK_Ecircumflex = 0xca;
+    public static final int XK_Ediaeresis = 0xcb;
+    public static final int XK_Igrave = 0xcc;
+    public static final int XK_Iacute = 0xcd;
+    public static final int XK_Icircumflex = 0xce;
+    public static final int XK_Idiaeresis = 0xcf;
+    public static final int XK_ETH = 0xd0;
+    public static final int XK_Ntilde = 0xd1;
+    public static final int XK_Ograve = 0xd2;
+    public static final int XK_Oacute = 0xd3;
+    public static final int XK_Ocircumflex = 0xd4;
+    public static final int XK_Otilde = 0xd5;
+    public static final int XK_Odiaeresis = 0xd6;
+    public static final int XK_multiply = 0xd7;
+    public static final int XK_Oslash = 0xd8;
+    public static final int XK_Ooblique = 0xd8;
+    public static final int XK_Ugrave = 0xd9;
+    public static final int XK_Uacute = 0xda;
+    public static final int XK_Ucircumflex = 0xdb;
+    public static final int XK_Udiaeresis = 0xdc;
+    public static final int XK_Yacute = 0xdd;
+    public static final int XK_THORN = 0xde;
+    public static final int XK_ssharp = 0xdf;
+    public static final int XK_agrave = 0xe0;
+    public static final int XK_aacute = 0xe1;
+    public static final int XK_acircumflex = 0xe2;
+    public static final int XK_atilde = 0xe3;
+    public static final int XK_adiaeresis = 0xe4;
+    public static final int XK_aring = 0xe5;
+    public static final int XK_ae = 0xe6;
+    public static final int XK_ccedilla = 0xe7;
+    public static final int XK_egrave = 0xe8;
+    public static final int XK_eacute = 0xe9;
+    public static final int XK_ecircumflex = 0xea;
+    public static final int XK_ediaeresis = 0xeb;
+    public static final int XK_igrave = 0xec;
+    public static final int XK_iacute = 0xed;
+    public static final int XK_icircumflex = 0xee;
+    public static final int XK_idiaeresis = 0xef;
+    public static final int XK_eth = 0xf0;
+    public static final int XK_ntilde = 0xf1;
+    public static final int XK_ograve = 0xf2;
+    public static final int XK_oacute = 0xf3;
+    public static final int XK_ocircumflex = 0xf4;
+    public static final int XK_otilde = 0xf5;
+    public static final int XK_odiaeresis = 0xf6;
+    public static final int XK_division = 0xf7;
+    public static final int XK_oslash = 0xf8;
+    public static final int XK_ooblique = 0xf8;
+    public static final int XK_ugrave = 0xf9;
+    public static final int XK_uacute = 0xfa;
+    public static final int XK_ucircumflex = 0xfb;
+    public static final int XK_udiaeresis = 0xfc;
+    public static final int XK_yacute = 0xfd;
+    public static final int XK_thorn = 0xfe;
+    public static final int XK_ydiaeresis = 0xff;
 
     //Next are none unicode constants. See keysymdef.h
     public static final int XK_BackSpace = 0xff08;
@@ -335,8 +530,7 @@ public class KeyMap<T> {
     public static final int XK_oe = 0x13bd;
     public static final int XK_Ydiaeresis = 0x13be;
 
-    static private Map<Integer, Integer> createUnicodeMap()
-    {
+    static private Map<Integer, Integer> createUnicodeMap() {
         Map<Integer, Integer> map = new HashMap<>();
         map.put(new Integer(0x104), new Integer(XK_Aogonek));
         map.put(new Integer(0x2D8), new Integer(XK_breve));
@@ -462,29 +656,21 @@ public class KeyMap<T> {
      * converts unicode value to X11 keysym value.
      *
      * @param unicode is the unicode value to be converted
-     * 
-     * @return keysym value or None if not a unicode 
+     *
+     * @return keysym value or None if not a unicode
      */
-    static public int unicodeToKeySym(int unicode)
-    {
+    static public int unicodeToKeySym(int unicode) {
         int keysum = None;
-        
-        if (0x20 <= unicode && unicode <= 0x7e)
-        {
+
+        if (0x20 <= unicode && unicode <= 0x7e) {
             keysum = unicode;
-        }
-        else if (0xa0 <= unicode && unicode <= 0xff)
-        {
+        } else if (0xa0 <= unicode && unicode <= 0xff) {
             keysum = unicode;
-        }
-        else if (0x100 <= unicode && unicode <= 0x10FFFF)
-        {
-            if (unicodeToKeysymMap.containsKey(unicode))
-            {
-                keysum = unicodeToKeysymMap.get(unicode);
-            }
-            else
-            {
+        } else if (0x100 <= unicode && unicode <= 0x10FFFF) {
+            Integer key = new Integer(unicode);
+            if (unicodeToKeysymMap.containsKey(key)) {
+                keysum = unicodeToKeysymMap.get(key).intValue();
+            } else {
                 keysum = unicode + KeySym_base;
             }
         }
@@ -498,8 +684,7 @@ public class KeyMap<T> {
      * @param item is the value to be mapped
      * @param keysym is the mapped value of code
      */
-    public void addMapping(T item, int keysym)
-    {
+    public void addMapping(T item, int keysym) {
         map.put(item, new Integer(keysym));
     }
 
@@ -513,7 +698,7 @@ public class KeyMap<T> {
     public int getMapped(T item) {
         int keysum = None;
         if (map.containsKey(item)) {
-            keysum = map.get(item);
+            keysum = map.get(item).intValue();
         }
         return keysum;
     }

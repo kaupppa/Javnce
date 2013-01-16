@@ -55,7 +55,7 @@ public class KeyMapTest {
 
         final int Max = 100;
         for (int i = 1; i <= Max; i++) {
-            map.addMapping(i, i);
+            map.addMapping(new Integer(i), i);
         }
 
         for (int i = 1; i <= Max; i++) {

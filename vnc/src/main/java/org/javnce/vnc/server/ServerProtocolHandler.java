@@ -86,7 +86,7 @@ class ServerProtocolHandler implements EventSubscriber, ReceiveMessageFactory {
 
         this.format = dev.format();
         this.size = dev.size();
-        receiveMessages = new ArrayList();
+        receiveMessages = new ArrayList<>();
         receiveMessages.add(new MsgProtocolVersion());
         factoryMode = false;
 

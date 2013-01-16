@@ -22,6 +22,7 @@ import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
@@ -31,6 +32,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+import java.util.logging.Logger;
 import org.javnce.rfb.types.Color;
 import org.javnce.rfb.types.PixelFormat;
 import org.javnce.rfb.types.Size;
@@ -69,6 +71,10 @@ class RobotDevice implements FramebufferDevice, KeyBoardDevice, PointerDevice {
      * The last_y.
      */
     private int last_y;
+    /**
+     * The key mapping
+     */
+    final private RobotKeyMap map;
 
     /**
      * Instance.
@@ -91,8 +97,10 @@ class RobotDevice implements FramebufferDevice, KeyBoardDevice, PointerDevice {
         boolean supported = false;
 
         try {
-            new Robot();
-            supported = true;
+            Robot robot = new Robot();
+            if (null != robot) {
+                supported = true;
+            }
         } catch (AWTException e) {
         }
 
@@ -106,6 +114,7 @@ class RobotDevice implements FramebufferDevice, KeyBoardDevice, PointerDevice {
         mask = 0;
         last_x = -1;
         last_y = -1;
+        map = new RobotKeyMap();
         try {
             robot = new Robot();
         } catch (AWTException e) {
@@ -132,10 +141,7 @@ class RobotDevice implements FramebufferDevice, KeyBoardDevice, PointerDevice {
      */
     @Override
     public PixelFormat format() {
-        PixelFormat format = null;
-
-        format = new PixelFormat(32, 24, false, true, new Color(255, 255, 255), new Color(16, 8, 0));
-
+        PixelFormat format = new PixelFormat(32, 24, false, true, new Color(255, 255, 255), new Color(16, 8, 0));
         return format;
     }
 
@@ -225,13 +231,25 @@ class RobotDevice implements FramebufferDevice, KeyBoardDevice, PointerDevice {
      */
     @Override
     public void keyEvent(boolean down, long key) {
-        //TODO keysym to Java keycode mapping
-        if (down) {
-            robot.keyPress((int) (key & 0xFFFFFFFF));
-        } else {
-            robot.keyRelease((int) (key & 0xFFFFFFFF));
-        }
+        int keysym = (int) (key & 0xFFFFFFFFl);
+        int code = map.keysymToRobotCode(keysym);
 
+        if (KeyEvent.VK_UNDEFINED != code) {
+            try {
+                if (down) {
+                    robot.keyPress(code);
+                } else {
+                    robot.keyRelease(code);
+                }
+            } catch (Throwable e) {
+                StringBuilder builder = new StringBuilder(1000);
+                builder.append("Key event failure:");
+                builder.append(" down=").append(down);
+                builder.append(" keysym=").append(keysym).append(" 0x").append(Integer.toHexString(keysym));
+                builder.append(" Java code=").append(code).append(" 0x").append(Integer.toHexString(code));
+                Logger.getLogger(this.getClass().getName()).info(builder.toString());
+            }
+        }
     }
 
     /**
@@ -316,9 +334,8 @@ class RobotDevice implements FramebufferDevice, KeyBoardDevice, PointerDevice {
         }
     }
 
-	@Override
-	public void grabScreen() {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void grabScreen() {
+        // TODO Auto-generated method stub
+    }
 }

@@ -114,7 +114,7 @@ END {
     write_createUnicodeMap()
 
     write_unicodeToKeySym()
-
+    
     write_addMapping()
 
     writeClassEnd()
@@ -151,6 +151,18 @@ function writeConstants()
     printf("    public static final int %s = 0x%x;\n", "None", 0)
     printf("    public static final int %s = 0x%x;\n", "KeySym_base", 0x01000000)
     printf("\n")
+
+    printf("    //Next are ASCII constants. See keysymdef.h\n")
+    for (i = 1; i <= unicodeIndex; i++)
+    {
+        sym = unicodeKeysym[i]
+        if (sym <= 0xff)
+        {
+            printf("    public static final int %s = 0x%x;\n", unicodeName[i], sym)
+        }
+    }
+
+    printf("\n")
     printf("    //Next are none unicode constants. See keysymdef.h\n")
     for (i = 1; i <= nonUnicodeIndex; i++)
     {
@@ -163,6 +175,7 @@ function writeConstants()
     {
         sym = unicodeKeysym[i]
         unicode = unicodeUnicode[i]
+        #Write if unicode requires mapping
         if (sym != unicode && sym != (unicode + 0x01000000))
         {
             printf("    public static final int %s = 0x%x;\n", unicodeName[i], sym)
@@ -214,7 +227,7 @@ function writeClassHeader()
     printf("    /**\n")
     printf("     * The unicode to keysym map.\n")
     printf("     */\n")
-    printf("    static final private Map<Integer, Integer> unicodeToKeysymMap = createUnicodeMap();\n")
+    printf("    static final private Map<Integer, Integer> unicodeToKeysymMap = createUnicodeMap(); //Unicode as key and keysym as value\n")
     
     printf("    /**\n")
     printf("     * The custom map.\n")
@@ -235,9 +248,7 @@ function writeClassEnd()
 function write_createUnicodeMap()
 {
     printf("\n")
-    printf("    static private Map<Integer, Integer> createUnicodeMap()\n")
-    printf("    {\n")
-
+    printf("    static private Map<Integer, Integer> createUnicodeMap() {\n")
     printf("        Map<Integer, Integer> map = new HashMap<>();\n")
     for (i = 1; i <= unicodeIndex; i++)
     {
@@ -261,8 +272,7 @@ function write_addMapping()
     printf("     * @param item is the value to be mapped\n")
     printf("     * @param keysym is the mapped value of code\n")
     printf("     */\n")
-    printf("    public void addMapping(T item, int keysym)\n")
-    printf("    {\n")
+    printf("    public void addMapping(T item, int keysym) {\n")
     printf("        map.put(item, new Integer(keysym));\n")
     printf("    }\n")
     printf("\n")
@@ -277,12 +287,11 @@ function write_addMapping()
     printf("    public int getMapped(T item) {\n")
     printf("        int keysum = None;\n")
     printf("        if (map.containsKey(item)) {\n")
-    printf("            keysum = map.get(item);\n")
+    printf("            keysum = map.get(item).intValue();\n")
     printf("        }\n")
     printf("        return keysum;\n")
     printf("    }\n")
     printf("\n")
-
 }
 
 function write_unicodeToKeySym()
@@ -292,36 +301,27 @@ function write_unicodeToKeySym()
     printf("     * converts unicode value to X11 keysym value.\n")
     printf("     *\n")
     printf("     * @param unicode is the unicode value to be converted\n")
-    printf("     * \n")
-    printf("     * @return keysym value or None if not a unicode \n")
+    printf("     *\n")
+    printf("     * @return keysym value or None if not a unicode\n")
     printf("     */\n")
-    printf("    static public int unicodeToKeySym(int unicode)\n")
-    printf("    {\n")
+    printf("    static public int unicodeToKeySym(int unicode) {\n")
     printf("        int keysum = None;\n")
-    printf("        \n")
-    printf("        if (0x20 <= unicode && unicode <= 0x7e)\n")
-    printf("        {\n")
+    printf("\n")
+    printf("        if (0x20 <= unicode && unicode <= 0x7e) {\n")
     printf("            keysum = unicode;\n")
-    printf("        }\n")
-    printf("        else if (0xa0 <= unicode && unicode <= 0xff)\n")
-    printf("        {\n")
+    printf("        } else if (0xa0 <= unicode && unicode <= 0xff) {\n")
     printf("            keysum = unicode;\n")
-    printf("        }\n")
-    printf("        else if (0x100 <= unicode && unicode <= 0x10FFFF)\n")
-    printf("        {\n")
-    printf("            if (unicodeToKeysymMap.containsKey(unicode))\n")
-    printf("            {\n")
-    printf("                keysum = unicodeToKeysymMap.get(unicode);\n")
-    printf("            }\n")
-    printf("            else\n")
-    printf("            {\n")
+    printf("        } else if (0x100 <= unicode && unicode <= 0x10FFFF) {\n")
+    printf("            Integer key = new Integer(unicode);\n")
+    printf("            if (unicodeToKeysymMap.containsKey(key)) {\n")
+    printf("                keysum = unicodeToKeysymMap.get(key).intValue();\n")
+    printf("            } else {\n")
     printf("                keysum = unicode + KeySym_base;\n")
     printf("            }\n")
     printf("        }\n")
     printf("        return keysum;\n")
     printf("    }\n")
     printf("\n")
-
 }
 
 

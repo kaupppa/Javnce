@@ -87,7 +87,6 @@ public class MsgBell extends Message {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        String NEW_LINE = System.getProperty("line.separator");
 
         result.append(this.getClass().getName());
         result.append(" Object {}");

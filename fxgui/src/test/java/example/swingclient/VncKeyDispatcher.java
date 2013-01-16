@@ -46,40 +46,40 @@ public class VncKeyDispatcher implements KeyEventDispatcher {
         controller = ClientConfiguration.instance().getVncController();
         map = new KeyMap<>();
 
-        map.addMapping(KeyEvent.VK_ALT, KeyMap.XK_Alt_L);
-        map.addMapping(KeyEvent.VK_SHIFT, KeyMap.XK_Shift_L);
-        map.addMapping(KeyEvent.VK_CONTROL, KeyMap.XK_Control_L);
-        map.addMapping(KeyEvent.VK_ALT_GRAPH, KeyMap.XK_Super_L);
-        map.addMapping(KeyEvent.VK_WINDOWS, KeyMap.XK_Hyper_L);
-        map.addMapping(KeyEvent.VK_CONTEXT_MENU, KeyMap.XK_Menu);
+        map.addMapping(new Integer(KeyEvent.VK_ALT), KeyMap.XK_Alt_L);
+        map.addMapping(new Integer(KeyEvent.VK_SHIFT), KeyMap.XK_Shift_L);
+        map.addMapping(new Integer(KeyEvent.VK_CONTROL), KeyMap.XK_Control_L);
+        map.addMapping(new Integer(KeyEvent.VK_ALT_GRAPH), KeyMap.XK_Super_L);
+        map.addMapping(new Integer(KeyEvent.VK_WINDOWS), KeyMap.XK_Hyper_L);
+        map.addMapping(new Integer(KeyEvent.VK_CONTEXT_MENU), KeyMap.XK_Menu);
 
-        map.addMapping(KeyEvent.VK_CAPS_LOCK, KeyMap.XK_Caps_Lock);
-        map.addMapping(KeyEvent.VK_NUM_LOCK, KeyMap.XK_Num_Lock);
+        map.addMapping(new Integer(KeyEvent.VK_CAPS_LOCK), KeyMap.XK_Caps_Lock);
+        map.addMapping(new Integer(KeyEvent.VK_NUM_LOCK), KeyMap.XK_Num_Lock);
 
-        map.addMapping(KeyEvent.VK_TAB, KeyMap.XK_Tab);
-        map.addMapping(KeyEvent.VK_BACK_SPACE, KeyMap.XK_BackSpace);
-        map.addMapping(KeyEvent.VK_ENTER, KeyMap.XK_Return);
-        map.addMapping(KeyEvent.VK_PAUSE, KeyMap.XK_Pause);
-        map.addMapping(KeyEvent.VK_SCROLL_LOCK, KeyMap.XK_Scroll_Lock);
-        map.addMapping(KeyEvent.VK_ESCAPE, KeyMap.XK_Escape);
-        map.addMapping(KeyEvent.VK_DELETE, KeyMap.XK_Delete);
+        map.addMapping(new Integer(KeyEvent.VK_TAB), KeyMap.XK_Tab);
+        map.addMapping(new Integer(KeyEvent.VK_BACK_SPACE), KeyMap.XK_BackSpace);
+        map.addMapping(new Integer(KeyEvent.VK_ENTER), KeyMap.XK_Return);
+        map.addMapping(new Integer(KeyEvent.VK_PAUSE), KeyMap.XK_Pause);
+        map.addMapping(new Integer(KeyEvent.VK_SCROLL_LOCK), KeyMap.XK_Scroll_Lock);
+        map.addMapping(new Integer(KeyEvent.VK_ESCAPE), KeyMap.XK_Escape);
+        map.addMapping(new Integer(KeyEvent.VK_DELETE), KeyMap.XK_Delete);
 
-        map.addMapping(KeyEvent.VK_HOME, KeyMap.XK_Home);
-        map.addMapping(KeyEvent.VK_LEFT, KeyMap.XK_Left);
-        map.addMapping(KeyEvent.VK_UP, KeyMap.XK_Up);
-        map.addMapping(KeyEvent.VK_RIGHT, KeyMap.XK_Right);
-        map.addMapping(KeyEvent.VK_DOWN, KeyMap.XK_Down);
-        map.addMapping(KeyEvent.VK_PAGE_UP, KeyMap.XK_Page_Up);
-        map.addMapping(KeyEvent.VK_PAGE_DOWN, KeyMap.XK_Page_Down);
-        map.addMapping(KeyEvent.VK_END, KeyMap.XK_End);
-        map.addMapping(KeyEvent.VK_BEGIN, KeyMap.XK_Begin);
-        map.addMapping(KeyEvent.VK_PRINTSCREEN, KeyMap.XK_Print);
-        map.addMapping(KeyEvent.VK_INSERT, KeyMap.XK_Insert);
-        map.addMapping(KeyEvent.VK_UNDO, KeyMap.XK_Undo);
-        map.addMapping(KeyEvent.VK_FIND, KeyMap.XK_Find);
-        map.addMapping(KeyEvent.VK_CANCEL, KeyMap.XK_Cancel);
-        map.addMapping(KeyEvent.VK_HELP, KeyMap.XK_Help);
-        map.addMapping(KeyEvent.VK_MODECHANGE, KeyMap.XK_Mode_switch);
+        map.addMapping(new Integer(KeyEvent.VK_HOME), KeyMap.XK_Home);
+        map.addMapping(new Integer(KeyEvent.VK_LEFT), KeyMap.XK_Left);
+        map.addMapping(new Integer(KeyEvent.VK_UP), KeyMap.XK_Up);
+        map.addMapping(new Integer(KeyEvent.VK_RIGHT), KeyMap.XK_Right);
+        map.addMapping(new Integer(KeyEvent.VK_DOWN), KeyMap.XK_Down);
+        map.addMapping(new Integer(KeyEvent.VK_PAGE_UP), KeyMap.XK_Page_Up);
+        map.addMapping(new Integer(KeyEvent.VK_PAGE_DOWN), KeyMap.XK_Page_Down);
+        map.addMapping(new Integer(KeyEvent.VK_END), KeyMap.XK_End);
+        map.addMapping(new Integer(KeyEvent.VK_BEGIN), KeyMap.XK_Begin);
+        map.addMapping(new Integer(KeyEvent.VK_PRINTSCREEN), KeyMap.XK_Print);
+        map.addMapping(new Integer(KeyEvent.VK_INSERT), KeyMap.XK_Insert);
+        map.addMapping(new Integer(KeyEvent.VK_UNDO), KeyMap.XK_Undo);
+        map.addMapping(new Integer(KeyEvent.VK_FIND), KeyMap.XK_Find);
+        map.addMapping(new Integer(KeyEvent.VK_CANCEL), KeyMap.XK_Cancel);
+        map.addMapping(new Integer(KeyEvent.VK_HELP), KeyMap.XK_Help);
+        map.addMapping(new Integer(KeyEvent.VK_MODECHANGE), KeyMap.XK_Mode_switch);
     }
 
     /**

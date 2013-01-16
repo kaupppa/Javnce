@@ -16,9 +16,6 @@
  */
 package org.javnce.vnc.server.platform;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  * The Class XTestPointerInputDevice is Linux specific way to inject pointer
  * events. Is a Jni implementation.
