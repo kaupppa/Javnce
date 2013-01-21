@@ -7,17 +7,25 @@
         <artifactId>javnce</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
-
-    <artifactId>vnc</artifactId>
+    <artifactId>javnce-core</artifactId>
     <packaging>jar</packaging>
-    <name>${project.artifactId}</name>
-    
+    <name>core</name>
+
     <properties>
         <jni.build>${project.build.directory}${file.separator}libs</jni.build>
     </properties>
-  
     <build>
         <plugins>
+            <!-- Run Junit with  -Djava.library.path and ${coverageAgent} -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.12</version>
+                <configuration>
+                    <argLine>-Djava.library.path=${jni.build} ${coverageAgent}</argLine>
+                </configuration>    
+            </plugin>
+            <!-- Generate zip with shared libraries -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -38,14 +46,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.12</version>
-                <configuration>
-                    <argLine>-Djava.library.path=${jni.build} ${coverageAgent}</argLine>
-                </configuration>    
             </plugin>
         </plugins>
     </build>
@@ -228,12 +228,17 @@
             </build>
         </profile>
     </profiles>
-
     <dependencies>
         <dependency>
-            <groupId>org.javnce</groupId>
-            <artifactId>eventing</artifactId>
-            <version>0.1-SNAPSHOT</version>
+            <groupId>org.fourthline.cling</groupId>
+            <artifactId>cling-core</artifactId>
+            <version>2.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
+    <repositories>
+        <repository>
+            <id>4thline-repo</id>
+            <url>http://4thline.org/m2</url>
+        </repository>
+    </repositories>
 </project>
