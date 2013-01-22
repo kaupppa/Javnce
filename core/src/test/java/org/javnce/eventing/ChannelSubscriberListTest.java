@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-public class TestChannelSubscriberListTest {
+public class ChannelSubscriberListTest {
 
     private ChannelSubscriberList list;
 
@@ -46,7 +46,7 @@ public class TestChannelSubscriberListTest {
             try {
                 bytesRead = ch.read(buffer);
             } catch (IOException ex) {
-                Logger.getLogger(TestChannelSubscriberListTest.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ChannelSubscriberListTest.class.getName()).log(Level.SEVERE, null, ex);
                 System.exit(1);
             }
         }
@@ -66,7 +66,7 @@ public class TestChannelSubscriberListTest {
                 try {
                     list.process(0);
                 } catch (IOException ex) {
-                    Logger.getLogger(TestChannelSubscriberListTest.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(ChannelSubscriberListTest.class.getName()).log(Level.SEVERE, null, ex);
                     System.exit(1);
                 }
             }
@@ -152,6 +152,7 @@ public class TestChannelSubscriberListTest {
 
     @Test
     public void testRemove() throws Exception {
+        
         list = new ChannelSubscriberList();
 
         Pipe pipe = Pipe.open();
@@ -166,10 +167,11 @@ public class TestChannelSubscriberListTest {
 
         r.join(10);
         assertTrue(r.isAlive());
-
+        list.remove(pipe.sink()); //No throw from this one
         list.remove(pipe.source());
 
         r.join(10);
         assertFalse(r.isAlive());
+        
     }
 }

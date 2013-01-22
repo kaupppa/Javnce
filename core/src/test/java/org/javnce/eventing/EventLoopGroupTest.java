@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestEventLoopGroupTest {
+public class EventLoopGroupTest {
 
     private EventLoopGroup root;
 
@@ -143,6 +143,9 @@ public class TestEventLoopGroupTest {
 
     @Test
     public void testShutdown() throws Throwable {
+
+        EventLoopGroup.shutdown(null);
+
         //Lets create n sub groups each sub group having m threads
         //root is empty
         assertTrue(root.isEmpty());

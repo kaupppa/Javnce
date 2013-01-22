@@ -19,12 +19,12 @@ package org.javnce.eventing;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-public class TestEventLoopStateTest {
+public class EventLoopStateTest {
 
     static void waitThreadState(boolean alive, Thread thread) {
         while (alive != thread.isAlive()) {
             try {
-                Thread.sleep(2);
+                Thread.sleep(10);
             } catch (InterruptedException e) {
                 break;
             }

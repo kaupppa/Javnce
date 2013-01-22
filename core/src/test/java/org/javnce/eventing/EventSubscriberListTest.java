@@ -19,7 +19,7 @@ package org.javnce.eventing;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-public class TestEventSubscriberListTest {
+public class EventSubscriberListTest {
 
     private EventSubscriberList list;
 
@@ -40,23 +40,50 @@ public class TestEventSubscriberListTest {
     }
 
     @Test
-    public void testAddingAndRemoving() {
+    public void testAdd() {
 
         list = new EventSubscriberList();
         EventHandler handler = new EventHandler();
-
+        EventHandler handler2 = new EventHandler();
         TestEvent event = new TestEvent("An event");
         list.add(event.Id(), handler);
+        list.add(event.Id(), handler2);
+        list.add(null, handler);
+        list.add(event.Id(), null);
+        list.add(null, null);
+
+        assertTrue(list.contains(event.Id()));
+        assertFalse(list.contains(null));
+
+    }
+
+    @Test
+    public void testRemove() {
+
+        list = new EventSubscriberList();
+        EventHandler handler = new EventHandler();
+        EventHandler handler2 = new EventHandler();
+        TestEvent event = new TestEvent("An event");
+        list.add(event.Id(), handler);
+        list.add(event.Id(), handler2);
 
         assertTrue(list.contains(event.Id()));
         list.remove(event.Id(), handler);
+        assertTrue(list.contains(event.Id()));
+        list.remove(event.Id(), handler2);
         assertFalse(list.contains(event.Id()));
+
+        list.remove(event.Id(), handler);
+        list.remove(event.Id(), null);
+        list.remove(null, handler);
+        list.remove(null, null);
     }
 
     @Test
     public void testProcess() {
         TestEvent event1 = new TestEvent("Event 1");
         TestEvent event2 = new TestEvent("Event 2");
+        TestEvent event3 = new TestEvent("Unknown");
 
         list = new EventSubscriberList();
         EventHandler handler1 = new EventHandler();
@@ -83,5 +110,18 @@ public class TestEventSubscriberListTest {
         assertEquals(event1, handler1.lastEvent);
         assertEquals(event1, handler1a.lastEvent);
         assertEquals(event2, handler2.lastEvent);
+
+        list.process(event3);
+
+        assertEquals(event1, handler1.lastEvent);
+        assertEquals(event1, handler1a.lastEvent);
+        assertEquals(event2, handler2.lastEvent);
+
+        list.process(null);
+
+        assertEquals(event1, handler1.lastEvent);
+        assertEquals(event1, handler1a.lastEvent);
+        assertEquals(event2, handler2.lastEvent);
+
     }
 }

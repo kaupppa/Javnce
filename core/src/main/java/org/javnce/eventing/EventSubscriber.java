@@ -18,6 +18,9 @@ package org.javnce.eventing;
 
 /**
  * The interface for event subscriber.
+ * 
+ * @see org.javnce.eventing.EventLoop#subscribe(org.javnce.eventing.EventId, org.javnce.eventing.EventSubscriber) 
+ * @see org.javnce.eventing.EventLoop#removeSubscribe(org.javnce.eventing.EventId, org.javnce.eventing.EventSubscriber) 
  */
 public interface EventSubscriber {
 

@@ -49,7 +49,7 @@ class EventSubscriberList {
      * @param handler the callback object
      */
     synchronized void add(EventId id, EventSubscriber handler) {
-        if (null != handler) {
+        if (null != handler && null != id) {
             Set<EventSubscriber> set = getSet(id, true);
             set.add(handler);
         }
@@ -127,11 +127,13 @@ class EventSubscriberList {
 
         if (null != event) {
             List<EventSubscriber> list = get(event.Id());
-            Iterator<EventSubscriber> iterator = list.iterator();
+            if (null != list) {
+                Iterator<EventSubscriber> iterator = list.iterator();
 
-            while (iterator.hasNext()) {
-                EventSubscriber subscriber = iterator.next();
-                subscriber.event(event);
+                while (iterator.hasNext()) {
+                    EventSubscriber subscriber = iterator.next();
+                    subscriber.event(event);
+                }
             }
         }
     }

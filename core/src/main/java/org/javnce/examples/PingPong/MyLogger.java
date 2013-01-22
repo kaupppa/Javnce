@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.examples.PingPong;
+package org.javnce.examples.PingPong;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,7 +23,7 @@ import org.javnce.eventing.EventLoop;
 import org.javnce.eventing.EventLoopErrorHandler;
 
 /**
- * The Class MyLogger is a helper class .
+ * The Class MyLogger is a helper logger class .
  */
 public class MyLogger implements EventLoopErrorHandler {
 

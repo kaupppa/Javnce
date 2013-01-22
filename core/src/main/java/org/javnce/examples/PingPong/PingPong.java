@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.examples.PingPong;
+package org.javnce.examples.PingPong;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectableChannel;
@@ -33,13 +33,14 @@ import org.javnce.eventing.Timer;
  * The PingPong is a example of using {@link org.javnce.eventing.EventLoop},
  * {@link org.javnce.eventing.ChannelSubscriber}, {@link org.javnce.eventing.EventSubscriber}
  * and {@link org.javnce.eventing.Timer}.
- *
+ * <p>
  * The PingPong is done in functional-programming style and has three threads;
  * Ping, Pong and Main thread.
- *
+ * </p><p>
  * The Ping and Pong threads handles both socket and events.
- *
+ * </p><p>
  * The Main thread uses a timer to stop the threads.
+ * </p>
  */
 public class PingPong {
 
@@ -55,7 +56,7 @@ public class PingPong {
      * @return the string read from the channel
      * @throws Exception the exception
      */
-    static private String read(SelectableChannel channel) throws Exception {
+    public static String read(SelectableChannel channel) throws Exception {
         String string = null;
 
         if (channel instanceof SocketChannel) {
@@ -74,7 +75,7 @@ public class PingPong {
      * @param data the data to be written into channel
      * @throws Exception the exception
      */
-    static private void write(SelectableChannel channel, String data) throws Exception {
+    public static void write(SelectableChannel channel, String data) throws Exception {
         if (channel instanceof SocketChannel) {
             SocketChannel socketChannel = (SocketChannel) channel;
             ByteBuffer buffer = ByteBuffer.wrap(data.getBytes());
@@ -85,14 +86,15 @@ public class PingPong {
     /**
      * Creates the ping thread.
      *
-     * The Ping thread replies with Event to an Event and replies with
-     * SocketChannel to SocketChannel.
+     * The Ping thread replies with {@link org.javnce.examples.PingPong.EventPong} 
+     * when an {@link org.javnce.examples.PingPong.EventPing} arrives.  The thread 
+     * writes string "Pong-message" to socket when it gets incoming data.
      *
      * @param socket the socket to be listen
      * @return the ping thread
      * @throws Exception the exception
      */
-    static private Thread createPingThread(final SocketChannel socket) throws Exception {
+    public static Thread createPingThread(final SocketChannel socket) throws Exception {
 
         final EventLoop eventLoop = new EventLoop();
 
@@ -127,14 +129,15 @@ public class PingPong {
     /**
      * Creates the pong thread.
      *
-     * The Pong thread replies with Event to SocketChannel and replies with
-     * SocketChannel to an Event.
+     * The Pong thread replies with {@link org.javnce.examples.PingPong.EventPing} 
+     * when it gets data from socket. The thread writes string "Ping-message" to 
+     * socket when an {@link org.javnce.examples.PingPong.EventPong} arrives.
      *
      * @param socket the socket to be listen
      * @return the pong thread
      * @throws Exception the exception
      */
-    static private Thread createPongThread(final SocketChannel socket) throws Exception {
+    public static Thread createPongThread(final SocketChannel socket) throws Exception {
 
         final EventLoop eventLoop = new EventLoop();
 

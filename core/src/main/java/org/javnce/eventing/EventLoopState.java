@@ -21,31 +21,41 @@ package org.javnce.eventing;
  */
 class EventLoopState {
 
-    /** The state is true if runnable. */
+    /**
+     * The state is true if runnable.
+     */
     private boolean state;
-    
-    /** The attached processing thread. */
+    /**
+     * The attached processing thread.
+     */
     Thread processingThread;
+    final private Object lock;
 
     /**
      * Instantiates a new event loop state.
      */
     EventLoopState() {
         state = true;
+        lock = new Object();
     }
 
     /**
      * Attach to current thread.
      */
-    synchronized void attachCurrentThread() {
-        processingThread = Thread.currentThread();
+    void attachCurrentThread() {
+        synchronized (lock) {
+            processingThread = Thread.currentThread();
+        }
     }
 
     /**
      * Detach from thread.
      */
-    synchronized void detachCurrentThread() {
-        processingThread = null;
+    void detachCurrentThread() {
+        synchronized (lock) {
+            processingThread = null;
+        }
+
     }
 
     /**
@@ -55,8 +65,10 @@ class EventLoopState {
      */
     private boolean threadIsRunnable() {
         boolean runnable = true;
-        if (null != processingThread) {
-            runnable = (!processingThread.isInterrupted() && processingThread.isAlive());
+        synchronized (lock) {
+            if (null != processingThread) {
+                runnable = (!processingThread.isInterrupted() && processingThread.isAlive());
+            }
         }
         return runnable;
     }
@@ -66,14 +78,14 @@ class EventLoopState {
      *
      * @return true, if is runnable
      */
-    synchronized boolean isRunnable() {
+    boolean isRunnable() {
         return (state && threadIsRunnable());
     }
 
     /**
      * Mark as not runnable.
      */
-    synchronized void shutdown() {
+    void shutdown() {
         state = false;
     }
 
@@ -82,7 +94,13 @@ class EventLoopState {
      *
      * @return true, if is attached
      */
-    synchronized public boolean isAttached() {
-        return (null != processingThread);
+    public boolean isAttached() {
+        boolean attached = false;
+        synchronized (lock) {
+            if (null != processingThread) {
+                attached = true;
+            }
+        }
+        return attached;
     }
 }

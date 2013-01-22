@@ -17,8 +17,11 @@
 package org.javnce.eventing;
 
 /**
- * The Class EventId defines {@link Event} identifier. <p> The id is just a hash
- * code of given string. </p>
+ * The Class EventId defines {@link Event} identifier.
+ * 
+ * The id is just a hash code of given string.
+ * 
+ * @see org.javnce.eventing.Event
  *
  */
 public class EventId {

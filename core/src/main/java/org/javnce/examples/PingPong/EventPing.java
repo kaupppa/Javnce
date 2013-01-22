@@ -15,21 +15,21 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.examples.PingPong;
+package org.javnce.examples.PingPong;
 
 import org.javnce.eventing.Event;
 import org.javnce.eventing.EventId;
 
 /**
- * The Class EventPong implements an empty Event.
+ * The Class EventPing implements an empty Event.
  */
-public class EventPong implements Event {
+public class EventPing implements Event {
 
     /**
-     * The constant event id.
+     * The The constant event id.
      */
-    final static private EventId id = new EventId(EventPong.class.getName());
-    final static private String data = "Pong-event";
+    final static private EventId id = new EventId(EventPing.class.getName());
+    final static private String data = "Ping-event";
 
     /* (non-Javadoc)
      * @see org.javnce.eventing.Event#Id()
@@ -44,17 +44,16 @@ public class EventPong implements Event {
      *
      * @return the event id
      */
-    static public EventId eventId() {
+    public static EventId eventId() {
         return id;
     }
-    
+
     /**
      * An event data getter.
      *
      * @return the event data
      */
-    public String pong()
-    {
+    public String ping() {
         return data;
     }
 }

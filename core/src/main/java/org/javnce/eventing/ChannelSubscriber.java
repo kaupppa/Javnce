@@ -21,6 +21,8 @@ import java.nio.channels.SelectionKey;
 /**
  * The interface for socket read/write event subscriber.
  *
+ * @see org.javnce.eventing.EventLoop#subscribe(java.nio.channels.SelectableChannel, org.javnce.eventing.ChannelSubscriber, int) 
+ * @see org.javnce.eventing.EventLoop#removeSubscribe(java.nio.channels.SelectableChannel) 
  */
 public interface ChannelSubscriber {
 

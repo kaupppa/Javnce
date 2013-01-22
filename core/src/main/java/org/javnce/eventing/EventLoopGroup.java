@@ -136,9 +136,7 @@ class EventLoopGroup {
         boolean handled = process(event);
 
         if (!handled) {
-            if (null != root) {
-                root.broadcast(event);
-            }
+            root.broadcast(event);
         }
     }
 

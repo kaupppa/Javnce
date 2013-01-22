@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-public class TestTimerContainerTest {
+public class TimerContainerTest {
 
     @Test
     public void testTimerContainer() {

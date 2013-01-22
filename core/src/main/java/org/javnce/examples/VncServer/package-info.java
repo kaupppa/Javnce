@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012  Pauli Kauppinen
+ * Copyright (C) 2013  Pauli Kauppinen
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,28 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
-package org.javnce.eventing;
-
-import static org.junit.Assert.*;
-import org.junit.Test;
-
-public class TestEventIdTest {
-
-    @Test
-    public void testHashCode() {
-        String text = this.getClass().getName();
-        EventId id = new EventId(text);
-        assertEquals(text.hashCode(), id.hashCode());
-    }
-
-    @Test
-    public void testEqualsObject() {
-        String text = this.getClass().getName();
-        EventId id = new EventId(text);
-
-        assertFalse(id.equals(null));
-        assertFalse(id.equals(text));
-        assertTrue(id.equals(new EventId(text)));
-        assertTrue(id.equals(id));
-    }
-}
+/**
+ * The package provides VncServer for functional and benchmark testing.
+ */
+package org.javnce.examples.VncServer;

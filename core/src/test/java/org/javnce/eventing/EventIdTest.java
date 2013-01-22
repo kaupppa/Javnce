@@ -16,18 +16,27 @@
  */
 package org.javnce.eventing;
 
-/**
- * The error handler interface.
- * 
- * @see org.javnce.eventing.EventLoop#setErrorHandler(org.javnce.eventing.EventLoopErrorHandler) 
- */
-public interface EventLoopErrorHandler {
+import static org.junit.Assert.*;
+import org.junit.Test;
 
-    /**
-     * Handler for unrecoverable error.
-     *
-     * @param object the object
-     * @param throwable the throwable
-     */
-    public void fatalError(Object object, Throwable throwable);
+public class EventIdTest {
+
+    @Test
+    public void testHashCode() {
+        String text = this.getClass().getName();
+        EventId id = new EventId(text);
+        assertEquals(text.hashCode(), id.hashCode());
+    }
+
+    @Test
+    public void testEqualsObject() {
+        String text = this.getClass().getName();
+        EventId id = new EventId(text);
+
+        assertFalse(id.equals(null));
+        assertFalse(id.equals(text));
+        assertTrue(id.equals(new EventId(text)));
+        assertFalse(id.equals(new EventId("Some other event id")));
+        assertTrue(id.equals(id));
+    }
 }

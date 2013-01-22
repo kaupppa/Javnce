@@ -21,7 +21,8 @@ import java.nio.channels.SelectableChannel;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * The class for processing events and non-blocking sockets.
+ * The class for processing events, non-blocking sockets and timers.
+ * @see org.javnce.examples.PingPong.PingPong
  */
 public class EventLoop implements Runnable {
 
@@ -134,6 +135,11 @@ public class EventLoop implements Runnable {
         }
     }
 
+    /**
+     * Adds the timer in this event loop.
+     *
+     * @param timer the timer
+     */
     public void addTimer(Timer timer) {
         if (state.isRunnable()) {
             timers.add(timer);
@@ -260,6 +266,7 @@ public class EventLoop implements Runnable {
                 break;
             } catch (Throwable e) {
                 fatalError(this, e);
+                break;
             }
         }
 

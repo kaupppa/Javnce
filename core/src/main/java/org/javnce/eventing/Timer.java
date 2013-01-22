@@ -18,6 +18,8 @@ package org.javnce.eventing;
 
 /**
  * The Timer Class provides timer is a timer with millisecond accuracy.
+ * 
+ * @see org.javnce.eventing.EventLoop#addTimer(org.javnce.eventing.Timer) 
  */
 public class Timer {
 

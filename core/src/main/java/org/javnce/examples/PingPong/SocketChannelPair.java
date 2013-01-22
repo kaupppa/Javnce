@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.examples.PingPong;
+package org.javnce.examples.PingPong;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -81,6 +81,10 @@ public class SocketChannelPair implements AutoCloseable {
 
                 //Wait thread to finish
                 thread.join();
+                
+                //Set no delay
+                ch1.socket().setTcpNoDelay(true);
+                ch2.socket().setTcpNoDelay(true);
             }
         }
     }

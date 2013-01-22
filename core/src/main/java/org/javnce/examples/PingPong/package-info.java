@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012  Pauli Kauppinen
+ * Copyright (C) 2013  Pauli Kauppinen
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,20 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
-package org.javnce.eventing;
-
 /**
- * The error handler interface.
- * 
- * @see org.javnce.eventing.EventLoop#setErrorHandler(org.javnce.eventing.EventLoopErrorHandler) 
+ * The package provides {@link org.javnce.examples.PingPong.PingPong } as an 
+ * example usage of {@link org.javnce.eventing} features such as non-blocking 
+ * sockets, timers and events.
  */
-public interface EventLoopErrorHandler {
-
-    /**
-     * Handler for unrecoverable error.
-     *
-     * @param object the object
-     * @param throwable the throwable
-     */
-    public void fatalError(Object object, Throwable throwable);
-}
+package org.javnce.examples.PingPong;

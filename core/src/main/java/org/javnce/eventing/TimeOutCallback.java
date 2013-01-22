@@ -17,10 +17,14 @@
 package org.javnce.eventing;
 
 /**
- *
- * @author Pauli Kauppinen
+ * The TimeOutCallback interface defines {@link org.javnce.eventing.Timer} callback.
+ * 
+ * @see org.javnce.eventing.Timer
  */
 public interface TimeOutCallback {
 
+    /**
+     * The Timers callback method
+     */
     public void timeout();
 }
