@@ -18,9 +18,8 @@ package org.javnce.eventing;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.Pipe;
-import java.nio.channels.Pipe.SourceChannel;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,7 +60,7 @@ public class EventTester implements EventSubscriber, ChannelSubscriber {
 
     @Override
     public void channel(SelectionKey key) {
-        Pipe.SourceChannel ch = (SourceChannel) key.channel();
+        SocketChannel ch = (SocketChannel) key.channel();
         try {
             ch.read(buffer);
         } catch (IOException ex) {

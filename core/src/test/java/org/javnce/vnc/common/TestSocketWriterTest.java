@@ -17,7 +17,7 @@
 package org.javnce.vnc.common;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.Pipe;
+import org.javnce.eventing.LoopbackChannelPair;
 import org.javnce.rfb.messages.Message;
 import org.javnce.rfb.messages.MsgBell;
 import org.javnce.rfb.messages.MsgClientCutText;
@@ -42,16 +42,12 @@ import org.junit.Test;
 public class TestSocketWriterTest {
 
     static final private PixelFormat format = PixelFormat.createRGB565();
-    private Pipe pipe;
     private SocketWriter writer;
     private Message[] toBeRead;
     private Message[] toBeSent;
 
     @Before
     public void setUp() throws Exception {
-        pipe = Pipe.open();
-        pipe.source().configureBlocking(true);
-        pipe.sink().configureBlocking(true);
         int bytePerPixel = format.bytesPerPixel();
         Rect rect = new Rect(new Point(0, 0), new Size(10, 10));
         int fbSize = rect.width() * rect.height() * bytePerPixel;
@@ -121,29 +117,33 @@ public class TestSocketWriterTest {
 
     @Test
     public void testWrite() throws Throwable {
-        //Logger logger = Logger.getLogger(TestSocketWriterTest.class.getName());
-        writer = new SocketWriter();
+        try (LoopbackChannelPair loopback = new LoopbackChannelPair()) {
+            //Logger logger = Logger.getLogger(TestSocketWriterTest.class.getName());
+            writer = new SocketWriter();
 
-        ByteBuffer data = ByteBuffer.allocate(10000);
+            loopback.channel1().configureBlocking(true);
+            loopback.channel2().configureBlocking(true);
+            ByteBuffer data = ByteBuffer.allocate(10000);
 
-        for (int i = 0; i < toBeSent.length; i++) {
-            writer.add(toBeSent[i]);
-            //logger.info("Write " + toBeSent[i]);
-            writer.write(pipe.sink());
-            assertTrue(writer.isEmpty());
+            for (int i = 0; i < toBeSent.length; i++) {
+                writer.add(toBeSent[i]);
+                //logger.info("Write " + toBeSent[i]);
+                writer.write(loopback.channel1());
+                assertTrue(writer.isEmpty());
 
-            pipe.source().read(data);
-            data.flip();
+                loopback.channel2().read(data);
+                data.flip();
 
-            assertTrue(toBeRead[i].demarshal(data));
-            //logger.info("Read " + toBeRead[i]);
+                assertTrue(toBeRead[i].demarshal(data));
+                //logger.info("Read " + toBeRead[i]);
 
-            assertTrue(data.remaining() == 0);
+                assertTrue(data.remaining() == 0);
 
 
-            assertTrue(toBeRead[i].isValid());
-            assertEquals(toBeSent[i].getId(), toBeRead[i].getId());
-            data.clear();
+                assertTrue(toBeRead[i].isValid());
+                assertEquals(toBeSent[i].getId(), toBeRead[i].getId());
+                data.clear();
+            }
         }
     }
 }

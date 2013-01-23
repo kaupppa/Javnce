@@ -18,9 +18,8 @@ package org.javnce.eventing;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.Pipe;
-import java.nio.channels.Pipe.SourceChannel;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static org.junit.Assert.*;
@@ -42,7 +41,7 @@ public class ChannelSubscriberListTest {
 
         @Override
         public void channel(SelectionKey key) {
-            Pipe.SourceChannel ch = (SourceChannel) key.channel();
+            SocketChannel ch = (SocketChannel) key.channel();
             try {
                 bytesRead = ch.read(buffer);
             } catch (IOException ex) {
@@ -79,99 +78,91 @@ public class ChannelSubscriberListTest {
 
         list = new ChannelSubscriberList();
 
-        Pipe pipe = Pipe.open();
-        pipe.source().configureBlocking(false);
+        try (LoopbackChannelPair loopback = new LoopbackChannelPair()) {
+            TestClass tc = new TestClass();
+            list.add(loopback.channel1(), tc, SelectionKey.OP_READ);
 
-        TestClass tc = new TestClass();
+            Thread r = createThread(list);
+            r.start();
+            r.join(10);
+            assertTrue(r.isAlive());
 
-        list.add(pipe.source(), tc, SelectionKey.OP_READ);
+            list.wakeup();
 
-        Thread r = createThread(list);
-
-        r.start();
-
-        r.join(10);
-        assertTrue(r.isAlive());
-
-        list.wakeup();
-
-        r.join(10);
-        assertFalse(r.isAlive());
+            r.join(10);
+            assertFalse(r.isAlive());
+        }
     }
 
     @Test
     public void testClose() throws Exception {
-        list = new ChannelSubscriberList();
+        try (LoopbackChannelPair loopback = new LoopbackChannelPair()) {
+            list = new ChannelSubscriberList();
 
-        Pipe pipe = Pipe.open();
-        pipe.source().configureBlocking(false);
+            TestClass tc = new TestClass();
 
-        TestClass tc = new TestClass();
+            list.add(loopback.channel1(), tc, SelectionKey.OP_READ);
 
-        list.add(pipe.source(), tc, SelectionKey.OP_READ);
+            Thread r = createThread(list);
 
-        Thread r = createThread(list);
+            r.start();
 
-        r.start();
+            r.join(10);
+            assertTrue(r.isAlive());
 
-        r.join(10);
-        assertTrue(r.isAlive());
+            list.close();
 
-        list.close();
-
-        r.join(10);
-        assertFalse(r.isAlive());
+            r.join(10);
+            assertFalse(r.isAlive());
+        }
     }
 
     @Test
     public void testProcess() throws Exception {
-        list = new ChannelSubscriberList();
+        try (LoopbackChannelPair loopback = new LoopbackChannelPair()) {
+            list = new ChannelSubscriberList();
 
-        Pipe pipe = Pipe.open();
-        pipe.source().configureBlocking(false);
+            TestClass tc = new TestClass();
 
-        TestClass tc = new TestClass();
+            list.add(loopback.channel1(), tc, SelectionKey.OP_READ);
 
-        list.add(pipe.source(), tc, SelectionKey.OP_READ);
+            Thread r = createThread(list);
 
-        Thread r = createThread(list);
+            r.start();
 
-        r.start();
+            r.join(10);
+            assertTrue(r.isAlive());
 
-        r.join(10);
-        assertTrue(r.isAlive());
+            int length = 10;
+            loopback.channel2().write(ByteBuffer.allocate(length));
 
-        int length = 10;
-        pipe.sink().write(ByteBuffer.allocate(length));
-
-
-        r.join(10);
-        assertFalse(r.isAlive());
-        assertEquals(length, tc.bytesRead);
+            r.join(10);
+            assertFalse(r.isAlive());
+            assertEquals(length, tc.bytesRead);
+        }
     }
 
     @Test
     public void testRemove() throws Exception {
-        
-        list = new ChannelSubscriberList();
+        try (LoopbackChannelPair loopback = new LoopbackChannelPair()) {
+            list = new ChannelSubscriberList();
 
-        Pipe pipe = Pipe.open();
-        pipe.source().configureBlocking(false);
+            TestClass tc = new TestClass();
 
-        TestClass tc = new TestClass();
+            list.add(loopback.channel1(), tc, SelectionKey.OP_READ);
 
-        list.add(pipe.source(), tc, SelectionKey.OP_READ);
+            Thread r = createThread(list);
+            r.start();
 
-        Thread r = createThread(list);
-        r.start();
+            r.join(10);
+            assertTrue(r.isAlive());
+            list.remove(null); //No throw from this one
+            list.remove(loopback.channel2()); //No throw from this one
+            list.remove(loopback.channel1());
 
-        r.join(10);
-        assertTrue(r.isAlive());
-        list.remove(pipe.sink()); //No throw from this one
-        list.remove(pipe.source());
+            r.join(10);
+            assertFalse(r.isAlive());
+        }
 
-        r.join(10);
-        assertFalse(r.isAlive());
-        
     }
 }

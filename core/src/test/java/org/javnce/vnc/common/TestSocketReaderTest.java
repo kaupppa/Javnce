@@ -17,8 +17,9 @@
 package org.javnce.vnc.common;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.Pipe;
 import java.util.ArrayList;
+import java.util.logging.Logger;
+import org.javnce.eventing.LoopbackChannelPair;
 import org.javnce.rfb.messages.Message;
 import org.javnce.rfb.messages.MsgBell;
 import org.javnce.rfb.messages.MsgClientCutText;
@@ -49,15 +50,11 @@ import org.junit.Test;
 public class TestSocketReaderTest {
 
     static final private PixelFormat format = PixelFormat.createRGB565();
-    private Pipe pipe;
     private SocketReader reader;
     private Message[] toBeSent;
 
     @Before
     public void setUp() throws Exception {
-        pipe = Pipe.open();
-        pipe.source().configureBlocking(true);
-        pipe.sink().configureBlocking(true);
 
         int bytePerPixel = format.bytesPerPixel();
         Rect rect = new Rect(new Point(0, 0), new Size(10, 10));
@@ -143,70 +140,76 @@ public class TestSocketReaderTest {
 
     @Test
     public void testReadOneByOne() throws Throwable {
-        ReceiveMsgFactory f = new ReceiveMsgFactory();
-        reader = new SocketReader(f);
+        try (LoopbackChannelPair loopback = new LoopbackChannelPair()) {
+            ReceiveMsgFactory f = new ReceiveMsgFactory();
+            reader = new SocketReader(f);
 
-        for (int i = 0; i < f.msgs.length; i++) {
-            ArrayList<ByteBuffer> list = toBeSent[i].marshal();
+            loopback.channel2().configureBlocking(true);
+            for (int i = 0; i < f.msgs.length; i++) {
+                ArrayList<ByteBuffer> list = toBeSent[i].marshal();
 
-            ByteBuffer data = MyByteBufferHelper.arrayListToBuffer(list);
-            pipe.sink().write(data);
-            //logger.info("Write " + toBeSent[i]);
+                ByteBuffer data = MyByteBufferHelper.arrayListToBuffer(list);
+                loopback.channel1().write(data);
+                //logger.info("Write " + toBeSent[i]);
 
-            Message msg = reader.read(pipe.source());
-            assertTrue(data.remaining() == 0);
-            //logger.info("Read " + toBeRead[i]);
-            assertNotNull(msg);
-            assertTrue(msg.isValid());
-            assertEquals(toBeSent[i].getId(), msg.getId());
+                Message msg = reader.read(loopback.channel2());
+                assertTrue(data.remaining() == 0);
+                //logger.info("Read " + toBeRead[i]);
+                assertNotNull(msg);
+                assertTrue(msg.isValid());
+                assertEquals(toBeSent[i].getId(), msg.getId());
+            }
         }
     }
 
     @Test
     public void testReadAllAtOnce() throws Throwable {
-        //Logger logger = Logger.getLogger(TestSocketReaderTest.class.getName());
-        ReceiveMsgFactory f = new ReceiveMsgFactory();
-        reader = new SocketReader(f);
+        try (LoopbackChannelPair loopback = new LoopbackChannelPair()) {
+            //Logger logger = Logger.getLogger(TestSocketReaderTest.class.getName());
+            ReceiveMsgFactory f = new ReceiveMsgFactory();
+            reader = new SocketReader(f);
 
-        pipe.source().configureBlocking(false);
-        pipe.sink().configureBlocking(false);
+            for (int i = 0; i < toBeSent.length; i++) {
+                ArrayList<ByteBuffer> list = toBeSent[i].marshal();
+                loopback.channel1().write(MyByteBufferHelper.arrayListToBuffer(list));
+                //logger.info("Write " + toBeSent[i]);
+            }
 
-        for (int i = 0; i < toBeSent.length; i++) {
-            ArrayList<ByteBuffer> list = toBeSent[i].marshal();
-            pipe.sink().write(MyByteBufferHelper.arrayListToBuffer(list));
-            //logger.info("Write " + toBeSent[i]);
-        }
-
-        for (int i = 0; i < f.msgs.length; i++) {
-            Message msg = reader.read(pipe.source());
-            //logger.info("Read " + toBeRead[i]);
-            assertNotNull(msg);
-            assertTrue(msg.isValid());
-            assertEquals(toBeSent[i].getId(), msg.getId());
+            for (int i = 0; i < f.msgs.length; i++) {
+                Message msg = reader.read(loopback.channel2());
+                //logger.info("Read " + toBeRead[i]);
+                assertNotNull(msg);
+                assertTrue(msg.isValid());
+                assertEquals(toBeSent[i].getId(), msg.getId());
+            }
         }
     }
 
     @Test
     public void testReadByteByByte() throws Throwable {
-        //Logger logger = Logger.getLogger(TestSocketReaderTest.class.getName());
-        ReceiveMsgFactory f = new ReceiveMsgFactory();
-        reader = new SocketReader(f);
+        try (LoopbackChannelPair loopback = new LoopbackChannelPair()) {
+            Logger logger = Logger.getLogger(TestSocketReaderTest.class.getName());
+            ReceiveMsgFactory f = new ReceiveMsgFactory();
+            reader = new SocketReader(f);
+            
+            loopback.channel2().configureBlocking(true);
 
-        for (int i = 0; i < f.msgs.length; i++) {
-            ArrayList<ByteBuffer> list = toBeSent[i].marshal();
-            ByteBuffer data = MyByteBufferHelper.arrayListToBuffer(list);
-            Message msg = null;
+            for (int i = 0; i < f.msgs.length; i++) {
+                ArrayList<ByteBuffer> list = toBeSent[i].marshal();
+                ByteBuffer data = MyByteBufferHelper.arrayListToBuffer(list);
+                Message msg = null;
 
-            while (0 != data.remaining() && null == msg) {
-                byte[] temp = new byte[1];
-                temp[0] = data.get();
-                pipe.sink().write(ByteBuffer.wrap(temp));
-                msg = reader.read(pipe.source());
+                while (0 != data.remaining() && null == msg) {
+                    byte[] temp = new byte[1];
+                    temp[0] = data.get();
+                    loopback.channel1().write(ByteBuffer.wrap(temp));
+                    msg = reader.read(loopback.channel2());
+                }
+
+                assertNotNull(msg);
+                assertTrue(msg.isValid());
+                assertEquals(toBeSent[i].getId(), msg.getId());
             }
-
-            assertNotNull(msg);
-            assertTrue(msg.isValid());
-            assertEquals(toBeSent[i].getId(), msg.getId());
         }
     }
 }

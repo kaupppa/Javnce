@@ -17,7 +17,6 @@
 package org.javnce.eventing;
 
 import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -39,10 +38,15 @@ class ChannelSubscriberList {
      * Instantiates a new channel subscriber list.
      */
     ChannelSubscriberList() {
-        try {
+        selector = null;
+    }
+
+    /**
+     * Opens the selector if not existing
+     */
+    private void init() throws IOException {
+        if (null == selector) {
             selector = Selector.open();
-        } catch (Throwable e) {
-            EventLoop.fatalError(this, e);
         }
     }
 
@@ -50,18 +54,20 @@ class ChannelSubscriberList {
      * Method to wake up the selector.
      */
     void wakeup() {
-        selector.wakeup();
+        if (null != selector) {
+            selector.wakeup();
+        }
     }
 
     /**
      * Closes the selector.
      */
     void close() {
-        try {
-            if (selector.isOpen()) {
+        if (null != selector) {
+            try {
                 selector.close();
+            } catch (IOException e) {
             }
-        } catch (IOException e) {
         }
     }
 
@@ -120,10 +126,13 @@ class ChannelSubscriberList {
      * @param object the callback object
      * @param ops Same as in register in the 
      * {@link java.nio.channels.SelectableChannel#validOps() }
-     * @throws ClosedChannelException the closed channel exception
+     * @throws IOException the closed channel exception
      */
-    void add(SelectableChannel channel, ChannelSubscriber object, int ops) throws ClosedChannelException {
-        channel.register(selector, ops, object);
+    void add(SelectableChannel channel, ChannelSubscriber object, int ops) throws IOException {
+        init();
+        if (null != selector) {
+            channel.register(selector, ops, object);
+        }
     }
 
     /**
@@ -132,18 +141,19 @@ class ChannelSubscriberList {
      * @param channel the channel
      */
     void remove(SelectableChannel channel) {
-        Set<SelectionKey> selectedKeys = selector.keys();
-        Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
+        if (!isEmpty()) {
+            Set<SelectionKey> selectedKeys = selector.keys();
+            Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
 
-        while (keyIterator.hasNext()) {
-            SelectionKey key = keyIterator.next();
+            while (keyIterator.hasNext()) {
+                SelectionKey key = keyIterator.next();
 
-            if (key.channel().equals(channel)) {
-                key.cancel();
-                break;
+                if (key.channel().equals(channel)) {
+                    key.cancel();
+                    wakeup();
+                    break;
+                }
             }
         }
-
-        selector.wakeup();
     }
 }

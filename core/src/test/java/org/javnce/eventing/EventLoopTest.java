@@ -18,8 +18,9 @@ package org.javnce.eventing;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.Pipe;
 import java.nio.channels.SelectionKey;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Before;
@@ -28,9 +29,8 @@ import org.junit.Test;
 public class EventLoopTest {
 
     private EventLoopGroup root;
-    private Pipe pipe;
 
-    static void sleep(int ms) {
+    private static void sleep(int ms) {
         try {
             //Wait
             Thread.sleep(ms);
@@ -41,13 +41,10 @@ public class EventLoopTest {
     @Before
     public void setUp() throws Exception {
         root = EventLoopGroup.instance();
-        pipe = Pipe.open();
-        pipe.source().configureBlocking(false);
     }
 
     @After
     public void tearDown() throws Exception {
-        pipe = null;
         EventLoopGroup.shutdown(root);
 
         if (false == root.isEmpty()) {
@@ -281,106 +278,110 @@ public class EventLoopTest {
     }
 
     @Test
-    public void testSubscribeSelectableChannelChannelSubscriberInt() throws IOException {
-        {
-            // Normal case
-            EventTester tester = new EventTester(null);
+    public void testSubscribeSelectableChannelChannelSubscriberInt() throws Exception {
+        try (LoopbackChannelPair loopback = new LoopbackChannelPair()) {
+            {
+                // Normal case
+                EventTester tester = new EventTester(null);
 
-            tester.eventLoop.subscribe(pipe.source(), tester, SelectionKey.OP_READ);
+                tester.eventLoop.subscribe(loopback.channel1(), tester, SelectionKey.OP_READ);
 
-            Thread thread = new Thread(tester.eventLoop);
-            thread.start();
+                Thread thread = new Thread(tester.eventLoop);
+                thread.start();
 
-            sleep(10);
+                sleep(10);
 
-            int length = 10;
-            pipe.sink().write(ByteBuffer.allocate(length));
+                int length = 10;
+                loopback.channel2().write(ByteBuffer.allocate(length));
 
-            sleep(10);
-            assertEquals(length, tester.buffer.position());
-        }
+                sleep(10);
+                assertEquals(length, tester.buffer.position());
+            }
 
-        {
-            // Negative case, dummy parameters
-            MyErrorHandler h = new MyErrorHandler();
-            EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
-            EventLoop eventLoop = new EventLoop();
+            {
+                // Negative case, dummy parameters
+                MyErrorHandler h = new MyErrorHandler();
+                EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
+                EventLoop eventLoop = new EventLoop();
 
-            eventLoop.subscribe(null, null, SelectionKey.OP_READ);
+                eventLoop.subscribe(null, null, SelectionKey.OP_READ);
 
-            assertTrue(h.called);
-            EventLoop.setErrorHandler(old);
-        }
-        {
-            // Test that adding after shutdown is not an error
-            MyErrorHandler h = new MyErrorHandler();
-            EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
+                assertTrue(h.called);
+                EventLoop.setErrorHandler(old);
+            }
+            {
+                // Test that adding after shutdown is not an error
+                MyErrorHandler h = new MyErrorHandler();
+                EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
 
-            EventTester tester = new EventTester(null);
+                EventTester tester = new EventTester(null);
 
-            tester.eventLoop.shutdown();
-            tester.eventLoop.subscribe(pipe.source(), tester, SelectionKey.OP_READ);
+                tester.eventLoop.shutdown();
+                tester.eventLoop.subscribe(loopback.channel1(), tester, SelectionKey.OP_READ);
 
-            assertFalse(h.called);
-            EventLoop.setErrorHandler(old);
+                assertFalse(h.called);
+                EventLoop.setErrorHandler(old);
+            }
         }
     }
 
     @Test
-    public void testRemoveSubscribeSelectableChannel() throws IOException {
-        {
-            //Normal case
-            EventTester tester = new EventTester(null);
+    public void testRemoveSubscribeSelectableChannel() throws Exception {
+        try (LoopbackChannelPair loopback = new LoopbackChannelPair()) {
+            {
+                //Normal case
+                EventTester tester = new EventTester(null);
 
-            tester.eventLoop.subscribe(pipe.source(), tester, SelectionKey.OP_READ);
+                tester.eventLoop.subscribe(loopback.channel1(), tester, SelectionKey.OP_READ);
 
-            tester.thread.start();
+                tester.thread.start();
 
-            sleep(10);
+                sleep(10);
 
-            int length = 10;
-            pipe.sink().write(ByteBuffer.allocate(length));
-            sleep(10);
-            assertEquals(length, tester.buffer.position());
+                int length = 10;
+                loopback.channel2().write(ByteBuffer.allocate(length));
+                sleep(10);
+                assertEquals(length, tester.buffer.position());
 
-            tester.buffer.clear();
-            //Remove
-            tester.eventLoop.removeSubscribe(pipe.source());
+                tester.buffer.clear();
+                //Remove
+                tester.eventLoop.removeSubscribe(loopback.channel1());
 
-            //Write again
-            pipe.sink().write(ByteBuffer.allocate(length));
+                //Write again
+                loopback.channel2().write(ByteBuffer.allocate(length));
 
-            sleep(10);
-            assertEquals(0, tester.buffer.position());
-        }
-        {
-            MyErrorHandler h = new MyErrorHandler();
-            EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
+                sleep(10);
+                assertEquals(0, tester.buffer.position());
+            }
+            {
+                MyErrorHandler h = new MyErrorHandler();
+                EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
 
-            //Removing with illegal paramters
-            EventTester tester = new EventTester(null);
+                //Removing with illegal paramters
+                EventTester tester = new EventTester(null);
 
-            //Remove
-            tester.eventLoop.removeSubscribe(null);
+                //Remove
+                tester.eventLoop.removeSubscribe(null);
 
-            assertFalse(h.called);
-            EventLoop.setErrorHandler(old);
-        }
-        {
-            MyErrorHandler h = new MyErrorHandler();
-            EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
+                assertFalse(h.called);
+                EventLoop.setErrorHandler(old);
+            }
+            {
+                MyErrorHandler h = new MyErrorHandler();
+                EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
 
-            //Removing after shutdown
-            EventTester tester = new EventTester(null);
+                //Removing after shutdown
+                EventTester tester = new EventTester(null);
 
-            tester.eventLoop.subscribe(pipe.source(), tester, SelectionKey.OP_READ);
-            tester.eventLoop.shutdown();
+                tester.eventLoop.subscribe(loopback.channel1(), tester, SelectionKey.OP_READ);
+                tester.eventLoop.shutdown();
 
-            //Remove
-            tester.eventLoop.removeSubscribe(pipe.source());
+                //Remove
+                tester.eventLoop.removeSubscribe(loopback.channel1());
 
-            assertFalse(h.called);
-            EventLoop.setErrorHandler(old);
+                assertFalse(h.called);
+                EventLoop.setErrorHandler(old);
+            }
         }
     }
 
@@ -588,36 +589,38 @@ public class EventLoopTest {
     }
 
     @Test
-    public void testAddTimerWithSockets() {
-        final EventLoop eventLoop = new EventLoop();
+    public void testAddTimerWithSockets() throws Exception {
+        try (LoopbackChannelPair loopback = new LoopbackChannelPair()) {
+            final EventLoop eventLoop = new EventLoop();
 
-        eventLoop.subscribe(pipe.source(), new ChannelSubscriber() {
-            @Override
-            public void channel(SelectionKey key) {
-                //Do nothing
-            }
-        }, SelectionKey.OP_READ);
+            eventLoop.subscribe(loopback.channel1(), new ChannelSubscriber() {
+                @Override
+                public void channel(SelectionKey key) {
+                    //Do nothing
+                }
+            }, SelectionKey.OP_READ);
 
-        //Add timer
-        long timeOut = 50;
-        Timer timer = new Timer(new TimeOutCallback() {
-            @Override
-            public void timeout() {
-                eventLoop.shutdown();
-            }
-        }, timeOut);
-        long startTime = System.currentTimeMillis();
+            //Add timer
+            long timeOut = 50;
+            Timer timer = new Timer(new TimeOutCallback() {
+                @Override
+                public void timeout() {
+                    eventLoop.shutdown();
+                }
+            }, timeOut);
+            long startTime = System.currentTimeMillis();
 
-        eventLoop.addTimer(timer);
+            eventLoop.addTimer(timer);
 
-        //We get stuck in case of failure
-        eventLoop.process();
+            //We get stuck in case of failure
+            eventLoop.process();
 
-        long elapsedTime = System.currentTimeMillis() - startTime;
+            long elapsedTime = System.currentTimeMillis() - startTime;
 
-        //Check that time matches timeout
-        assertTrue((timeOut + 10) >= elapsedTime);
-        assertTrue((timeOut) <= elapsedTime);
+            //Check that time matches timeout
+            assertTrue((timeOut + 10) >= elapsedTime);
+            assertTrue((timeOut) <= elapsedTime);
+        }
     }
 
     @Test
