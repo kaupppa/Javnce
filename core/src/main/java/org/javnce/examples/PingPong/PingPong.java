@@ -63,7 +63,8 @@ public class PingPong {
             SocketChannel socketChannel = (SocketChannel) channel;
             ByteBuffer buffer = ByteBuffer.allocate(1000);
             socketChannel.read(buffer);
-            string = new String(buffer.array());
+            buffer.flip();
+            string = new String(buffer.array(),0, buffer.remaining());
         }
         return string;
     }
