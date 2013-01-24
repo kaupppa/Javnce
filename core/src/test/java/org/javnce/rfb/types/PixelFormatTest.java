@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestPixelFormatTest {
+public class PixelFormatTest {
 
     private PixelFormat format;
     private int bitsPerPixel;
@@ -122,6 +122,8 @@ public class TestPixelFormatTest {
     public void testAlphaMask() {
         assertEquals(0xFF000000, PixelFormat.createARGB888().alphaMask());
         assertEquals(0, PixelFormat.createRGB565().alphaMask());
+        PixelFormat temp = new PixelFormat(16, 15, false, true, new Color(31, 31, 31), new Color(10, 5, 0));
+        assertEquals(0x8000, temp.alphaMask());
     }
 
     @Test
@@ -185,5 +187,12 @@ public class TestPixelFormatTest {
         assertTrue(max.equals(format.max()));
         assertTrue(shift.equals(format.shift()));
 
+    }
+
+    @Test
+    public void testToString() {
+        format = PixelFormat.createARGB888();
+        String text = format.toString();
+        assertNotNull(text);
     }
 }

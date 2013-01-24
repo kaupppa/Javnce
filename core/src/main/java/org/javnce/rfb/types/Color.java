@@ -19,6 +19,7 @@ package org.javnce.rfb.types;
 /**
  * The Class Color wraps the RGB values to single class.
  *
+ * @see PixelFormat
  */
 public class Color {
 

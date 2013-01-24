@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestRectTest {
+public class RectTest {
 
     private Rect rect;
     private Size size;
@@ -159,5 +159,12 @@ public class TestRectTest {
         test = area51.bounding(new Rect(100, 200, 100, 100));
         assertEquals(test, new Rect(100, 100, 100, 200));
 
+    }
+
+    @Test
+    public void testToString() {
+        Rect area51 = new Rect(100, 100, 100, 100);
+        String text = area51.toString();
+        assertNotNull(text);
     }
 }

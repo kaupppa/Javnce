@@ -19,6 +19,7 @@ package org.javnce.rfb.types;
 /**
  * The Class Version contains RFB protocol version number.
  *
+ * @see org.javnce.rfb.messages.MsgProtocolVersion
  */
 public class Version {
 

@@ -36,6 +36,10 @@ public class Rect {
     /**
      * Instantiates a new rect.
      *
+     * @param x is the x-coordinate
+     * @param y is the y-coordinate
+     * @param width is the width
+     * @param height is the height
      */
     public Rect(int x, int y, int width, int height) {
         this.x1 = x;
@@ -126,6 +130,8 @@ public class Rect {
     /**
      * Tests if areas are overlapping
      *
+     * @param other is the other area
+     *
      * @return true if overlapping or partial overlapping
      */
     public Boolean overlaps(Rect other) {
@@ -143,6 +149,8 @@ public class Rect {
 
     /**
      * Returns an overlapping area
+     *
+     * @param other is the other area
      *
      * @return overlapping area or null if not overlapping
      */
@@ -185,6 +193,8 @@ public class Rect {
     /**
      * Tests if areas are overlapping or share edge
      *
+     * @param other is the other area
+     *
      * @return true if no space between areas
      */
     public Boolean connecting(Rect other) {
@@ -201,7 +211,9 @@ public class Rect {
     }
 
     /**
-     * Returns an area that holds both areas
+     * Get area that contains both areas
+     *
+     * @param other is the other area
      *
      * @return new area that contains both areas
      */

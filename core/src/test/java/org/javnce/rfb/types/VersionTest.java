@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestVersionTest {
+public class VersionTest {
 
     private Version version;
 
@@ -59,5 +59,12 @@ public class TestVersionTest {
 
         Object object = new Object();
         assertFalse(version.equals(object));
+    }
+
+    @Test
+    public void testToString() {
+        version = new Version(3, 8);
+        String text = version.toString();
+        assertNotNull(text);
     }
 }

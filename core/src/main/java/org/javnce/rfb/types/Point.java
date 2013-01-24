@@ -19,6 +19,7 @@ package org.javnce.rfb.types;
 /**
  * The Class Point wraps x and y coordinate.
  *
+ * @see Rect
  */
 public class Point {
 

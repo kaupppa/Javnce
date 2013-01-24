@@ -89,6 +89,11 @@ public class Framebuffer {
         return buffers;
     }
 
+    /**
+     * Gets buffers as one ByteBuffer
+     *
+     * @return buffers in single ByteBuffer
+     */
     public ByteBuffer asOneBuffer() {
         ByteBuffer buffer = null;
 

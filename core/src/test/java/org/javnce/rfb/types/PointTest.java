@@ -20,52 +20,54 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestSizeTest {
+public class PointTest {
 
-    private Size size;
-    private int width = 123;
-    private int height = 456;
+    private Point point;
+    private int x = 123;
+    private int y = 456;
 
     class TestData {
 
-        final public Size size;
+        final public Point point;
         final public boolean same;
 
-        public TestData(Size size, boolean same) {
-            this.size = size;
+        public TestData(Point point, boolean same) {
+            this.point = point;
             this.same = same;
         }
     }
 
     @Before
     public void setUp() {
-        width = 123;
-        height = 456;
-        size = new Size(width, height);
+        x = 123;
+        y = 456;
+        point = new Point(x, y);
     }
 
     @Test
-    public void testSizeIntInt() {
-        assertNotNull(size);
-        assertEquals(width, size.width());
-        assertEquals(height, size.height());
+    public void testPointIntInt() {
+        assertNotNull(point);
+        assertEquals(x, point.x());
+        assertEquals(y, point.y());
+
     }
 
     @Test
-    public void testEquals() {
+    public void testEqualsObject() {
+        assertFalse(point.equals(null));
+        assertFalse(point.equals(new Version(1, 1)));
+
         TestData[] array = new TestData[]{
-            new TestData(size, true),
-            new TestData(new Size(height, width), false),
-            new TestData(new Size(width, height), true),
-            new TestData(new Size(0, 0), false)
+            new TestData(point, true),
+            new TestData(new Point(y, x), false),
+            new TestData(new Point(x, y), true),
+            new TestData(new Point(0, 0), false)
         };
 
         for (int i = 0; i < array.length; i++) {
-            assertEquals(array[i].same, size.equals(array[i].size));
-            assertEquals(array[i].same, array[i].size.equals(size));
+            assertEquals(array[i].same, point.equals(array[i].point));
+            assertEquals(array[i].same, array[i].point.equals(point));
         }
 
-        assertFalse(size.equals(null));
-        assertFalse(size.equals(new Version(1, 1)));
     }
 }

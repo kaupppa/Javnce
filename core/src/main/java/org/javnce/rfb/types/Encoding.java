@@ -27,21 +27,18 @@ public class Encoding {
      * The mandatory RAW encoding.
      */
     public static final int RAW = 0;
-    
     /**
-     * The Run-length Encoding. 
-     * <p>The format is following:</p>
-     * <table border="1">
-     *  <tr><th>No. of bytes</th><th>Type</th><th>Description</th></tr>
-     *  <tr><td>4</td><td>U32</td><td>Rle data length in bytes</td></tr>
-     *  <tr><td>N*Rle Pixel</td><td>Rle Pixel</td><td>Array of Rle Pixel</td></tr>
-     * </table> 
-     * <p>The Rle Pixel format is following:</p>
-     * <table border="1">
-     *  <tr><th>No. of bytes</th><th>Type</th><th>Description</th></tr>
-     *  <tr><td>1</td><td>U8</td><td>Pixel run count -1 (0=1 runs, 1=2 runs..., 0xff=256 runs)</td></tr>
-     *  <tr><td>n</td><td>Pixel</td><td>Exactly as in Raw format (including alpha)</td></tr>
-     * </table> 
+     * The Run-length Encoding. <p>The format is following:</p> <table
+     * border="1"> <tr><th>No. of
+     * bytes</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>4</td><td>U32</td><td>Rle data length in bytes</td></tr>
+     * <tr><td>N*Rle Pixel</td><td>Rle Pixel</td><td>Array of Rle
+     * Pixel</td></tr> </table> <p>The Rle Pixel format is following:</p> <table
+     * border="1"> <tr><th>No. of
+     * bytes</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>1</td><td>U8</td><td>Pixel run count -1 (0=1 runs, 1=2 runs...,
+     * 0xff=256 runs)</td></tr> <tr><td>n</td><td>Pixel</td><td>Exactly as in
+     * Raw format (including alpha)</td></tr> </table>
      */
-    public static final int JaVNCeRLE = -666; 
+    public static final int JaVNCeRLE = -666;
 }

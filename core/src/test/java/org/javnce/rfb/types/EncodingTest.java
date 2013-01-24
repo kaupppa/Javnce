@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012  Pauli Kauppinen
+ * Copyright (C) 2013  Pauli Kauppinen
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,23 +19,11 @@ package org.javnce.rfb.types;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-public class TestSecurityTypeTest {
+public class EncodingTest {
 
     @Test
-    public void testId() {
-
-        assertEquals(-1, SecurityType.UnSupported.id());
-        assertEquals(0, SecurityType.Invalid.id());
-        assertEquals(1, SecurityType.None.id());
-    }
-
-    @Test
-    public void testCreate() {
-        assertEquals(SecurityType.Invalid, SecurityType.create((byte) 0));
-        assertEquals(SecurityType.None, SecurityType.create((byte) 1));
-
-        for (byte i = 2; i < 30; i++) {
-            assertEquals(SecurityType.UnSupported, SecurityType.create(i));
-        }
+    public void test() {
+        Encoding enc = new Encoding();
+        assertNotNull(enc);
     }
 }

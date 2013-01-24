@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestColorTest {
+public class ColorTest {
 
     private Color color;
     private int red;
@@ -94,5 +94,11 @@ public class TestColorTest {
 
         assertFalse(color.equals(null));
         assertFalse(color.equals(new Version(1, 1)));
+    }
+
+    @Test
+    public void testToString() {
+        String text = color.toString();
+        assertNotNull(text);
     }
 }
