@@ -18,61 +18,60 @@ package org.javnce.rfb.messages;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import org.javnce.rfb.types.Color;
-import org.javnce.rfb.types.PixelFormat;
 import static org.junit.Assert.*;
-import org.junit.Before;
 import org.junit.Test;
 
-public class TestMsgSetPixelFormatTest {
+public class MsgSetEncodingsTest {
 
-    private MsgSetPixelFormat msg;
-    private PixelFormat format;
-
-    @Before
-    public void setUp() {
-        format = new PixelFormat(32, 24, false, true, new Color(123, 456, 789), new Color(1, 2, 3));
-    }
+    private MsgSetEncodings msg;
 
     @Test
     public void testDemarshal() {
-        PixelFormat[] array = new PixelFormat[]{new PixelFormat(0, 1, false, true, new Color(2, 3, 4), new Color(5, 6, 7)),
-            new PixelFormat(0xF0, 0xF1, false, true, new Color(0xFFF2, 0xFFF3, 0xFFF4), new Color(0xF5, 0xF6, 0xF7)),};
+        int[][] array = new int[][]{
+            new int[]{1, 2, 3, 4, 5},
+            new int[]{},
+            new int[]{0},
+            new int[]{-123, -34534, -34534, -34534, -9999999}
+        };
 
         for (int i = 0; i < array.length; i++) {
 
-            msg = new MsgSetPixelFormat(array[i]);
+            msg = new MsgSetEncodings(array[i]);
             ArrayList<ByteBuffer> list = msg.marshal();
             assertEquals(1, list.size());
-
-            msg = new MsgSetPixelFormat();
-            assertTrue(msg.demarshal(MyByteBufferHelper.arrayListToBuffer(list)));
             assertTrue(msg.isValid());
 
-            assertEquals(array[i], msg.get());
+            ByteBuffer temp = MyByteBufferHelper.arrayListToBuffer(list);
+            msg = new MsgSetEncodings();
+            assertTrue(msg.demarshal(temp));
+            assertTrue(msg.isValid());
+            assertEquals(0, temp.remaining());
+
+
+            org.junit.Assert.assertArrayEquals(array[i], msg.get());
         }
+
     }
 
     @Test
     public void testMarshal() {
         //Not valid
-        msg = new MsgSetPixelFormat();
+        msg = new MsgSetEncodings();
         ArrayList<ByteBuffer> list = msg.marshal();
         assertEquals(0, list.size());
 
     }
 
     @Test
-    public void testMsgSetPixelFormat() {
-        msg = new MsgSetPixelFormat();
+    public void testMsgSetEncodings() {
+        msg = new MsgSetEncodings();
         assertNotNull(msg);
         assertFalse(msg.isValid());
-
     }
 
     @Test
-    public void testMsgSetPixelFormatPixelFormat() {
-        msg = new MsgSetPixelFormat(format);
+    public void testMsgSetEncodingsIntArray() {
+        msg = new MsgSetEncodings(new int[]{1, 2, 3, 4, 5});
         assertNotNull(msg);
         assertTrue(msg.isValid());
 
@@ -80,18 +79,32 @@ public class TestMsgSetPixelFormatTest {
 
     @Test
     public void testGet() {
-        msg = new MsgSetPixelFormat(format);
-        assertEquals(format, msg.get());
+        msg = new MsgSetEncodings();
+        assertNull(msg.get());
+
+        msg = new MsgSetEncodings(new int[]{1, 2, 3, 4, 5});
+        assertNotNull(msg.get());
     }
 
     @Test
     public void testGetId() {
-        msg = new MsgSetPixelFormat();
+        msg = new MsgSetEncodings();
         assertNotNull(msg);
-        assertEquals(Id.SetPixelFormat, msg.getId());
+        assertEquals(Id.SetEncodings, msg.getId());
 
-        msg = new MsgSetPixelFormat(format);
+        msg = new MsgSetEncodings(new int[]{1, 2, 3, 4, 5});
         assertNotNull(msg);
-        assertEquals(Id.SetPixelFormat, msg.getId());
+        assertEquals(Id.SetEncodings, msg.getId());
+    }
+
+    @Test
+    public void testToString() {
+        msg = new MsgSetEncodings(new int[]{-123, -34534, -34534, -34534, -9999999});
+        String text = msg.toString();
+        assertNotNull(text);
+
+        msg = new MsgSetEncodings();
+        text = msg.toString();
+        assertNotNull(text);
     }
 }

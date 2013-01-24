@@ -54,6 +54,8 @@ public class MsgFramebufferUpdate extends Message {
 
     /**
      * Instantiates a new FramebufferUpdate message for receiving.
+     * 
+     * @param format tells byte per pixel that raw format have.
      */
     public MsgFramebufferUpdate(PixelFormat format) {
         super(msgId);
@@ -62,7 +64,8 @@ public class MsgFramebufferUpdate extends Message {
 
     /**
      * Instantiates a new FramebufferUpdate message for sending.
-     *
+     * 
+     * @param format tells byte per pixel that raw format have.
      * @param fb the frame buffers to be sent
      */
     public MsgFramebufferUpdate(PixelFormat format, Framebuffer[] fb) {
@@ -229,7 +232,7 @@ public class MsgFramebufferUpdate extends Message {
 
             int size = 4;
 
-            if (0 < fb.length) {
+            if (null != fb && 0 < fb.length) {
                 size += 12;
 
                 if (fb[0].encoding() == Encoding.JaVNCeRLE) {
@@ -239,12 +242,16 @@ public class MsgFramebufferUpdate extends Message {
 
             ByteBuffer buffer = ByteBuffer.allocate(size);
 
+            int fbCount = 0;
+            if (null != fb) {
+                fbCount = fb.length;
+            }
             //Write msg header
             buffer.put(type);
             buffer.put((byte) 0xff);
-            buffer.putShort((short) fb.length);
+            buffer.putShort((short) fbCount);
 
-            for (int i = 0; i < fb.length; i++) {
+            for (int i = 0; i < fbCount; i++) {
 
                 if (null == buffer) {
                     size = 12;
@@ -282,6 +289,13 @@ public class MsgFramebufferUpdate extends Message {
                     list.add(temp);
                 }
             }
+            if (null != buffer)
+            {
+                buffer.clear();
+                list.add(buffer);
+                buffer = null;
+            }
+
         }
 
         return list;

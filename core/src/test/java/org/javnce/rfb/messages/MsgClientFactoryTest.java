@@ -27,7 +27,7 @@ import org.javnce.rfb.types.Rect;
 import org.javnce.rfb.types.Size;
 import org.junit.Test;
 
-public class TestMsgClientFactoryTest extends TestCase {
+public class MsgClientFactoryTest extends TestCase {
 
     static final private PixelFormat format = PixelFormat.createRGB565();
     private MsgClientFactory msg;
@@ -100,5 +100,12 @@ public class TestMsgClientFactoryTest extends TestCase {
         assertNotNull(msg);
         assertEquals(Id.Factory, msg.getId());
 
+    }
+
+    @Test
+    public void testToString() {
+        msg = new MsgClientFactory(format);
+        String text = msg.toString();
+        assertNotNull(text);
     }
 }

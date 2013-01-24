@@ -18,89 +18,87 @@ package org.javnce.rfb.messages;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import org.javnce.rfb.types.Point;
+import org.javnce.rfb.types.Color;
+import org.javnce.rfb.types.PixelFormat;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestMsgPointerEventTest {
+public class MsgSetPixelFormatTest {
 
-    MsgPointerEvent msg;
-    private int mask;
-    private Point point;
+    private MsgSetPixelFormat msg;
+    private PixelFormat format;
 
     @Before
     public void setUp() {
-        mask = 0xFF;
-        point = new Point(0xABBA, 0xBEEF);
-    }
-
-    class TestData {
-
-        final int mask;
-        final Point point;
-
-        public TestData(int mask, Point point) {
-            this.mask = mask;
-            this.point = point;
-        }
+        format = new PixelFormat(32, 24, false, true, new Color(123, 456, 789), new Color(1, 2, 3));
     }
 
     @Test
     public void testDemarshal() {
-        TestData[] array = new TestData[]{
-            new TestData(0, new Point(0, 0)),
-            new TestData(mask, point),
-            new TestData(0xFF, new Point(0xFFFF, 0xFFFF)),};
+        PixelFormat[] array = new PixelFormat[]{new PixelFormat(0, 1, false, true, new Color(2, 3, 4), new Color(5, 6, 7)),
+            new PixelFormat(0xF0, 0xF1, false, true, new Color(0xFFF2, 0xFFF3, 0xFFF4), new Color(0xF5, 0xF6, 0xF7)),};
 
         for (int i = 0; i < array.length; i++) {
 
-            msg = new MsgPointerEvent(array[i].mask, array[i].point);
+            msg = new MsgSetPixelFormat(array[i]);
             ArrayList<ByteBuffer> list = msg.marshal();
             assertEquals(1, list.size());
 
-            msg = new MsgPointerEvent();
+            msg = new MsgSetPixelFormat();
             assertTrue(msg.demarshal(MyByteBufferHelper.arrayListToBuffer(list)));
             assertTrue(msg.isValid());
 
-            assertEquals(array[i].mask, msg.getMask());
-            assertEquals(array[i].point, msg.getPoint());
+            assertEquals(array[i], msg.get());
         }
     }
 
     @Test
     public void testMarshal() {
         //Not valid
-        msg = new MsgPointerEvent();
+        msg = new MsgSetPixelFormat();
         ArrayList<ByteBuffer> list = msg.marshal();
         assertEquals(0, list.size());
 
     }
 
     @Test
-    public void testMsgPointerEvent() {
-        msg = new MsgPointerEvent();
+    public void testMsgSetPixelFormat() {
+        msg = new MsgSetPixelFormat();
         assertNotNull(msg);
         assertFalse(msg.isValid());
 
     }
 
     @Test
-    public void testMsgPointerEventIntPoint() {
-        msg = new MsgPointerEvent(mask, point);
+    public void testMsgSetPixelFormatPixelFormat() {
+        msg = new MsgSetPixelFormat(format);
         assertNotNull(msg);
         assertTrue(msg.isValid());
 
     }
 
     @Test
-    public void testGetId() {
-        msg = new MsgPointerEvent();
-        assertNotNull(msg);
-        assertEquals(Id.PointerEvent, msg.getId());
+    public void testGet() {
+        msg = new MsgSetPixelFormat(format);
+        assertEquals(format, msg.get());
+    }
 
-        msg = new MsgPointerEvent(mask, point);
+    @Test
+    public void testGetId() {
+        msg = new MsgSetPixelFormat();
         assertNotNull(msg);
-        assertEquals(Id.PointerEvent, msg.getId());
+        assertEquals(Id.SetPixelFormat, msg.getId());
+
+        msg = new MsgSetPixelFormat(format);
+        assertNotNull(msg);
+        assertEquals(Id.SetPixelFormat, msg.getId());
+    }
+
+    @Test
+    public void testToString() {
+        msg = new MsgSetPixelFormat();
+        String text = msg.toString();
+        assertNotNull(text);
     }
 }

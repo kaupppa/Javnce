@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestMsgServerCutTextTest {
+public class MsgServerCutTextTest {
 
     MsgServerCutText msg;
     String data;
@@ -89,5 +89,12 @@ public class TestMsgServerCutTextTest {
         assertNotNull(msg);
         assertEquals(Id.ServerCutText, msg.getId());
 
+    }
+
+    @Test
+    public void testToString() {
+        msg = new MsgServerCutText();
+        String text = msg.toString();
+        assertNotNull(text);
     }
 }

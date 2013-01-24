@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestMsgServerInitTest {
+public class MsgServerInitTest {
 
     private MsgServerInit msg;
     private PixelFormat format;
@@ -131,5 +131,16 @@ public class TestMsgServerInitTest {
         msg = new MsgServerInit(format, size, name);
         assertNotNull(msg);
         assertEquals(Id.ServerInit, msg.getId());
+    }
+
+    @Test
+    public void testToString() {
+        msg = new MsgServerInit();
+        String text = msg.toString();
+        assertNotNull(text);
+        
+        msg = new MsgServerInit(format, size, name);
+        text = msg.toString();
+        assertNotNull(text);
     }
 }

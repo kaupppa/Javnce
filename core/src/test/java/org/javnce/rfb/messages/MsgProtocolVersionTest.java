@@ -23,7 +23,7 @@ import org.javnce.rfb.types.Version;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-public class TestMsgProtocolVersionTest {
+public class MsgProtocolVersionTest {
 
     MsgProtocolVersion msg;
 
@@ -105,5 +105,12 @@ public class TestMsgProtocolVersionTest {
         msg = new MsgProtocolVersion();
         ArrayList<ByteBuffer> list = msg.marshal();
         assertEquals(0, list.size());
+    }
+
+    @Test
+    public void testToString() {
+        msg = new MsgProtocolVersion();
+        String text = msg.toString();
+        assertNotNull(text);
     }
 }

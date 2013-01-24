@@ -19,81 +19,81 @@ package org.javnce.rfb.messages;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import static org.junit.Assert.*;
+import org.junit.Before;
 import org.junit.Test;
 
-public class TestMsgSetEncodingsTest {
+public class MsgClientCutTextTest {
 
-    private MsgSetEncodings msg;
+    MsgClientCutText msg;
+    String data;
+
+    @Before
+    public void setUp() throws Exception {
+        data = "ASDASDASDASDASDasdasddfkäaglasfldfal,sfasfd";
+    }
 
     @Test
     public void testDemarshal() {
-        int[][] array = new int[][]{
-            new int[]{1, 2, 3, 4, 5},
-            new int[]{},
-            new int[]{0},
-            new int[]{-123, -34534, -34534, -34534, -9999999}
-        };
+        msg = new MsgClientCutText(data);
+        ArrayList<ByteBuffer> list = msg.marshal();
+        assertEquals(1, list.size());
 
-        for (int i = 0; i < array.length; i++) {
+        assertTrue(msg.isValid());
 
-            msg = new MsgSetEncodings(array[i]);
-            ArrayList<ByteBuffer> list = msg.marshal();
-            assertEquals(1, list.size());
-            assertTrue(msg.isValid());
+        msg = new MsgClientCutText();
+        assertTrue(msg.demarshal(MyByteBufferHelper.arrayListToBuffer(list)));
+        assertTrue(msg.isValid());
 
-            ByteBuffer temp = MyByteBufferHelper.arrayListToBuffer(list);
-            msg = new MsgSetEncodings();
-            assertTrue(msg.demarshal(temp));
-            assertTrue(msg.isValid());
-            assertEquals(0, temp.remaining());
-
-
-            org.junit.Assert.assertArrayEquals(array[i], msg.get());
-        }
-
+        assertEquals(data, msg.get());
     }
 
     @Test
     public void testMarshal() {
         //Not valid
-        msg = new MsgSetEncodings();
+        msg = new MsgClientCutText();
         ArrayList<ByteBuffer> list = msg.marshal();
         assertEquals(0, list.size());
-
     }
 
     @Test
-    public void testMsgSetEncodings() {
-        msg = new MsgSetEncodings();
+    public void testMsgClientCutText() {
+        msg = new MsgClientCutText();
         assertNotNull(msg);
         assertFalse(msg.isValid());
     }
 
     @Test
-    public void testMsgSetEncodingsIntArray() {
-        msg = new MsgSetEncodings(new int[]{1, 2, 3, 4, 5});
+    public void testMsgClientCutTextString() {
+        msg = new MsgClientCutText(data);
         assertNotNull(msg);
         assertTrue(msg.isValid());
-
     }
 
     @Test
     public void testGet() {
-        msg = new MsgSetEncodings();
+        msg = new MsgClientCutText();
         assertNull(msg.get());
 
-        msg = new MsgSetEncodings(new int[]{1, 2, 3, 4, 5});
+        msg = new MsgClientCutText(data);
         assertNotNull(msg.get());
+        assertEquals(data, msg.get());
     }
 
     @Test
     public void testGetId() {
-        msg = new MsgSetEncodings();
+        msg = new MsgClientCutText();
         assertNotNull(msg);
-        assertEquals(Id.SetEncodings, msg.getId());
+        assertEquals(Id.ClientCutText, msg.getId());
 
-        msg = new MsgSetEncodings(new int[]{1, 2, 3, 4, 5});
+        msg = new MsgClientCutText(data);
         assertNotNull(msg);
-        assertEquals(Id.SetEncodings, msg.getId());
+        assertEquals(Id.ClientCutText, msg.getId());
+    }
+
+    @Test
+    public void testToString() {
+        msg = new MsgClientCutText();
+        String text = msg.toString();
+        assertNotNull(text);
     }
 }

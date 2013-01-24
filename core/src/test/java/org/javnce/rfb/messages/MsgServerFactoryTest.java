@@ -26,7 +26,7 @@ import org.javnce.rfb.types.Size;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-public class TestMsgServerFactoryTest {
+public class MsgServerFactoryTest {
 
     private MsgServerFactory msg;
 
@@ -93,5 +93,12 @@ public class TestMsgServerFactoryTest {
         msg = new MsgServerFactory();
         assertNotNull(msg);
         assertEquals(Id.Factory, msg.getId());
+    }
+
+    @Test
+    public void testToString() {
+        msg = new MsgServerFactory();
+        String text = msg.toString();
+        assertNotNull(text);
     }
 }

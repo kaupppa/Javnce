@@ -19,88 +19,95 @@ package org.javnce.rfb.messages;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import org.javnce.rfb.types.Point;
-import org.javnce.rfb.types.Rect;
-import org.javnce.rfb.types.Size;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestMsgFramebufferUpdateRequestTest {
+public class MsgPointerEventTest {
 
-    private MsgFramebufferUpdateRequest msg;
-    private boolean incremental;
-    private Rect rect;
-
-    class TestData {
-
-        final public boolean incremental;
-        final public Rect rect;
-
-        public TestData(boolean incremental, Rect rect) {
-            this.incremental = incremental;
-            this.rect = rect;
-        }
-    }
+    MsgPointerEvent msg;
+    private int mask;
+    private Point point;
 
     @Before
     public void setUp() {
-        rect = new Rect(new Point(4321, 8765), new Size(1234, 5678));
-        incremental = true;
+        mask = 0xFF;
+        point = new Point(0xABBA, 0xBEEF);
+    }
+
+    class TestData {
+
+        final int mask;
+        final Point point;
+
+        public TestData(int mask, Point point) {
+            this.mask = mask;
+            this.point = point;
+        }
     }
 
     @Test
     public void testDemarshal() {
         TestData[] array = new TestData[]{
-            new TestData(false, new Rect(new Point(1, 2), new Size(3, 4))),
-            new TestData(true, new Rect(new Point(1, 2), new Size(3, 4))),
-            new TestData(true, new Rect(new Point(0xFFFF, 0xFFFF), new Size(0xFFFF, 0xFFFF))),};
+            new TestData(0, new Point(0, 0)),
+            new TestData(mask, point),
+            new TestData(0xFF, new Point(0xFFFF, 0xFFFF)),};
 
         for (int i = 0; i < array.length; i++) {
 
-            msg = new MsgFramebufferUpdateRequest(array[i].incremental, array[i].rect);
+            msg = new MsgPointerEvent(array[i].mask, array[i].point);
             ArrayList<ByteBuffer> list = msg.marshal();
             assertEquals(1, list.size());
 
-
-            msg = new MsgFramebufferUpdateRequest();
+            msg = new MsgPointerEvent();
             assertTrue(msg.demarshal(MyByteBufferHelper.arrayListToBuffer(list)));
             assertTrue(msg.isValid());
 
-            assertEquals(array[i].incremental, msg.getIncremental());
-            assertEquals(array[i].rect, msg.getRect());
+            assertEquals(array[i].mask, msg.getMask());
+            assertEquals(array[i].point, msg.getPoint());
         }
     }
 
     @Test
     public void testMarshal() {
         //Not valid
-        msg = new MsgFramebufferUpdateRequest();
+        msg = new MsgPointerEvent();
         ArrayList<ByteBuffer> list = msg.marshal();
         assertEquals(0, list.size());
+
     }
 
     @Test
-    public void testMsgFramebufferUpdateRequest() {
-        msg = new MsgFramebufferUpdateRequest();
+    public void testMsgPointerEvent() {
+        msg = new MsgPointerEvent();
         assertNotNull(msg);
         assertFalse(msg.isValid());
+
     }
 
     @Test
-    public void testMsgFramebufferUpdateRequestBooleanRect() {
-        msg = new MsgFramebufferUpdateRequest(incremental, rect);
+    public void testMsgPointerEventIntPoint() {
+        msg = new MsgPointerEvent(mask, point);
         assertNotNull(msg);
         assertTrue(msg.isValid());
+
     }
 
     @Test
     public void testGetId() {
-        msg = new MsgFramebufferUpdateRequest();
+        msg = new MsgPointerEvent();
         assertNotNull(msg);
-        assertEquals(Id.FramebufferUpdateRequest, msg.getId());
+        assertEquals(Id.PointerEvent, msg.getId());
 
-        msg = new MsgFramebufferUpdateRequest(incremental, rect);
+        msg = new MsgPointerEvent(mask, point);
         assertNotNull(msg);
-        assertEquals(Id.FramebufferUpdateRequest, msg.getId());
+        assertEquals(Id.PointerEvent, msg.getId());
+    }
+
+    @Test
+    public void testToString() {
+        msg = new MsgPointerEvent();
+        String text = msg.toString();
+        assertNotNull(text);
     }
 }

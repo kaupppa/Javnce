@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-public class TestMsgClientInitTest {
+public class MsgClientInitTest {
 
     MsgClientInit msg;
 
@@ -88,5 +88,12 @@ public class TestMsgClientInitTest {
 
         msg = new MsgClientInit(true);
         assertEquals(Id.ClientInit, msg.getId());
+    }
+
+    @Test
+    public void testToString() {
+        msg = new MsgClientInit(true);
+        String text = msg.toString();
+        assertNotNull(text);
     }
 }

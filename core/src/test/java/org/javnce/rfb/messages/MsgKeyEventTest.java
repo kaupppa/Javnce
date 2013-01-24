@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestMsgKeyEventTest {
+public class MsgKeyEventTest {
 
     private MsgKeyEvent msg;
     private boolean down;
@@ -103,5 +103,12 @@ public class TestMsgKeyEventTest {
         msg = new MsgKeyEvent(down, key);
         assertNotNull(msg);
         assertEquals(Id.KeyEvent, msg.getId());
+    }
+
+    @Test
+    public void testToString() {
+        msg = new MsgKeyEvent();
+        String text = msg.toString();
+        assertNotNull(text);
     }
 }

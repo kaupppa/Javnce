@@ -29,7 +29,7 @@ import org.javnce.rfb.types.Size;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-public class TestMsgFramebufferUpdateTest {
+public class MsgFramebufferUpdateTest {
 
     static final private PixelFormat format = PixelFormat.createRGB565();
     final private static Random rnd = new Random();
@@ -98,11 +98,48 @@ public class TestMsgFramebufferUpdateTest {
     }
 
     @Test
+    public void testDemarshalEmpty() {
+
+        msg = new MsgFramebufferUpdate(format, new Framebuffer[0]);
+        ArrayList<ByteBuffer> list = msg.marshal();
+        assertTrue(msg.isValid());
+
+        msg = new MsgFramebufferUpdate(format);
+        ByteBuffer rec = MyByteBufferHelper.arrayListToBuffer(list);
+        assertTrue(msg.demarshal(rec));
+        assertTrue(msg.isValid());
+        assertEquals(0, rec.remaining());
+
+        assertTrue(0 == msg.get().length);
+    }
+
+    @Test
     public void testMarshal() {
         //Not valid
         msg = new MsgFramebufferUpdate(format);
         ArrayList<ByteBuffer> list = msg.marshal();
         assertEquals(0, list.size());
+
+        Size size = new Size(100, 100);
+        Framebuffer array[] = new Framebuffer[1];
+        Rect rect = new Rect(new Point(0, 0), size);
+
+
+        //Only Rle
+        array[0] = new Framebuffer(rect, Encoding.JaVNCeRLE, new ByteBuffer[]{ByteBuffer.allocate(100)});
+        msg = new MsgFramebufferUpdate(format, array);
+        list = msg.marshal();
+        assertEquals(2, list.size());
+
+        //Empty
+        msg = new MsgFramebufferUpdate(format, null);
+        list = msg.marshal();
+        assertEquals(1, list.size());
+
+        //Empty
+        msg = new MsgFramebufferUpdate(format, new Framebuffer[0]);
+        list = msg.marshal();
+        assertEquals(1, list.size());
     }
 
     @Test
@@ -130,6 +167,20 @@ public class TestMsgFramebufferUpdateTest {
 
         assertNotNull(msg);
         assertEquals(Id.FramebufferUpdate, msg.getId());
+    }
 
+    @Test
+    public void testToString() {
+        msg = new MsgFramebufferUpdate(format);
+        String text = msg.toString();
+        assertNotNull(text);
+
+        Framebuffer array[] = new Framebuffer[1];
+        Rect rect = new Rect(new Point(0, 0), new Size(100, 100));
+        array[0] = new Framebuffer(rect, Encoding.JaVNCeRLE, new ByteBuffer[]{ByteBuffer.allocate(100)});
+        msg = new MsgFramebufferUpdate(format, array);
+
+        text = msg.toString();
+        assertNotNull(text);
     }
 }

@@ -21,40 +21,49 @@ import java.util.ArrayList;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-public class TestMsgUnknownTest {
+public class MsgBellTest {
 
-    private MsgUnknown msg;
+    private MsgBell msg;
 
     @Test
     public void testDemarshal() {
+        ByteBuffer buffer = ByteBuffer.allocate(1);
+        buffer.put((byte) 2);
+        buffer.clear();
 
-        String[] array = new String[]{
-            "R", "RFB 003.008", "RFB 003.008\n", "RFB 003.008\ntadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-        };
-
-        for (int i = 0; i < array.length; i++) {
-            msg = new MsgUnknown();
-            ByteBuffer buffer = ByteBuffer.wrap(array[i].getBytes());
-
-            assertTrue(msg.demarshal(buffer));
-            assertTrue(msg.isValid());
-            assertEquals(0, buffer.remaining());
-        }
+        msg = new MsgBell();
+        assertTrue(msg.demarshal(buffer));
+        assertTrue(msg.isValid());
     }
 
     @Test
     public void testMarshal() {
-        msg = new MsgUnknown();
-
+        msg = new MsgBell();
         ArrayList<ByteBuffer> list = msg.marshal();
-        assertEquals(0, list.size());
+        assertEquals(1, list.size());
+
+        assertEquals(1, MyByteBufferHelper.arrayListToBuffer(list).capacity());
+        assertEquals(2, MyByteBufferHelper.arrayListToBuffer(list).get());
+    }
+
+    @Test
+    public void testMsgBell() {
+        msg = new MsgBell();
+        assertNotNull(msg);
+        assertTrue(msg.isValid());
     }
 
     @Test
     public void testGetId() {
-        msg = new MsgUnknown();
+        msg = new MsgBell();
         assertNotNull(msg);
-        assertEquals(Id.Unknown, msg.getId());
+        assertEquals(Id.Bell, msg.getId());
+    }
 
+    @Test
+    public void testToString() {
+        msg = new MsgBell();
+        String text = msg.toString();
+        assertNotNull(text);
     }
 }

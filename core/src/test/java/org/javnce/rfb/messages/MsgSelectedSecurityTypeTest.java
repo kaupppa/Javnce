@@ -22,7 +22,7 @@ import org.javnce.rfb.types.SecurityType;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-public class TestMsgSelectedSecurityTypeTest {
+public class MsgSelectedSecurityTypeTest {
 
     private MsgSelectedSecurityType msg;
 
@@ -84,5 +84,12 @@ public class TestMsgSelectedSecurityTypeTest {
 
         msg = new MsgSelectedSecurityType();
         assertEquals(Id.SelectedSecurityType, msg.getId());
+    }
+
+    @Test
+    public void testToString() {
+        msg = new MsgSelectedSecurityType();
+        String text = msg.toString();
+        assertNotNull(text);
     }
 }

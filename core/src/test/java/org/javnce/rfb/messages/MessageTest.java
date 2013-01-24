@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestMessageTest {
+public class MessageTest {
 
     private TestMsg msg;
     private Id id;

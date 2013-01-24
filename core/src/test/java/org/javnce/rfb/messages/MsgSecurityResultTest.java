@@ -18,79 +18,82 @@ package org.javnce.rfb.messages;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
-import org.javnce.rfb.types.SecurityType;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-public class TestMsgSecurityTypeListTest {
+public class MsgSecurityResultTest {
 
-    private MsgSecurityTypeList msg;
+    private MsgSecurityResult msg;
 
     @Test
     public void testDemarshal() {
-        MsgSecurityTypeList[] array = new MsgSecurityTypeList[]{
-            new MsgSecurityTypeList(new SecurityType[]{SecurityType.Invalid}),
-            new MsgSecurityTypeList(new SecurityType[]{SecurityType.Invalid, SecurityType.None}),
-            new MsgSecurityTypeList("Failure"),};
+        MsgSecurityResult[] array = new MsgSecurityResult[]{
+            new MsgSecurityResult(true),
+            new MsgSecurityResult(false),
+            new MsgSecurityResult("Failure")
+        };
 
         for (int i = 0; i < array.length; i++) {
-
             ArrayList<ByteBuffer> list = array[i].marshal();
             assertEquals(1, list.size());
+
             assertTrue(array[i].isValid());
 
-            msg = new MsgSecurityTypeList();
+            msg = new MsgSecurityResult();
             assertTrue(msg.demarshal(MyByteBufferHelper.arrayListToBuffer(list)));
             assertTrue(msg.isValid());
 
             assertEquals(array[i].getText(), msg.getText());
-            assertTrue(Arrays.equals(array[i].getTypes(), msg.getTypes()));
+            assertEquals(array[i].getStatus(), msg.getStatus());
         }
     }
 
     @Test
     public void testMarshal() {
         //Not valid
-        msg = new MsgSecurityTypeList();
+        msg = new MsgSecurityResult();
         ArrayList<ByteBuffer> list = msg.marshal();
         assertEquals(0, list.size());
     }
 
     @Test
-    public void testMsgSecurityTypeList() {
-        msg = new MsgSecurityTypeList();
+    public void testMsgSecurityResult() {
+        msg = new MsgSecurityResult();
         assertNotNull(msg);
         assertFalse(msg.isValid());
     }
 
     @Test
-    public void testMsgSecurityTypeListByteArray() {
-        msg = new MsgSecurityTypeList(new SecurityType[]{SecurityType.Invalid, SecurityType.None});
+    public void testMsgSecurityResultBoolean() {
+        msg = new MsgSecurityResult(true);
         assertNotNull(msg);
         assertTrue(msg.isValid());
     }
 
     @Test
-    public void testMsgSecurityTypeListString() {
-        msg = new MsgSecurityTypeList("Failure");
+    public void testMsgSecurityResultString() {
+        msg = new MsgSecurityResult("Failure");
         assertNotNull(msg);
         assertTrue(msg.isValid());
+
     }
 
     @Test
     public void testGetId() {
-        msg = new MsgSecurityTypeList();
-        assertNotNull(msg);
-        assertEquals(Id.SecurityTypeList, msg.getId());
+        msg = new MsgSecurityResult();
+        assertEquals(Id.SecurityResult, msg.getId());
 
-        msg = new MsgSecurityTypeList(new SecurityType[]{SecurityType.Invalid, SecurityType.None});
-        assertNotNull(msg);
-        assertEquals(Id.SecurityTypeList, msg.getId());
+        msg = new MsgSecurityResult(true);
+        assertEquals(Id.SecurityResult, msg.getId());
 
-        msg = new MsgSecurityTypeList("Failure");
-        assertNotNull(msg);
-        assertEquals(Id.SecurityTypeList, msg.getId());
+        msg = new MsgSecurityResult("Failure");
+        assertEquals(Id.SecurityResult, msg.getId());
+    }
 
+    @Test
+    public void testToString() {
+        msg = new MsgSecurityResult();
+        String text = msg.toString();
+        assertNotNull(text);
     }
 }

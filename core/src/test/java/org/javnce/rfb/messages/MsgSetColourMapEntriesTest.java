@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestMsgSetColourMapEntriesTest {
+public class MsgSetColourMapEntriesTest {
 
     MsgSetColourMapEntries msg;
     private int firstColour;
@@ -108,5 +108,12 @@ public class TestMsgSetColourMapEntriesTest {
         msg = new MsgSetColourMapEntries(firstColour, array);
         assertNotNull(msg);
         assertEquals(Id.SetColourMapEntries, msg.getId());
+    }
+
+    @Test
+    public void testToString() {
+        msg = new MsgSetColourMapEntries();
+        String text = msg.toString();
+        assertNotNull(text);
     }
 }
