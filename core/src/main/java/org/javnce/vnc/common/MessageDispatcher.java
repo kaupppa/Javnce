@@ -52,7 +52,10 @@ public class MessageDispatcher implements ChannelSubscriber {
     /**
      * Instantiates a new message dispatcher.
      *
+     * @param eventLoop the event loop to which dispatcher attaches
      * @param channel the channel
+     * @param factory the incoming message factory
+     * 
      */
     public MessageDispatcher(EventLoop eventLoop, SocketChannel channel, ReceiveMessageFactory factory) {
         this.channel = channel;

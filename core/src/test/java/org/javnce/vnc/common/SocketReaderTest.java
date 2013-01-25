@@ -18,7 +18,6 @@ package org.javnce.vnc.common;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 import org.javnce.eventing.LoopbackChannelPair;
 import org.javnce.rfb.messages.Message;
 import org.javnce.rfb.messages.MsgBell;
@@ -47,7 +46,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestSocketReaderTest {
+public class SocketReaderTest {
 
     static final private PixelFormat format = PixelFormat.createRGB565();
     private SocketReader reader;
@@ -188,10 +187,9 @@ public class TestSocketReaderTest {
     @Test
     public void testReadByteByByte() throws Throwable {
         try (LoopbackChannelPair loopback = new LoopbackChannelPair()) {
-            Logger logger = Logger.getLogger(TestSocketReaderTest.class.getName());
             ReceiveMsgFactory f = new ReceiveMsgFactory();
             reader = new SocketReader(f);
-            
+
             loopback.channel2().configureBlocking(true);
 
             for (int i = 0; i < f.msgs.length; i++) {

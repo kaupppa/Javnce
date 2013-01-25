@@ -19,6 +19,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.surefire.plugin.version>2.13</maven.surefire.plugin.version>
+        
     </properties>
     <developers>  
         <developer>
@@ -83,7 +85,7 @@
                 <!-- Run Junit with  ${coverageAgent} -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.13</version>
+                <version>${maven.surefire.plugin.version}</version>
                 <configuration>
                     <argLine>${coverageAgent}</argLine>
                 </configuration>    
@@ -92,7 +94,7 @@
                 <!-- Generate junit HTML reports  -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>2.13</version>
+                <version>${maven.surefire.plugin.version}</version>
                 <configuration>
                     <linkXRef>false</linkXRef>
                     <argLine>${coverageAgent}</argLine>

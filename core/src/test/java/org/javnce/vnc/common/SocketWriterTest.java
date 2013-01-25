@@ -39,7 +39,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestSocketWriterTest {
+public class SocketWriterTest {
 
     static final private PixelFormat format = PixelFormat.createRGB565();
     private SocketWriter writer;
