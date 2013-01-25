@@ -19,8 +19,8 @@ import socket
 class VncSocket:
     
     def __init__(self):
-        #self.address = "127.0.0.1"
-        self.address = "192.168.0.101"
+        self.address = "127.0.0.1"
+        #self.address = "192.168.0.101"
         
         self.port = 5900
         # self.port = 5901

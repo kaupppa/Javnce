@@ -88,6 +88,8 @@ class ServerProtocolHandler implements EventSubscriber, ReceiveMessageFactory {
         this.size = dev.size();
         receiveMessages = new ArrayList<>();
         receiveMessages.add(new MsgProtocolVersion());
+        receiveMessages.add(new MsgSelectedSecurityType());
+        receiveMessages.add(new MsgClientInit());
         factoryMode = false;
 
         eventLoop.subscribe(ReceivedMsgEvent.eventId(), this);
@@ -192,7 +194,6 @@ class ServerProtocolHandler implements EventSubscriber, ReceiveMessageFactory {
     private void handle(MsgProtocolVersion msg) {
         if (version.equals(msg.get())) {
             messageHandler.send(new MsgSecurityTypeList(new SecurityType[]{SecurityType.None}));
-            receiveMessages.add(new MsgSelectedSecurityType());
         } else {
             messageHandler.send(new MsgSecurityTypeList("Protocol version " + msg.get() + " not supported"));
             error("Protocol version " + msg.get() + " not supported");
@@ -209,7 +210,6 @@ class ServerProtocolHandler implements EventSubscriber, ReceiveMessageFactory {
 
         if (SecurityType.None == type) {
             messageHandler.send(new MsgSecurityResult(true));
-            receiveMessages.add(new MsgClientInit());
         } else {
             messageHandler.send(new MsgSecurityResult("Security type " + type + " not supported"));
             error("Security type " + type + " not supported");

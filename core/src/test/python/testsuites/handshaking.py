@@ -15,6 +15,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 # #
 import unittest
+import time
 from lib import vncsocket
 from lib import protocolversion
 from lib import securitytypes
@@ -129,6 +130,7 @@ class Handshaking(unittest.TestCase):
         data = 'RFB 003.008\n\x01\xFF'
         for i in range(len(data)):
             self.assertEqual(vncSocket.send(data[i]), None)
+            time.sleep(0.01)
 
         # Security types
         msg = securitytypes.SecurityTypes.unpack(vncSocket.receive(2))
