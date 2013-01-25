@@ -20,6 +20,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.6</version>
                 <executions>
                     <!-- Copy runtime dependencies (jar's)  -->
                     <execution>
@@ -146,7 +147,7 @@
         <dependency>
             <groupId>com.oracle</groupId>
             <artifactId>javafx</artifactId>
-            <version>2.2</version>
+            <version>2.3</version>
             <systemPath>${javafx.lib.jfxrt.jar}</systemPath>
             <scope>system</scope>
         </dependency>
