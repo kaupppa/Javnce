@@ -43,7 +43,7 @@ public class TimerTest {
 
         //No elapsed time
         long nextTimeOut = timer.process(currentTime);
-        assertTrue(timeOut == nextTimeOut);
+        assertTrue(timeOut >= nextTimeOut);
         assertEquals(0, callback.callCount);
 
         //half of elapsed time
@@ -92,7 +92,7 @@ public class TimerTest {
 
         //No elapsed time
         long nextTimeOut = timer.process(currentTime);
-        assertTrue(timeOut == nextTimeOut);
+        assertTrue(timeOut >= nextTimeOut);
         assertEquals(0, callback.callCount);
 
         //half of elapsed time

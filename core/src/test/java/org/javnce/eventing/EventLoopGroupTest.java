@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class EventLoopGroupTest {
+    final static int SleepTimeTime = 50;
 
     private EventLoopGroup root;
 
@@ -112,8 +113,7 @@ public class EventLoopGroupTest {
 
             testers[i].startAll();
         }
-
-        testers[0].thread.join(10);
+        
 
         //Publish three events to first sub group
         testers[0].eventLoop.getGroup().publish(allEvent);
@@ -121,7 +121,7 @@ public class EventLoopGroupTest {
         testers[0].eventLoop.getGroup().publish(new TestEvent("Group" + 1)); //handled by threads[1]
 
         //Lets wait threads to handle the events
-        testers[0].thread.join(10);
+        Thread.sleep(SleepTimeTime);
         assertEquals(2, testers[0].events.size());
         assertEquals(1, testers[1].events.size());
 
@@ -132,7 +132,7 @@ public class EventLoopGroupTest {
         //Publish generic event to root (no handler)
         root.publish(allEvent);
         //Lets wait threads to handle the events
-        testers[0].thread.join(10);
+        Thread.sleep(SleepTimeTime);
         assertEquals(3, testers[0].events.size());
         assertEquals(2, testers[1].events.size());
 

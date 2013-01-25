@@ -44,12 +44,6 @@ public class EventTester implements EventSubscriber, ChannelSubscriber {
 
         for (int i = 0; i < testers.length; i++) {
             testers[i] = new EventTester(eventLoop);
-            try {
-                testers[i].thread.join(1);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(EventTester.class.getName()).log(Level.SEVERE, null, ex);
-                System.exit(1);
-            }
         }
     }
 
@@ -80,13 +74,7 @@ public class EventTester implements EventSubscriber, ChannelSubscriber {
     void startAll() {
 
         for (int i = 0; null != testers && i < testers.length; i++) {
-            try {
-                testers[i].thread.start();
-                testers[i].thread.join(1);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(EventTester.class.getName()).log(Level.SEVERE, null, ex);
-                System.exit(1);
-            }
+            testers[i].thread.start();
         }
         thread.start();
     }

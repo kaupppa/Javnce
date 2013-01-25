@@ -27,6 +27,7 @@ import org.junit.Test;
 
 public class ChannelSubscriberListTest {
 
+    final static int WaitTime = 100;
     private ChannelSubscriberList list;
 
     class TestClass implements ChannelSubscriber {
@@ -70,6 +71,12 @@ public class ChannelSubscriberListTest {
                 }
             }
         };
+        r.start();
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ChannelSubscriberListTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return r;
     }
 
@@ -83,13 +90,12 @@ public class ChannelSubscriberListTest {
             list.add(loopback.channel1(), tc, SelectionKey.OP_READ);
 
             Thread r = createThread(list);
-            r.start();
-            r.join(10);
             assertTrue(r.isAlive());
 
             list.wakeup();
 
-            r.join(10);
+            //Wakeup cause list.process(0) to exit
+            r.join(WaitTime);
             assertFalse(r.isAlive());
         }
     }
@@ -104,15 +110,12 @@ public class ChannelSubscriberListTest {
             list.add(loopback.channel1(), tc, SelectionKey.OP_READ);
 
             Thread r = createThread(list);
-
-            r.start();
-
-            r.join(10);
             assertTrue(r.isAlive());
 
             list.close();
 
-            r.join(10);
+            //close cause list.process(0) to exit
+            r.join(WaitTime);
             assertFalse(r.isAlive());
         }
     }
@@ -127,16 +130,13 @@ public class ChannelSubscriberListTest {
             list.add(loopback.channel1(), tc, SelectionKey.OP_READ);
 
             Thread r = createThread(list);
-
-            r.start();
-
-            r.join(10);
             assertTrue(r.isAlive());
 
             int length = 10;
             loopback.channel2().write(ByteBuffer.allocate(length));
 
-            r.join(10);
+            //Socket event cause list.process(0) to exit
+            r.join(WaitTime);
             assertFalse(r.isAlive());
             assertEquals(length, tc.bytesRead);
         }
@@ -152,15 +152,13 @@ public class ChannelSubscriberListTest {
             list.add(loopback.channel1(), tc, SelectionKey.OP_READ);
 
             Thread r = createThread(list);
-            r.start();
-
-            r.join(10);
             assertTrue(r.isAlive());
             list.remove(null); //No throw from this one
             list.remove(loopback.channel2()); //No throw from this one
             list.remove(loopback.channel1());
 
-            r.join(10);
+            //remove cause list.process(0) to exit
+            r.join(WaitTime);
             assertFalse(r.isAlive());
         }
 

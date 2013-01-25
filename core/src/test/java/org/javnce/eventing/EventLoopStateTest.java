@@ -16,19 +16,23 @@
  */
 package org.javnce.eventing;
 
+import org.junit.After;
 import static org.junit.Assert.*;
+import org.junit.Before;
 import org.junit.Test;
 
 public class EventLoopStateTest {
 
-    static void waitThreadState(boolean alive, Thread thread) {
-        while (alive != thread.isAlive()) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                break;
-            }
-        }
+    @Before
+    public void setUp() throws Exception {
+        //Clear interrupted
+        Thread.interrupted();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        //Clear interrupted
+        Thread.interrupted();
     }
 
     @Test
@@ -36,80 +40,43 @@ public class EventLoopStateTest {
         EventLoopState state = new EventLoopState();
         assertNotNull(state);
         assertTrue(state.isRunnable());
+        assertFalse(state.isAttached());
     }
 
     @Test
-    public void testAttachCurrentThread() throws InterruptedException {
+    public void testAttachAndDetach() throws InterruptedException {
         final EventLoopState state = new EventLoopState();
 
+        assertFalse(state.isAttached());
+
+
+        state.attachCurrentThread();
+        assertTrue(state.isAttached());
+
+        state.detachCurrentThread();
+        assertFalse(state.isAttached());
+
+    }
+
+    @Test
+    public void testIsRunnable() throws InterruptedException {
+        final EventLoopState state = new EventLoopState();
+
+        //Clear interrupted
+        Thread.interrupted();
+
         assertTrue(state.isRunnable());
 
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                state.attachCurrentThread();
-                try {
-                    Thread.sleep(100000);
-                } catch (InterruptedException e) {
-                }
-            }
-        });
-
-        t.start();
-
-        waitThreadState(true, t);
+        state.attachCurrentThread();
 
         assertTrue(state.isRunnable());
+        assertTrue(state.isAttached());
 
-        t.interrupt();
-        waitThreadState(false, t);
+        Thread.currentThread().interrupt();
 
+        assertTrue(state.isAttached());
         assertFalse(state.isRunnable());
-    }
 
-    @Test
-    public void testDetachCurrentThread() throws InterruptedException {
-
-        final EventLoopState state = new EventLoopState();
-
-        assertTrue(state.isRunnable());
-
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                state.attachCurrentThread();
-                try {
-                    Thread.sleep(100000);
-                } catch (InterruptedException e) {
-                    state.detachCurrentThread();
-                    Thread.interrupted();
-                }
-
-                try {
-                    Thread.sleep(100000);
-                } catch (InterruptedException e) {
-                }
-            }
-        });
-
-        t.start();
-
-        waitThreadState(true, t);
-
-        assertTrue(state.isRunnable());
-
-
-        t.interrupt();
-        Thread.sleep(4);
-
-        //After first interrupt state is isRunnable as it is detached 
-        assertTrue(state.isRunnable());
-
-        t.interrupt();
-        waitThreadState(false, t);
-
-        //isRunnable as not attached
-        assertTrue(state.isRunnable());
     }
 
     @Test

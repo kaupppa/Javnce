@@ -18,6 +18,8 @@ package org.javnce.eventing;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Before;
@@ -25,23 +27,40 @@ import org.junit.Test;
 
 public class EventLoopTest {
 
+    final static int WaitTime = 100;
+    final static int SleepTimeTime = 50;
+    final static int TimerAccuracyTime = 50;
     private EventLoopGroup root;
 
-    private static void sleep(int ms) {
+    class MyErrorHandler implements EventLoopErrorHandler {
+
+        boolean called = false;
+
+        @Override
+        public void fatalError(Object object, Throwable throwable) {
+            called = true;
+        }
+    }
+
+    void sleep() {
         try {
-            //Wait
-            Thread.sleep(ms);
+            Thread.sleep(SleepTimeTime);
         } catch (InterruptedException ex) {
+            Logger.getLogger(EventLoopTest.class.getName()).log(Level.SEVERE, null, ex);
+            System.exit(1);
         }
     }
 
     @Before
     public void setUp() throws Exception {
         root = EventLoopGroup.instance();
+        //Clear interrupted
+        Thread.interrupted();
     }
 
     @After
     public void tearDown() throws Exception {
+        Thread.interrupted();
         EventLoopGroup.shutdown(root);
 
         if (false == root.isEmpty()) {
@@ -50,14 +69,14 @@ public class EventLoopTest {
     }
 
     @Test
-    public void testRun() {
+    public void testRun() throws Throwable {
         EventLoop eventLoop = new EventLoop();
 
         //Test that empty eventLoop does not stay running
         Thread thread = new Thread(eventLoop);
         thread.start();
 
-        sleep(20);
+        thread.join(WaitTime);
         assertFalse(thread.isAlive());
     }
 
@@ -65,48 +84,43 @@ public class EventLoopTest {
     public void testMoveToChildGroup() {
         EventLoop eventLoop = new EventLoop();
         EventLoop childEventLoop = new EventLoop();
+
+        //By default in root
+        assertEquals(root, childEventLoop.getGroup());
         assertEquals(eventLoop.getGroup(), childEventLoop.getGroup());
 
         childEventLoop.moveToNewChildGroup();
         assertTrue(eventLoop.getGroup() != childEventLoop.getGroup());
+
     }
 
     @Test
     public void testAddEvent() {
-        {
-            //Normal case
-            EventTester tester = new EventTester(null);
+        EventTester tester = new EventTester(null);
 
-            TestEvent event = new TestEvent("Event");
+        TestEvent event = new TestEvent("Event");
 
-            tester.eventLoop.subscribe(event.Id(), tester);
+        tester.eventLoop.subscribe(event.Id(), tester);
 
-            tester.thread.start();
+        tester.thread.start();
 
-            //Wait
-            sleep(10);
-            tester.eventLoop.addEvent(event);
+        tester.eventLoop.addEvent(event);
 
-            //Wait
-            sleep(10);
-            assertEquals(1, tester.events.size());
-        }
-        {
-            //Add after shutdown
-            MyErrorHandler h = new MyErrorHandler();
-            EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
+        sleep();
+        assertEquals(1, tester.events.size());
 
-            EventTester tester = new EventTester(null);
+    }
 
-            TestEvent event = new TestEvent("Event");
+    @Test
+    public void testAddEventAfterShutdown() {
 
-            tester.eventLoop.shutdown();
+        EventTester tester = new EventTester(null);
 
-            tester.eventLoop.addEvent(event);
+        TestEvent event = new TestEvent("Event");
 
-            assertFalse(h.called);
-            EventLoop.setErrorHandler(old);
-        }
+        tester.eventLoop.shutdown();
+
+        tester.eventLoop.addEvent(event); // No throw
     }
 
     @Test
@@ -116,71 +130,71 @@ public class EventLoopTest {
         TestEvent event = new TestEvent("Event");
 
         tester.eventLoop.subscribe(event.Id(), tester);
-
         tester.thread.start();
 
-        //Wait
-        sleep(40);
-
         tester.eventLoop.publish(event);
 
-        //Wait
-        sleep(40);
-
+        sleep();
         assertEquals(1, tester.events.size());
+
         EventLoop.shutdownAll();
-        sleep(40);
-        tester.eventLoop.publish(event);
+        sleep();
+        tester.eventLoop.publish(event); // No throw
     }
 
     @Test
-    public void testProcess() {
+    public void testProcessEmpty() {
 
-        {
-            //Test that empty eventLoop does return from process
-            EventLoop eventLoop = new EventLoop();
-            eventLoop.process(); //Hangs in case of failure
-        }
-        {
-            MyErrorHandler h = new MyErrorHandler();
-            EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
-            //Test that error handler is called if execption is thrown
-            TestEvent event = new TestEvent("Event");
-            EventLoop eventLoop = new EventLoop();
+        //Test that empty eventLoop does return from process
+        EventLoop eventLoop = new EventLoop();
+        eventLoop.process(); //Hangs in case of failure
+    }
 
-            eventLoop.subscribe(event.Id(), new EventSubscriber() {
-                @Override
-                public void event(Event event) {
-                    throw new RuntimeException("Testing");
-                }
-            });
-            eventLoop.publish(event);
-            eventLoop.process(); //Hangs or throws if not correct handling
+    @Test
+    public void testProcessWithUncheckException() {
 
+        MyErrorHandler h = new MyErrorHandler();
+        EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
 
-            assertTrue(h.called);
-            EventLoop.setErrorHandler(old);
-        }
-        {
-            MyErrorHandler h = new MyErrorHandler();
-            EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
-            //Test that error handler is not called incase of interupt
-            TestEvent event = new TestEvent("Event");
-            EventLoop eventLoop = new EventLoop();
+        //Test that error handler is called if execption is thrown
+        TestEvent event = new TestEvent("Event");
+        EventLoop eventLoop = new EventLoop();
 
-            eventLoop.subscribe(event.Id(), new EventSubscriber() {
-                @Override
-                public void event(Event event) {
-                    Thread.currentThread().interrupt();
-                }
-            });
-            eventLoop.publish(event);
-            eventLoop.process(); //Hangs or throws if not correct handling
+        eventLoop.subscribe(event.Id(), new EventSubscriber() {
+            @Override
+            public void event(Event event) {
+                throw new RuntimeException("Testing");
+            }
+        });
+        eventLoop.publish(event);
+        eventLoop.process(); //Hangs or throws if not correct handling
 
 
-            assertFalse(h.called);
-            EventLoop.setErrorHandler(old);
-        }
+        assertTrue(h.called);
+        EventLoop.setErrorHandler(old);
+    }
+
+    @Test
+    public void testProcessWithInterrupt() {
+
+        MyErrorHandler h = new MyErrorHandler();
+        EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
+        //Test that error handler is not called incase of interupt
+        TestEvent event = new TestEvent("Event");
+        EventLoop eventLoop = new EventLoop();
+
+        eventLoop.subscribe(event.Id(), new EventSubscriber() {
+            @Override
+            public void event(Event event) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        eventLoop.publish(event);
+        eventLoop.process(); //Hangs or throws if not correct handling
+
+        assertFalse(h.called);
+        EventLoop.setErrorHandler(old);
+
     }
 
     @Test
@@ -193,192 +207,193 @@ public class EventLoopTest {
 
         tester.thread.start();
 
-        //Wait
-        sleep(10);
-
         tester.eventLoop.publish(event);
 
-        //Wait
-        sleep(10);
+        sleep();
 
         assertEquals(1, tester.events.size());
     }
 
     @Test
     public void testRemoveSubscribeEventIdEventSubscriber() {
-        {
-            //Normal case
-            EventTester tester = new EventTester(null);
-            TestEvent event = new TestEvent("Event");
+        EventTester tester = new EventTester(null);
+        TestEvent event = new TestEvent("Event");
 
-            tester.eventLoop.subscribe(event.Id(), tester);
-            tester.thread.start();
+        tester.eventLoop.subscribe(event.Id(), tester);
+        tester.thread.start();
 
-            //Wait
-            sleep(10);
+        tester.eventLoop.publish(event);
 
-            tester.eventLoop.publish(event);
+        sleep();
 
-            //Wait
-            sleep(10);
+        assertEquals(1, tester.events.size());
+        tester.events.clear();
 
-            assertEquals(1, tester.events.size());
-            tester.events.clear();
+        tester.eventLoop.removeSubscribe(event.Id(), tester);
+        tester.eventLoop.publish(event);
 
-            tester.eventLoop.removeSubscribe(event.Id(), tester);
-            tester.eventLoop.publish(event);
+        sleep();
+        assertEquals(0, tester.events.size());
+    }
 
-            //Wait
-            sleep(10);
-            assertEquals(0, tester.events.size());
-        }
-        {
-            MyErrorHandler h = new MyErrorHandler();
-            EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
-            //Remove after shutdown
-            EventTester tester = new EventTester(null);
-            TestEvent event = new TestEvent("Event");
-            tester.eventLoop.subscribe(event.Id(), tester);
-            tester.eventLoop.shutdown();
+    public void testRemoveSubscribeEventAfterShutdown() {
+        MyErrorHandler h = new MyErrorHandler();
+        EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
 
-            tester.eventLoop.removeSubscribe(event.Id(), tester);
-            assertFalse(h.called);
-            EventLoop.setErrorHandler(old);
-        }
 
+        EventTester tester = new EventTester(null);
+        TestEvent event = new TestEvent("Event");
+        tester.eventLoop.subscribe(event.Id(), tester);
+        tester.eventLoop.shutdown();
+
+        //Remove after shutdown
+        tester.eventLoop.removeSubscribe(event.Id(), tester);
+        assertFalse(h.called);
+        EventLoop.setErrorHandler(old);
     }
 
     @Test
     public void testIsEventSupported() {
-        {
-            //Normal case
+
+        EventTester tester = new EventTester(null);
+        TestEvent event = new TestEvent("Event");
+        tester.eventLoop.subscribe(event.Id(), tester);
+
+        assertTrue(tester.eventLoop.isEventSupported(event.Id()));
+
+        tester.eventLoop.removeSubscribe(event.Id(), tester);
+        assertFalse(tester.eventLoop.isEventSupported(event.Id()));
+    }
+
+    @Test
+    public void testIsEventSupportedAfterShutdown() {
+        EventTester tester = new EventTester(null);
+        TestEvent event = new TestEvent("Event");
+        tester.eventLoop.subscribe(event.Id(), tester);
+
+        assertTrue(tester.eventLoop.isEventSupported(event.Id()));
+
+        tester.eventLoop.shutdown();
+        assertFalse(tester.eventLoop.isEventSupported(event.Id()));
+    }
+
+    @Test
+    public void testSubscribeSelectableChannel() throws Exception {
+        try (LoopbackChannelPair loopback = new LoopbackChannelPair()) {
+            // Normal case
             EventTester tester = new EventTester(null);
-            TestEvent event = new TestEvent("Event");
-            tester.eventLoop.subscribe(event.Id(), tester);
 
-            assertTrue(tester.eventLoop.isEventSupported(event.Id()));
+            tester.eventLoop.subscribe(loopback.channel1(), tester, SelectionKey.OP_READ);
 
-            tester.eventLoop.removeSubscribe(event.Id(), tester);
-            assertFalse(tester.eventLoop.isEventSupported(event.Id()));
-        }
-        {
-            //Test that after shutdown events are not supported
-            EventTester tester = new EventTester(null);
-            TestEvent event = new TestEvent("Event");
-            tester.eventLoop.subscribe(event.Id(), tester);
+            Thread thread = new Thread(tester.eventLoop);
+            thread.start();
 
-            assertTrue(tester.eventLoop.isEventSupported(event.Id()));
+            int length = 10;
+            loopback.channel2().write(ByteBuffer.allocate(length));
 
-            tester.eventLoop.shutdown();
-            assertFalse(tester.eventLoop.isEventSupported(event.Id()));
+            sleep();
+            assertEquals(length, tester.buffer.position());
         }
     }
 
     @Test
-    public void testSubscribeSelectableChannelChannelSubscriberInt() throws Exception {
+    public void testSubscribeSelectableChannelIllegal() {
+        MyErrorHandler h = new MyErrorHandler();
+        EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
+        EventLoop eventLoop = new EventLoop();
+
+        //Illegal channel
+        eventLoop.subscribe(null, null, SelectionKey.OP_READ);
+
+        assertTrue(h.called);
+        EventLoop.setErrorHandler(old);
+    }
+
+    @Test
+    public void testSubscribeSelectableChannelAfterShutdown() {
         try (LoopbackChannelPair loopback = new LoopbackChannelPair()) {
-            {
-                // Normal case
-                EventTester tester = new EventTester(null);
+            // Test that adding after shutdown is not an error
+            MyErrorHandler h = new MyErrorHandler();
+            EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
 
-                tester.eventLoop.subscribe(loopback.channel1(), tester, SelectionKey.OP_READ);
+            EventTester tester = new EventTester(null);
 
-                Thread thread = new Thread(tester.eventLoop);
-                thread.start();
+            tester.eventLoop.shutdown();
+            tester.eventLoop.subscribe(loopback.channel1(), tester, SelectionKey.OP_READ);
 
-                sleep(10);
-
-                int length = 10;
-                loopback.channel2().write(ByteBuffer.allocate(length));
-
-                sleep(10);
-                assertEquals(length, tester.buffer.position());
-            }
-
-            {
-                // Negative case, dummy parameters
-                MyErrorHandler h = new MyErrorHandler();
-                EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
-                EventLoop eventLoop = new EventLoop();
-
-                eventLoop.subscribe(null, null, SelectionKey.OP_READ);
-
-                assertTrue(h.called);
-                EventLoop.setErrorHandler(old);
-            }
-            {
-                // Test that adding after shutdown is not an error
-                MyErrorHandler h = new MyErrorHandler();
-                EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
-
-                EventTester tester = new EventTester(null);
-
-                tester.eventLoop.shutdown();
-                tester.eventLoop.subscribe(loopback.channel1(), tester, SelectionKey.OP_READ);
-
-                assertFalse(h.called);
-                EventLoop.setErrorHandler(old);
-            }
+            assertFalse(h.called);
+            EventLoop.setErrorHandler(old);
+        } catch (Exception ex) {
+            Logger.getLogger(EventLoopTest.class.getName()).log(Level.SEVERE, null, ex);
+            fail();
         }
     }
 
     @Test
     public void testRemoveSubscribeSelectableChannel() throws Exception {
         try (LoopbackChannelPair loopback = new LoopbackChannelPair()) {
-            {
-                //Normal case
-                EventTester tester = new EventTester(null);
+            EventTester tester = new EventTester(null);
 
-                tester.eventLoop.subscribe(loopback.channel1(), tester, SelectionKey.OP_READ);
+            tester.eventLoop.subscribe(loopback.channel1(), tester, SelectionKey.OP_READ);
 
-                tester.thread.start();
+            tester.thread.start();
 
-                sleep(10);
 
-                int length = 10;
-                loopback.channel2().write(ByteBuffer.allocate(length));
-                sleep(10);
-                assertEquals(length, tester.buffer.position());
+            int length = 10;
+            loopback.channel2().write(ByteBuffer.allocate(length));
 
-                tester.buffer.clear();
-                //Remove
-                tester.eventLoop.removeSubscribe(loopback.channel1());
+            sleep();
+            assertEquals(length, tester.buffer.position());
 
-                //Write again
-                loopback.channel2().write(ByteBuffer.allocate(length));
+            tester.buffer.clear();
 
-                sleep(10);
-                assertEquals(0, tester.buffer.position());
-            }
-            {
-                MyErrorHandler h = new MyErrorHandler();
-                EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
+            //Remove
+            tester.eventLoop.removeSubscribe(loopback.channel1());
 
-                //Removing with illegal paramters
-                EventTester tester = new EventTester(null);
+            //Write again
+            loopback.channel2().write(ByteBuffer.allocate(length));
 
-                //Remove
-                tester.eventLoop.removeSubscribe(null);
+            sleep();
+            assertEquals(0, tester.buffer.position());
+        }
+    }
 
-                assertFalse(h.called);
-                EventLoop.setErrorHandler(old);
-            }
-            {
-                MyErrorHandler h = new MyErrorHandler();
-                EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
+    @Test
+    public void testRemoveSubscribeSelectableChannelIllegal() {
 
-                //Removing after shutdown
-                EventTester tester = new EventTester(null);
+        MyErrorHandler h = new MyErrorHandler();
+        EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
 
-                tester.eventLoop.subscribe(loopback.channel1(), tester, SelectionKey.OP_READ);
-                tester.eventLoop.shutdown();
+        //Removing with illegal paramters
+        EventTester tester = new EventTester(null);
 
-                //Remove
-                tester.eventLoop.removeSubscribe(loopback.channel1());
+        //Remove
+        tester.eventLoop.removeSubscribe(null);
 
-                assertFalse(h.called);
-                EventLoop.setErrorHandler(old);
-            }
+        assertFalse(h.called);
+        EventLoop.setErrorHandler(old);
+    }
+
+    @Test
+    public void testRemoveSubscribeSelectableChannelAfterShutdown() {
+        try (LoopbackChannelPair loopback = new LoopbackChannelPair()) {
+            MyErrorHandler h = new MyErrorHandler();
+            EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
+
+            //Removing after shutdown
+            EventTester tester = new EventTester(null);
+
+            tester.eventLoop.subscribe(loopback.channel1(), tester, SelectionKey.OP_READ);
+            tester.eventLoop.shutdown();
+
+            //Remove
+            tester.eventLoop.removeSubscribe(loopback.channel1());
+
+            assertFalse(h.called);
+            EventLoop.setErrorHandler(old);
+        } catch (Exception ex) {
+            Logger.getLogger(EventLoopTest.class.getName()).log(Level.SEVERE, null, ex);
+            fail();
         }
     }
 
@@ -407,8 +422,7 @@ public class EventLoopTest {
             testers[i].startAll();
         }
 
-        //Wait
-        sleep(10 * threadsInGroupt);
+        sleep();
 
         //All alive ?
         for (int i = 0; i < testers.length; i++) {
@@ -421,16 +435,15 @@ public class EventLoopTest {
 
         //Kill first group
         testers[0].eventLoop.shutdownAllInTheGroup();
-        testers[0].thread.join();
+        testers[0].thread.join(WaitTime);
         assertFalse(testers[0].thread.isAlive());
 
         for (EventTester child : testers[0].testers) {
-            child.thread.join();
+            child.thread.join(WaitTime);
             assertFalse(child.thread.isAlive());
         }
 
-
-        //other alive ?
+        //Check that others are alive
         for (int i = 1; i < testers.length; i++) {
             assertTrue(testers[i].thread.isAlive());
 
@@ -441,48 +454,33 @@ public class EventLoopTest {
     }
 
     @Test
-    public void testShutdown() {
+    public void testShutdownBeforeStart() {
+        EventTester tester = new EventTester(null);
+        TestEvent event = new TestEvent("Event");
+        tester.eventLoop.subscribe(event.Id(), tester);
 
-        {
-            //Before start
-            EventTester tester = new EventTester(null);
-            TestEvent event = new TestEvent("Event");
-            tester.eventLoop.subscribe(event.Id(), tester);
-            tester.eventLoop.shutdown();
-            tester.thread.start();
+        tester.eventLoop.shutdown();
 
-            //Wait
-            sleep(10);
+        tester.thread.start();
 
-            assertFalse(tester.thread.isAlive());
-        }
-        {
-            //After start
-            EventTester tester = new EventTester(null);
-            TestEvent event = new TestEvent("Event");
-            tester.eventLoop.subscribe(event.Id(), tester);
-            tester.thread.start();
+        sleep();
 
-            //Wait
-            sleep(10);
-            assertTrue(tester.thread.isAlive());
-
-            tester.eventLoop.shutdown();
-            //Wait
-            sleep(10);
-
-            assertFalse(tester.thread.isAlive());
-        }
+        assertFalse(tester.thread.isAlive());
     }
 
-    class MyErrorHandler implements EventLoopErrorHandler {
+    @Test
+    public void testShutdownAfterStart() {
+        EventTester tester = new EventTester(null);
+        TestEvent event = new TestEvent("Event");
+        tester.eventLoop.subscribe(event.Id(), tester);
 
-        boolean called = false;
+        tester.thread.start();
 
-        @Override
-        public void fatalError(Object object, Throwable throwable) {
-            called = true;
-        }
+        tester.eventLoop.shutdown();
+
+        sleep();
+
+        assertFalse(tester.thread.isAlive());
     }
 
     @Test
@@ -492,9 +490,12 @@ public class EventLoopTest {
         EventLoopErrorHandler old = EventLoop.setErrorHandler(h);
         assertNotNull(old);
         assertFalse(h.called);
+
         EventLoop.fatalError(this, new UnsupportedOperationException("Not supported yet."));
         assertTrue(h.called);
 
+
+        //Check that no throw 
         EventLoop.setErrorHandler(null);
         EventLoop.fatalError(this, new UnsupportedOperationException("Not supported yet."));
 
@@ -545,7 +546,7 @@ public class EventLoopTest {
         long elapsedTime = System.currentTimeMillis() - startTime;
 
         //Check that time matches timeout
-        assertTrue((timeOut + 10) >= elapsedTime);
+        assertTrue((timeOut + TimerAccuracyTime) >= elapsedTime);
         assertTrue((timeOut) <= elapsedTime);
     }
 
@@ -581,7 +582,7 @@ public class EventLoopTest {
         long elapsedTime = System.currentTimeMillis() - startTime;
 
         //Check that time matches timeout
-        assertTrue((timeOut + 10) >= elapsedTime);
+        assertTrue((timeOut + TimerAccuracyTime) >= elapsedTime);
         assertTrue((timeOut) <= elapsedTime);
     }
 
@@ -615,7 +616,7 @@ public class EventLoopTest {
             long elapsedTime = System.currentTimeMillis() - startTime;
 
             //Check that time matches timeout
-            assertTrue((timeOut + 10) >= elapsedTime);
+            assertTrue((timeOut + TimerAccuracyTime) >= elapsedTime);
             assertTrue((timeOut) <= elapsedTime);
         }
     }
@@ -628,13 +629,11 @@ public class EventLoopTest {
         tester.eventLoop.subscribe(event.Id(), tester);
         tester.thread.start();
 
-        //Wait
-        sleep(10);
         assertTrue(tester.thread.isAlive());
 
         EventLoop.shutdownAll();
-        //Wait
-        sleep(10);
+
+        sleep();
 
         assertFalse(tester.thread.isAlive());
     }
