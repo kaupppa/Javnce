@@ -28,10 +28,10 @@ import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
 import java.awt.image.DataBufferShort;
+import java.awt.image.Raster;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.IntBuffer;
-import java.nio.ShortBuffer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.javnce.rfb.types.Color;
 import org.javnce.rfb.types.PixelFormat;
@@ -71,10 +71,12 @@ class RobotDevice implements FramebufferDevice, KeyBoardDevice, PointerDevice {
      * The last_y.
      */
     private int last_y;
-    /**
-     * The key mapping
-     */
+    
+    /** The key mapping. */
     final private RobotKeyMap map;
+    
+    /** The framebuffer data. */
+    private byte[] frameBuffer;
 
     /**
      * Instance.
@@ -117,9 +119,8 @@ class RobotDevice implements FramebufferDevice, KeyBoardDevice, PointerDevice {
         map = new RobotKeyMap();
         try {
             robot = new Robot();
-        } catch (AWTException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } catch (AWTException ex) {
+            Logger.getLogger(RobotDevice.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -145,85 +146,34 @@ class RobotDevice implements FramebufferDevice, KeyBoardDevice, PointerDevice {
         return format;
     }
 
-    /**
-     * Gets the BufferedImage.
-     *
-     * @param x the x
-     * @param y the y
-     * @param width the width
-     * @param height the height
-     * @return the image
-     */
-    private BufferedImage getImage(int x, int y, int width, int height) {
-        Rectangle rect = new Rectangle(x, y, width, height);
-        BufferedImage image = robot.createScreenCapture(rect);
-        robot.waitForIdle();
-        return image;
-    }
-
-    /**
-     * Gets the.
-     *
-     * @param dataBuffer the data buffer
-     * @return the byte buffer
-     */
-    private ByteBuffer get(DataBufferInt dataBuffer) {
-        ByteBuffer buffer = ByteBuffer.allocate(dataBuffer.getSize() * 4);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-
-        IntBuffer intBuffer = buffer.asIntBuffer();
-        intBuffer.put(dataBuffer.getData());
-        buffer.order(ByteOrder.BIG_ENDIAN);
-        return buffer;
-    }
-
-    /**
-     * Gets the.
-     *
-     * @param dataBuffer the data buffer
-     * @return the byte buffer
-     */
-    private ByteBuffer get(DataBufferShort dataBuffer) {
-        ByteBuffer buffer = ByteBuffer.allocate(dataBuffer.getSize() * 2);
-
-        ShortBuffer shortBuffer = buffer.asShortBuffer();
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-        shortBuffer.put(dataBuffer.getData());
-        buffer.order(ByteOrder.BIG_ENDIAN);
-        return buffer;
-    }
-
-    /**
-     * Gets the.
-     *
-     * @param dataBuffer the data buffer
-     * @return the byte buffer
-     */
-    private ByteBuffer get(DataBufferByte dataBuffer) {
-        return ByteBuffer.wrap(dataBuffer.getData());
-    }
 
     /* (non-Javadoc)
      * @see org.javnce.vnc.server.platform.FramebufferDevice#buffer(int, int, int, int)
      */
     @Override
     public ByteBuffer[] buffer(int x, int y, int width, int height) {
-        BufferedImage image = getImage(x, y, width, height);
+        if (null == frameBuffer) {
+            grabScreen();
+        }
+        ByteBuffer[] buffers = null;
+        if (null != frameBuffer) {
+            int bpp = 4;
+            int lineLength = size.width() * bpp;
 
-        DataBuffer dataBuffer = image.getRaster().getDataBuffer();
+            if (x == 0 && width == size.width()) {
+                buffers = new ByteBuffer[]{ByteBuffer.wrap(frameBuffer, lineLength * y, lineLength * height).slice()};
+            } else {
 
-        ByteBuffer byteBuffer = null;
-        int type = dataBuffer.getDataType();
+                buffers = new ByteBuffer[height];
+                int copyLength = width * bpp;
 
-        if (DataBuffer.TYPE_INT == type) {
-            byteBuffer = get((DataBufferInt) dataBuffer);
-        } else if (DataBuffer.TYPE_USHORT == type) {
-            byteBuffer = get((DataBufferShort) dataBuffer);
-        } else {
-            byteBuffer = get((DataBufferByte) dataBuffer);
+                for (int i = 0; i < height; i++) {
+                    buffers[i] = ByteBuffer.wrap(frameBuffer, lineLength * (y + i) + x * bpp, copyLength).slice();
+                }
+            }
         }
 
-        return new ByteBuffer[]{byteBuffer};
+        return buffers;
     }
 
     /* (non-Javadoc)
@@ -334,8 +284,36 @@ class RobotDevice implements FramebufferDevice, KeyBoardDevice, PointerDevice {
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.vnc.server.platform.FramebufferDevice#grabScreen()
+     */
     @Override
     public void grabScreen() {
-        // TODO Auto-generated method stub
+        size();
+        Rectangle rect = new Rectangle(0, 0, size.width(), size.height());
+        BufferedImage image = robot.createScreenCapture(rect);
+        Raster raster = image.getRaster();
+        DataBuffer buffer = raster.getDataBuffer();
+
+        if (DataBuffer.TYPE_INT == buffer.getDataType()) {
+            int[] data = ((DataBufferInt) buffer).getData();
+
+            ByteBuffer byteBuffer = ByteBuffer.allocate(data.length * 4);
+            byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+            byteBuffer.asIntBuffer().put(data);
+            byteBuffer.order(ByteOrder.BIG_ENDIAN);
+            frameBuffer = byteBuffer.array();
+        } else if (DataBuffer.TYPE_SHORT == buffer.getDataType()) {
+            short[] data = ((DataBufferShort) buffer).getData();
+
+            ByteBuffer byteBuffer = ByteBuffer.allocate(data.length * 4);
+            byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+            byteBuffer.asShortBuffer().put(data);
+            byteBuffer.order(ByteOrder.BIG_ENDIAN);
+            frameBuffer = byteBuffer.array();
+        } else if (DataBuffer.TYPE_BYTE == buffer.getDataType()) {
+
+            frameBuffer = ((DataBufferByte) buffer).getData();
+        }
     }
 }

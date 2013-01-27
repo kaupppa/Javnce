@@ -91,7 +91,7 @@ public class TestRobotDeviceTest {
         for (int i = 0; i < array.length; i++) {
             ByteBuffer[] buffers = dev.buffer(array[i].x, array[i].y, array[i].width, array[i].height);
 
-            assertEquals(1, buffers.length);
+            assertTrue(1 <= buffers.length);
 
             int length = 0;
 
@@ -103,11 +103,11 @@ public class TestRobotDeviceTest {
             assertEquals(array[i].width * array[i].height * format.bytesPerPixel(), length);
         }
     }
-    
+
     @Test
     public void testGrabScreen() {
         dev = RobotDevice.instance();
+        
         dev.grabScreen();
     }
-
 }

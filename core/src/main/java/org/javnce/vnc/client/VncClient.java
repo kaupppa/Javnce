@@ -85,8 +85,11 @@ public class VncClient extends Thread implements EventSubscriber, ReceiveMessage
         this.address = address;
         this.observer = observer;
         setName("ClientProtocol");
-        receiveMessages = new ArrayList();
+        receiveMessages = new ArrayList<>();
         receiveMessages.add(new MsgProtocolVersion());
+        receiveMessages.add(new MsgSecurityTypeList());
+        receiveMessages.add(new MsgSecurityResult());
+        receiveMessages.add(new MsgServerInit());
         factoryMode = false;
     }
 
@@ -226,7 +229,6 @@ public class VncClient extends Thread implements EventSubscriber, ReceiveMessage
                 error("Unsupported message " + msg);
                 break;
         }
-
     }
 
     /**
@@ -248,7 +250,6 @@ public class VncClient extends Thread implements EventSubscriber, ReceiveMessage
      */
     private void handle(MsgProtocolVersion msg) {
         if (version.equals(msg.get())) {
-            receiveMessages.add(new MsgSecurityTypeList());
             messageHandler.send(new MsgProtocolVersion(version));
         } else {
             error("Protocol version " + msg.get() + " not supported");
@@ -262,7 +263,6 @@ public class VncClient extends Thread implements EventSubscriber, ReceiveMessage
      */
     private void handle(MsgSecurityTypeList msg) {
         if (null != msg.getTypes()) {
-            receiveMessages.add(new MsgSecurityResult());
             messageHandler.send(new MsgSelectedSecurityType(SecurityType.None));
         } else {
             error("SecurityResult failure : " + msg.getText());
@@ -276,7 +276,6 @@ public class VncClient extends Thread implements EventSubscriber, ReceiveMessage
      */
     private void handle(MsgSecurityResult msg) {
         if (msg.getStatus()) {
-            receiveMessages.add(new MsgServerInit());
             messageHandler.send(new MsgClientInit(false));
         } else {
             error("SecurityResult failure : " + msg.getText());
