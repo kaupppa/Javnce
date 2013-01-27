@@ -17,6 +17,7 @@
 package org.javnce.eventing;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -110,10 +111,20 @@ class ChannelSubscriberList {
             SelectionKey key = iterator.next();
             Object obj = key.attachment();
 
-            if (null != obj && obj instanceof ChannelSubscriber) {
-                ((ChannelSubscriber) obj).channel(key);
-            }
+            if (null != obj) {
+                if (obj instanceof WeakReference) {
 
+                    WeakReference<ChannelSubscriber> ref = (WeakReference<ChannelSubscriber>) obj;
+                    ChannelSubscriber callback = (ChannelSubscriber) ref.get();
+                    if (null != callback) {
+                        callback.channel(key);
+                    } else {
+                        remove(key.channel());
+                    }
+                } else {
+                    remove(key.channel());
+                }
+            }
             iterator.remove();
         }
     }
@@ -131,7 +142,7 @@ class ChannelSubscriberList {
     void add(SelectableChannel channel, ChannelSubscriber object, int ops) throws IOException {
         init();
         if (null != selector) {
-            channel.register(selector, ops, object);
+            channel.register(selector, ops, new WeakReference<>(object));
         }
     }
 

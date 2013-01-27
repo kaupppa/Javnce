@@ -17,6 +17,7 @@
 package org.javnce.eventing;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
@@ -162,5 +163,36 @@ public class ChannelSubscriberListTest {
             assertFalse(r.isAlive());
         }
 
+    }
+
+    @Test
+    public void testWeakReference() throws Exception {
+        try (LoopbackChannelPair loopback = new LoopbackChannelPair()) {
+            list = new ChannelSubscriberList();
+
+            TestClass tc = new TestClass();
+
+            list.add(loopback.channel1(), tc, SelectionKey.OP_READ);
+
+            WeakReference<TestClass> ref = new WeakReference<>(tc);
+            
+            assertNotNull(ref.get());
+            
+            tc = null;
+            System.gc();
+            
+            //Lets check that tc is cleaned
+            assertNull(ref.get());
+            
+            Thread r = createThread(list);
+            assertTrue(r.isAlive());
+
+            //Wakeup the thread
+            int length = 10;
+            loopback.channel2().write(ByteBuffer.allocate(length));
+            r.join(WaitTime);
+            
+            list.process(0); //This will not block as write caused a remove
+        }
     }
 }
