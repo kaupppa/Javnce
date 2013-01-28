@@ -82,7 +82,7 @@ public class ChannelSubscriberListTest {
     }
 
     @Test
-    public void testWakeup() throws Exception {
+    public void testWakeupWhileRunning() throws Exception {
 
         list = new ChannelSubscriberList();
 
@@ -94,6 +94,25 @@ public class ChannelSubscriberListTest {
             assertTrue(r.isAlive());
 
             list.wakeup();
+
+            //Wakeup cause list.process(0) to exit
+            r.join(WaitTime);
+            assertFalse(r.isAlive());
+        }
+    }
+    
+    @Test
+    public void testWakeupBeforeRunning() throws Exception {
+
+        list = new ChannelSubscriberList();
+
+        try (LoopbackChannelPair loopback = new LoopbackChannelPair()) {
+            TestClass tc = new TestClass();
+            list.add(loopback.channel1(), tc, SelectionKey.OP_READ);
+
+            list.wakeup();
+            
+            Thread r = createThread(list);
 
             //Wakeup cause list.process(0) to exit
             r.join(WaitTime);
