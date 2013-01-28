@@ -16,6 +16,7 @@
  */
 package org.javnce.eventing;
 
+import java.lang.ref.WeakReference;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -121,5 +122,28 @@ public class TimerTest {
 
         timer.process(currentTime + timeOut);
         assertFalse(timer.isActive());
+    }
+
+    @Test
+    public void testWeakReference() {
+        long timeOut = 100;
+
+        TestTimerCallback callback = new TestTimerCallback();
+        
+        Timer timer = new Timer(callback, timeOut);
+        assertTrue(timer.isActive());
+        
+        WeakReference<TestTimerCallback> ref = new WeakReference<>(callback);
+        assertNotNull(ref.get());
+
+        callback = null;
+        System.gc();
+        
+        //Check that callback is cleaned
+        assertNull(ref.get());
+
+        //Check that timer is not active
+        assertFalse(timer.isActive());
+
     }
 }
