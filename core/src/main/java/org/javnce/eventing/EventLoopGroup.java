@@ -16,6 +16,8 @@
  */
 package org.javnce.eventing;
 
+import java.lang.ref.WeakReference;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -26,7 +28,7 @@ class EventLoopGroup {
     /**
      * The event loops in this group.
      */
-    final private ConcurrentSet<EventLoop> loops;
+    final private ConcurrentSet<WeakReference<EventLoop>> loops;
     /**
      * The child groups.
      */
@@ -34,11 +36,11 @@ class EventLoopGroup {
     /**
      * The parent.
      */
-    final private EventLoopGroup parent;
+    private EventLoopGroup parent;
     /**
      * The root instance.
      */
-    static final private EventLoopGroup root = new EventLoopGroup(null);
+    static final private EventLoopGroup root = new EventLoopGroup();
 
     /**
      * The root instance getter.
@@ -54,14 +56,20 @@ class EventLoopGroup {
      *
      * @param parent the parent
      */
-    private EventLoopGroup(EventLoopGroup parent) {
+    private EventLoopGroup() {
         loops = new ConcurrentSet<>();
         children = new ConcurrentSet<>();
-        this.parent = parent;
+        this.parent = null;
+    }
 
-        if (null != parent) {
-            parent.children.add(this);
-        }
+    /**
+     * Adds a EventLoopGroup as child.
+     *
+     * @param childGroup the child group
+     */
+    private void addChildGroup(EventLoopGroup childGroup) {
+        children.add(childGroup);
+        childGroup.parent = this;
     }
 
     /**
@@ -70,7 +78,7 @@ class EventLoopGroup {
      * @param loop the event loop
      */
     void add(EventLoop loop) {
-        loops.add(loop);
+        loops.add(new WeakReference<>(loop));
     }
 
     /**
@@ -79,7 +87,14 @@ class EventLoopGroup {
      * @param loop the event loop
      */
     void remove(EventLoop loop) {
-        loops.remove(loop);
+        List<WeakReference<EventLoop>> list = getLoops();
+
+        for (Iterator<WeakReference<EventLoop>> i = list.iterator(); i.hasNext();) {
+            WeakReference<EventLoop> ref = i.next();
+            if (loop == ref.get() || null == ref.get()) {
+                loops.remove(ref);
+            }
+        }
         refresh(this);
         refresh(parent);
     }
@@ -92,9 +107,12 @@ class EventLoopGroup {
      */
     EventLoopGroup moveToNewChild(EventLoop loop) {
 
-        EventLoopGroup child = new EventLoopGroup(this);
+        EventLoopGroup child = new EventLoopGroup();
         child.add(loop);
-        remove(loop);
+
+        this.remove(loop);
+        this.addChildGroup(child);
+
         return child;
 
     }
@@ -113,6 +131,22 @@ class EventLoopGroup {
                     group.children.remove(child);
                 }
             }
+            group.refreshLoops();
+        }
+    }
+
+    /**
+     * Removes cleaned loops from group.
+     *
+     */
+    private void refreshLoops() {
+        List<WeakReference<EventLoop>> list = getLoops();
+
+        for (Iterator<WeakReference<EventLoop>> i = list.iterator(); i.hasNext();) {
+            WeakReference<EventLoop> ref = i.next();
+            if (null == ref.get()) {
+                loops.remove(ref);
+            }
         }
     }
 
@@ -122,6 +156,7 @@ class EventLoopGroup {
      * @return true, if is empty
      */
     boolean isEmpty() {
+        refreshLoops();
         return (loops.isEmpty() && children.isEmpty());
     }
 
@@ -148,15 +183,18 @@ class EventLoopGroup {
      */
     private boolean process(Event event) {
         boolean handled = false;
+        List<WeakReference<EventLoop>> list = getLoops();
 
-
-        for (EventLoop loop : getLoops()) {
-            if (loop.isEventSupported(event.Id())) {
-                loop.addEvent(event);
-                handled = true;
+        for (Iterator<WeakReference<EventLoop>> i = list.iterator(); i.hasNext();) {
+            WeakReference<EventLoop> ref = i.next();
+            EventLoop loop = ref.get();
+            if (null != loop) {
+                if (loop.isEventSupported(event.Id())) {
+                    loop.addEvent(event);
+                    handled = true;
+                }
             }
         }
-
         return handled;
     }
 
@@ -194,10 +232,16 @@ class EventLoopGroup {
      * Stop event loops in this group.
      */
     private void stopLoops() {
+        List<WeakReference<EventLoop>> list = getLoops();
 
-        for (EventLoop loop : getLoops()) {
-            loop.shutdown();
+        for (Iterator<WeakReference<EventLoop>> i = list.iterator(); i.hasNext();) {
+            WeakReference<EventLoop> ref = i.next();
+            EventLoop loop = ref.get();
+            if (null != loop) {
+                loop.shutdown();
+            }
         }
+
     }
 
     /**
@@ -223,7 +267,7 @@ class EventLoopGroup {
      *
      * @return the loops
      */
-    List<EventLoop> getLoops() {
+    List<WeakReference<EventLoop>> getLoops() {
         return loops.get();
     }
 }

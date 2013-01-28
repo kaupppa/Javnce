@@ -16,6 +16,7 @@
  */
 package org.javnce.eventing;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 import org.junit.After;
 import static org.junit.Assert.*;
@@ -23,8 +24,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class EventLoopGroupTest {
-    final static int SleepTimeTime = 50;
 
+    final static int SleepTimeTime = 50;
     private EventLoopGroup root;
 
     @Before
@@ -113,7 +114,7 @@ public class EventLoopGroupTest {
 
             testers[i].startAll();
         }
-        
+
 
         //Publish three events to first sub group
         testers[0].eventLoop.getGroup().publish(allEvent);
@@ -196,5 +197,25 @@ public class EventLoopGroupTest {
 
         assertTrue(null == root.parent());
         assertTrue(root == child.parent());
+    }
+
+    @Test
+    public void testWeakReference() {
+        assertTrue(root.isEmpty());
+
+        EventLoop eventLoop = new EventLoop();
+        assertFalse(root.isEmpty());
+
+        WeakReference<EventLoop> ref = new WeakReference<>(eventLoop);
+        assertNotNull(ref.get());
+
+        eventLoop = null;
+        System.gc();
+
+        //Check that eventLoop is cleaned
+        assertNull(ref.get());
+
+        //Check that root is empty
+        assertTrue(root.isEmpty());
     }
 }
