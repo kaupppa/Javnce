@@ -16,6 +16,7 @@
  */
 package org.javnce.eventing;
 
+import java.lang.ref.WeakReference;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -122,6 +123,55 @@ public class EventSubscriberListTest {
         assertEquals(event1, handler1.lastEvent);
         assertEquals(event1, handler1a.lastEvent);
         assertEquals(event2, handler2.lastEvent);
+
+    }
+
+    @Test
+    public void testWeakReferenceProcess() {
+
+        list = new EventSubscriberList();
+        EventHandler handler = new EventHandler();
+        TestEvent event = new TestEvent("An event");
+        list.add(event.Id(), handler);
+
+        WeakReference<EventHandler> ref = new WeakReference<>(handler);
+        assertNotNull(ref.get());
+
+        handler = null;
+        System.gc();
+
+        //Lets check that tc is cleaned
+        assertNull(ref.get());
+
+        //Lets check that tc is not cleaned in contains (performance reason)
+        assertTrue(list.contains(event.Id()));
+
+        list.process(event);
+
+        //Lets check that tc is cleaned in process
+        assertFalse(list.contains(event.Id()));
+    }
+
+    @Test
+    public void testWeakReferenceIsEmpty() {
+
+        list = new EventSubscriberList();
+        EventHandler handler = new EventHandler();
+        TestEvent event = new TestEvent("An event");
+        list.add(event.Id(), handler);
+
+        WeakReference<EventHandler> ref = new WeakReference<>(handler);
+        assertNotNull(ref.get());
+
+        handler = null;
+        System.gc();
+
+        //Lets check that tc is cleaned
+        assertNull(ref.get());
+
+        //Lets check that tc is cleaned in isEmpty
+        assertTrue(list.isEmpty());
+        assertFalse(list.contains(event.Id()));
 
     }
 }

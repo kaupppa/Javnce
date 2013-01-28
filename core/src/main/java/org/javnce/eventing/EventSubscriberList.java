@@ -16,6 +16,7 @@
  */
 package org.javnce.eventing;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+// TODO: Auto-generated Javadoc
 /**
  * The event subscriber collection with callback handling.
  *
@@ -33,7 +35,7 @@ class EventSubscriberList {
     /**
      * The map of event subscribers.
      */
-    final private Map<EventId, Set<EventSubscriber>> map;
+    final private Map<EventId, Set<WeakReference<EventSubscriber>>> map;
 
     /**
      * Instantiates a new event subscriber list.
@@ -50,8 +52,8 @@ class EventSubscriberList {
      */
     synchronized void add(EventId id, EventSubscriber handler) {
         if (null != handler && null != id) {
-            Set<EventSubscriber> set = getSet(id, true);
-            set.add(handler);
+            Set<WeakReference<EventSubscriber>> set = getSet(id, true);
+            set.add(new WeakReference<>(handler));
         }
     }
 
@@ -62,11 +64,15 @@ class EventSubscriberList {
      * @param handler the handler callback object
      */
     synchronized void remove(EventId id, EventSubscriber handler) {
-        Set<EventSubscriber> set = getSet(id, false);
+        Set<WeakReference<EventSubscriber>> set = getSet(id, false);
 
         if (null != set) {
-            set.remove(handler);
-
+            for (Iterator<WeakReference<EventSubscriber>> i = set.iterator(); i.hasNext();) {
+                WeakReference<EventSubscriber> ref = i.next();
+                if (handler == ref.get() || null == ref.get()) {
+                    i.remove();
+                }
+            }
             if (set.isEmpty()) {
                 map.remove(id);
             }
@@ -79,9 +85,9 @@ class EventSubscriberList {
      * @param id the event id
      * @return the list
      */
-    private synchronized List<EventSubscriber> get(EventId id) {
-        List<EventSubscriber> list = null;
-        Set<EventSubscriber> set = getSet(id, false);
+    private synchronized List<WeakReference<EventSubscriber>> get(EventId id) {
+        List<WeakReference<EventSubscriber>> list = null;
+        Set<WeakReference<EventSubscriber>> set = getSet(id, false);
 
         if (null != set) {
             list = new ArrayList<>(set);
@@ -107,8 +113,8 @@ class EventSubscriberList {
      * @param createIfNull if true then an empty set is created
      * @return the set of subscribers
      */
-    private Set<EventSubscriber> getSet(EventId id, boolean createIfNull) {
-        Set<EventSubscriber> set = map.get(id);
+    private Set<WeakReference<EventSubscriber>> getSet(EventId id, boolean createIfNull) {
+        Set<WeakReference<EventSubscriber>> set = map.get(id);
 
         if (null == set && createIfNull) {
             set = new HashSet<>();
@@ -124,14 +130,16 @@ class EventSubscriberList {
      * @param event the event that is passed to all subscribers.
      */
     void process(Event event) {
-
-        if (null != event) {
-            List<EventSubscriber> list = get(event.Id());
-            if (null != list) {
-                Iterator<EventSubscriber> iterator = list.iterator();
-
-                while (iterator.hasNext()) {
-                    EventSubscriber subscriber = iterator.next();
+        checkRefs();
+        if (null == event) {
+            return;
+        }
+        List<WeakReference<EventSubscriber>> list = get(event.Id());
+        if (null != list) {
+            for (Iterator<WeakReference<EventSubscriber>> i = list.iterator(); i.hasNext();) {
+                WeakReference<EventSubscriber> ref = i.next();
+                EventSubscriber subscriber = ref.get();
+                if (null != subscriber) {
                     subscriber.event(event);
                 }
             }
@@ -144,13 +152,34 @@ class EventSubscriberList {
      * @return true if no subscribers
      */
     synchronized boolean isEmpty() {
+        checkRefs();
         return map.isEmpty();
     }
 
     /**
-     * Removes all subscribers.
+     * Goes through callbacks and removes callbacks that are cleaned by
+     * garbage collector.
      */
-    synchronized void clear() {
-        map.clear();
+    private void checkRefs() {
+
+        Set<EventId> keys = map.keySet();
+
+        for (Iterator<EventId> keyIterator = keys.iterator(); keyIterator.hasNext();) {
+            EventId id = keyIterator.next();
+            Set<WeakReference<EventSubscriber>> set = map.get(id);
+            if (null == set) {
+                keyIterator.remove();
+            } else {
+                for (Iterator<WeakReference<EventSubscriber>> i = set.iterator(); i.hasNext();) {
+                    WeakReference<EventSubscriber> ref = i.next();
+                    if (null == ref.get()) {
+                        i.remove();
+                    }
+                }
+                if (set.isEmpty()) {
+                    map.remove(id);
+                }
+            }
+        }
     }
 }

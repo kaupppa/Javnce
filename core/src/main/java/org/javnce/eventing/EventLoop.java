@@ -22,6 +22,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * The class for processing events, non-blocking sockets and timers.
+ *
  * @see org.javnce.examples.PingPong.PingPong
  */
 public class EventLoop implements Runnable {
@@ -393,10 +394,6 @@ public class EventLoop implements Runnable {
     synchronized private void exit() {
         state.shutdown();
         if (!state.isAttached()) {
-            try {
-                eventSubscribers.clear();
-            } catch (Throwable e) {
-            }
             try {
                 channelSubscribers.close();
             } catch (Throwable e) {
