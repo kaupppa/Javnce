@@ -16,6 +16,8 @@
  */
 package org.javnce.eventing;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * A Class for handling event loop state.
  */
@@ -24,53 +26,32 @@ class EventLoopState {
     /**
      * The state is true if runnable.
      */
-    private boolean state;
+    final private AtomicBoolean state;
     /**
      * The attached processing thread.
      */
-    Thread processingThread;
-    final private Object lock;
+    final private AtomicBoolean attached;
 
     /**
      * Instantiates a new event loop state.
      */
     EventLoopState() {
-        state = true;
-        lock = new Object();
+        state = new AtomicBoolean(true);
+        attached = new AtomicBoolean(false);
     }
 
     /**
      * Attach to current thread.
      */
     void attachCurrentThread() {
-        synchronized (lock) {
-            processingThread = Thread.currentThread();
-        }
+        attached.set(true);
     }
 
     /**
      * Detach from thread.
      */
     void detachCurrentThread() {
-        synchronized (lock) {
-            processingThread = null;
-        }
-
-    }
-
-    /**
-     * Tests if attached thread is runnable.
-     *
-     * @return true, if successful
-     */
-    private boolean threadIsRunnable() {
-        boolean runnable = true;
-        synchronized (lock) {
-            if (null != processingThread) {
-                runnable = (!processingThread.isInterrupted() && processingThread.isAlive());
-            }
-        }
-        return runnable;
+        attached.set(false);
     }
 
     /**
@@ -79,14 +60,14 @@ class EventLoopState {
      * @return true, if is runnable
      */
     boolean isRunnable() {
-        return (state && threadIsRunnable());
+        return state.get();
     }
 
     /**
      * Mark as not runnable.
      */
     void shutdown() {
-        state = false;
+        state.set(false);
     }
 
     /**
@@ -95,12 +76,6 @@ class EventLoopState {
      * @return true, if is attached
      */
     public boolean isAttached() {
-        boolean attached = false;
-        synchronized (lock) {
-            if (null != processingThread) {
-                attached = true;
-            }
-        }
-        return attached;
+        return attached.get();
     }
 }

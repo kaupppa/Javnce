@@ -191,13 +191,14 @@ public class EventLoop implements Runnable {
      */
     private void processPendingEvents() {
 
-        while (true) {
+        while (true && state.isRunnable()) {
             Event event = queue.poll();
-            processEvent(event);
-
-            if (null == event) {
+            if (null != event) {
+                processEvent(event);
+            } else {
                 break;
             }
+
         }
     }
 
@@ -206,9 +207,7 @@ public class EventLoop implements Runnable {
      *
      * @throws InterruptedException the interrupted exception
      */
-    private void waitEvent() throws InterruptedException {
-
-        long timeOut = processTimers();
+    private void waitEvent(long timeOut) throws InterruptedException {
 
         if (state.isRunnable()) {
             Event event = null;
@@ -237,9 +236,8 @@ public class EventLoop implements Runnable {
         return empty;
     }
 
-    private void processChannels() throws IOException {
+    private void processChannels(long timeOut) throws IOException {
 
-        long timeOut = processTimers();
         if (state.isRunnable()) {
             channelSubscribers.process(timeOut);
         }
@@ -251,28 +249,27 @@ public class EventLoop implements Runnable {
      */
     public void process() {
         state.attachCurrentThread();
-
-        while (!isEmpty() && state.isRunnable()) {
-            try {
-                processTimers();
+        try {
+            long timeOut = 0;
+            while (!isEmpty() && state.isRunnable()) {
+                timeOut = processTimers();
 
                 processPendingEvents();
 
-                processChannels();
+                processChannels(timeOut);
 
                 if (channelSubscribers.isEmpty()) {
-                    waitEvent();
+                    timeOut = processTimers();
+                    waitEvent(timeOut);
                 }
-            } catch (InterruptedException e) {
-                break;
-            } catch (Throwable e) {
-                fatalError(this, e);
-                break;
             }
+        } catch (InterruptedException e) {
+        } catch (Throwable e) {
+            fatalError(this, e);
+        } finally {
+            state.detachCurrentThread();
+            exit();
         }
-
-        state.detachCurrentThread();
-        exit();
     }
 
     /**

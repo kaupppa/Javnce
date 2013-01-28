@@ -23,20 +23,8 @@ import org.junit.Test;
 
 public class EventLoopStateTest {
 
-    @Before
-    public void setUp() throws Exception {
-        //Clear interrupted
-        Thread.interrupted();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        //Clear interrupted
-        Thread.interrupted();
-    }
-
     @Test
-    public void testEventLoopState() {
+    public void testInitialValues() {
         EventLoopState state = new EventLoopState();
         assertNotNull(state);
         assertTrue(state.isRunnable());
@@ -44,43 +32,7 @@ public class EventLoopStateTest {
     }
 
     @Test
-    public void testAttachAndDetach() throws InterruptedException {
-        final EventLoopState state = new EventLoopState();
-
-        assertFalse(state.isAttached());
-
-
-        state.attachCurrentThread();
-        assertTrue(state.isAttached());
-
-        state.detachCurrentThread();
-        assertFalse(state.isAttached());
-
-    }
-
-    @Test
-    public void testIsRunnable() throws InterruptedException {
-        final EventLoopState state = new EventLoopState();
-
-        //Clear interrupted
-        Thread.interrupted();
-
-        assertTrue(state.isRunnable());
-
-        state.attachCurrentThread();
-
-        assertTrue(state.isRunnable());
-        assertTrue(state.isAttached());
-
-        Thread.currentThread().interrupt();
-
-        assertTrue(state.isAttached());
-        assertFalse(state.isRunnable());
-
-    }
-
-    @Test
-    public void testShutdown() {
+    public void testStateHandling() {
         final EventLoopState state = new EventLoopState();
 
         assertTrue(state.isRunnable());
@@ -89,7 +41,7 @@ public class EventLoopStateTest {
     }
 
     @Test
-    public void testIsAttached() {
+    public void testAttachHandling() {
         final EventLoopState state = new EventLoopState();
 
         assertFalse(state.isAttached());
