@@ -37,7 +37,7 @@ class InputEventDispatcher extends Thread implements EventSubscriber {
      */
     InputEventDispatcher() {
         eventLoop = new EventLoop();
-        setName("InputEventDispatcher");
+        setName("Javnce-IO-Dispatcher");
     }
 
     /* (non-Javadoc)

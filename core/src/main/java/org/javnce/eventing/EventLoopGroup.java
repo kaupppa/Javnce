@@ -78,7 +78,9 @@ class EventLoopGroup {
      * @param loop the event loop
      */
     void add(EventLoop loop) {
-        loops.add(new WeakReference<>(loop));
+        if (null != loop) {
+            loops.add(new WeakReference<>(loop));
+        }
     }
 
     /**
@@ -87,12 +89,14 @@ class EventLoopGroup {
      * @param loop the event loop
      */
     void remove(EventLoop loop) {
-        List<WeakReference<EventLoop>> list = getLoops();
+        if (null != loop) {
+            List<WeakReference<EventLoop>> list = getLoops();
 
-        for (Iterator<WeakReference<EventLoop>> i = list.iterator(); i.hasNext();) {
-            WeakReference<EventLoop> ref = i.next();
-            if (loop == ref.get() || null == ref.get()) {
-                loops.remove(ref);
+            for (Iterator<WeakReference<EventLoop>> i = list.iterator(); i.hasNext();) {
+                WeakReference<EventLoop> ref = i.next();
+                if (loop == ref.get() || null == ref.get()) {
+                    loops.remove(ref);
+                }
             }
         }
         refresh(this);
@@ -106,13 +110,14 @@ class EventLoopGroup {
      * @return the event loop group
      */
     EventLoopGroup moveToNewChild(EventLoop loop) {
+        EventLoopGroup child = null;
+        if (null != loop) {
+            child = new EventLoopGroup();
+            child.add(loop);
 
-        EventLoopGroup child = new EventLoopGroup();
-        child.add(loop);
-
-        this.remove(loop);
-        this.addChildGroup(child);
-
+            this.remove(loop);
+            this.addChildGroup(child);
+        }
         return child;
 
     }

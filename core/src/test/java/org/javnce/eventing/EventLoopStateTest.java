@@ -16,9 +16,7 @@
  */
 package org.javnce.eventing;
 
-import org.junit.After;
 import static org.junit.Assert.*;
-import org.junit.Before;
 import org.junit.Test;
 
 public class EventLoopStateTest {
@@ -28,11 +26,11 @@ public class EventLoopStateTest {
         EventLoopState state = new EventLoopState();
         assertNotNull(state);
         assertTrue(state.isRunnable());
-        assertFalse(state.isAttached());
+        assertFalse(state.isProcessing());
     }
 
     @Test
-    public void testStateHandling() {
+    public void testRunnable() {
         final EventLoopState state = new EventLoopState();
 
         assertTrue(state.isRunnable());
@@ -41,15 +39,15 @@ public class EventLoopStateTest {
     }
 
     @Test
-    public void testAttachHandling() {
+    public void testProcessing() {
         final EventLoopState state = new EventLoopState();
 
-        assertFalse(state.isAttached());
+        assertFalse(state.isProcessing());
 
-        state.attachCurrentThread();
-        assertTrue(state.isAttached());
+        state.processing(true);
+        assertTrue(state.isProcessing());
 
-        state.detachCurrentThread();
-        assertFalse(state.isAttached());
+        state.processing(false);
+        assertFalse(state.isProcessing());
     }
 }

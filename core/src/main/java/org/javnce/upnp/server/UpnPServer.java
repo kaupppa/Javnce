@@ -55,6 +55,7 @@ class UpnPServer extends Thread {
         this.name = name;
         this.port = port;
         upnpService = new UpnpServiceImpl();
+        setName("Javnce-Upnp-Server");
 
     }
 

@@ -58,7 +58,7 @@ class Worker extends Thread implements EventSubscriber {
         this.channel = channel;
         eventLoop = new EventLoop();
         this.userData = userData;
-        setName("Worker");
+        setName("Javne-Worker");
     }
 
     /* (non-Javadoc)

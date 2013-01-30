@@ -16,8 +16,6 @@
  */
 package org.javnce.eventing;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 /**
  * A Class for handling event loop state.
  */
@@ -26,32 +24,25 @@ class EventLoopState {
     /**
      * The state is true if runnable.
      */
-    final private AtomicBoolean state;
+    private boolean runState;
     /**
-     * The attached processing thread.
+     * The processing state.
      */
-    final private AtomicBoolean attached;
+    private boolean processingState;
 
     /**
      * Instantiates a new event loop state.
      */
     EventLoopState() {
-        state = new AtomicBoolean(true);
-        attached = new AtomicBoolean(false);
+        runState = true;
+        processingState = false;
     }
 
     /**
-     * Attach to current thread.
+     * Set processing state.
      */
-    void attachCurrentThread() {
-        attached.set(true);
-    }
-
-    /**
-     * Detach from thread.
-     */
-    void detachCurrentThread() {
-        attached.set(false);
+    void processing(boolean state) {
+        processingState = state;
     }
 
     /**
@@ -60,22 +51,22 @@ class EventLoopState {
      * @return true, if is runnable
      */
     boolean isRunnable() {
-        return state.get();
+        return runState;
     }
 
     /**
      * Mark as not runnable.
      */
     void shutdown() {
-        state.set(false);
+        runState = false;
     }
 
     /**
-     * Checks if attached to thread.
+     * Checks if processing
      *
-     * @return true, if is attached
+     * @return true, if is processing
      */
-    public boolean isAttached() {
-        return attached.get();
+    public boolean isProcessing() {
+        return processingState;
     }
 }

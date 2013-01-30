@@ -65,6 +65,7 @@ class UpnpClient extends Thread {
         this.observer = observer;
         remoteServers = new HashMap<>();
         upnpService = new UpnpServiceImpl();
+        setName("Javnce-Upnp-Client");
     }
 
     /**

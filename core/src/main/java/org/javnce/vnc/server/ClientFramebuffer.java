@@ -90,6 +90,7 @@ class ClientFramebuffer extends Thread implements EventSubscriber {
         dirtyAreas = new RectContainer();
         forceFull = true;
         usedEncoding = Encoding.RAW;
+        setName("Javne-ClientFramebuffer");
     }
 
     /* (non-Javadoc)

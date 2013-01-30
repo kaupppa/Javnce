@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-// TODO: Auto-generated Javadoc
 /**
  * The event subscriber collection with callback handling.
  *
@@ -50,7 +49,7 @@ class EventSubscriberList {
      * @param id the event id of subscribed event
      * @param handler the callback object
      */
-    synchronized void add(EventId id, EventSubscriber handler) {
+    void add(EventId id, EventSubscriber handler) {
         if (null != handler && null != id) {
             Set<WeakReference<EventSubscriber>> set = getSet(id, true);
             set.add(new WeakReference<>(handler));
@@ -63,7 +62,7 @@ class EventSubscriberList {
      * @param id the event id of subscribed event
      * @param handler the handler callback object
      */
-    synchronized void remove(EventId id, EventSubscriber handler) {
+    void remove(EventId id, EventSubscriber handler) {
         Set<WeakReference<EventSubscriber>> set = getSet(id, false);
 
         if (null != set) {
@@ -85,7 +84,7 @@ class EventSubscriberList {
      * @param id the event id
      * @return the list
      */
-    private synchronized List<WeakReference<EventSubscriber>> get(EventId id) {
+    private List<WeakReference<EventSubscriber>> get(EventId id) {
         List<WeakReference<EventSubscriber>> list = null;
         Set<WeakReference<EventSubscriber>> set = getSet(id, false);
 
@@ -102,7 +101,7 @@ class EventSubscriberList {
      * @param id the event id
      * @return true, if subscriber
      */
-    synchronized boolean contains(EventId id) {
+    boolean contains(EventId id) {
         return map.containsKey(id);
     }
 
@@ -151,14 +150,14 @@ class EventSubscriberList {
      *
      * @return true if no subscribers
      */
-    synchronized boolean isEmpty() {
+    boolean isEmpty() {
         checkRefs();
         return map.isEmpty();
     }
 
     /**
-     * Goes through callbacks and removes callbacks that are cleaned by
-     * garbage collector.
+     * Goes through callbacks and removes callbacks that are cleaned by garbage
+     * collector.
      */
     private void checkRefs() {
 

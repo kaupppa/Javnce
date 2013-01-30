@@ -48,7 +48,7 @@ class Listener extends Thread implements ChannelSubscriber {
     Listener(VncServerObserver observer) {
         eventLoop = new EventLoop();
         this.observer = observer;
-        setName("Listener");
+        setName("Javne-Listener");
     }
 
     /* (non-Javadoc)

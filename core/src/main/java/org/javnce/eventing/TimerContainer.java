@@ -16,7 +16,9 @@
  */
 package org.javnce.eventing;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -27,13 +29,13 @@ class TimerContainer {
     /**
      * The collection of timers.
      */
-    final private ConcurrentSet<Timer> timers;
+    final private Set<Timer> timers;
 
     /**
      * Instantiates a new timer container.
      */
     public TimerContainer() {
-        timers = new ConcurrentSet<>();
+        timers = new HashSet<>();
     }
 
     /**
@@ -66,16 +68,15 @@ class TimerContainer {
      */
     private long process(long currentTime) {
         long timeout = 0;
-        List<Timer> list = timers.get();
-        for (Timer timer : list) {
+        for (Iterator<Timer> i = timers.iterator(); i.hasNext();) {
+            Timer timer = i.next();
             long timerTimeout = timer.process(currentTime);
             if (0 >= timerTimeout) {
-                timers.remove(timer);
+                i.remove();
             } else if (0 == timeout) {
                 timeout = timerTimeout;
             } else {
                 timeout = Math.min(timeout, timerTimeout);
-
             }
         }
         return timeout;

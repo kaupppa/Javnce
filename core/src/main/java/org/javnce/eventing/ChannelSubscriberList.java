@@ -92,40 +92,36 @@ class ChannelSubscriberList {
      */
     void process(long timeOut) throws IOException {
         if (!isEmpty()) {
-            if (0 != selector.select(Math.max(timeOut, 0))) {
-                Set<SelectionKey> selectedKeys = selector.selectedKeys();
-                process(selectedKeys.iterator());
+            if (0 < selector.select(Math.max(timeOut, 0))) {
+                processSelectionKeys(selector.selectedKeys());
             }
-
         }
     }
 
     /**
-     * Process the channels.
+     * Process the selection keys.
      *
-     * @param iterator the iterator
      */
-    private void process(Iterator<SelectionKey> iterator) {
+    private void processSelectionKeys(Set<SelectionKey> keys) {
+        for (Iterator<SelectionKey> i = keys.iterator(); i.hasNext();) {
+            processSelectionKey(i.next());
+        }
+    }
 
-        while (iterator.hasNext()) {
-            SelectionKey key = iterator.next();
-            Object obj = key.attachment();
+    /**
+     * Process the selection keys.
+     *
+     */
+    private void processSelectionKey(SelectionKey key) {
+        Object obj = key.attachment();
+        if (null != obj && obj instanceof WeakReference) {
 
-            if (null != obj) {
-                if (obj instanceof WeakReference) {
-
-                    WeakReference<ChannelSubscriber> ref = (WeakReference<ChannelSubscriber>) obj;
-                    ChannelSubscriber callback = (ChannelSubscriber) ref.get();
-                    if (null != callback) {
-                        callback.channel(key);
-                    } else {
-                        remove(key.channel());
-                    }
-                } else {
-                    remove(key.channel());
-                }
+            @SuppressWarnings("unchecked")
+            WeakReference<ChannelSubscriber> ref = (WeakReference<ChannelSubscriber>) obj;
+            ChannelSubscriber callback = (ChannelSubscriber) ref.get();
+            if (null != callback) {
+                callback.channel(key);
             }
-            iterator.remove();
         }
     }
 
