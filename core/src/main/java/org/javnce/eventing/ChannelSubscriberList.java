@@ -104,8 +104,11 @@ class ChannelSubscriberList {
      */
     private void processSelectionKeys(Set<SelectionKey> keys) {
         for (Iterator<SelectionKey> i = keys.iterator(); i.hasNext();) {
-            processSelectionKey(i.next());
+            SelectionKey key = i.next();
+            i.remove();
+            processSelectionKey(key);
         }
+
     }
 
     /**

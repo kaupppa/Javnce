@@ -30,7 +30,7 @@ public class EventLoopTest {
     final static int WaitTime = 100;
     final static int SleepTimeTime = 50;
     final static int TimerAccuracyTime = 50;
-    private EventLoopGroup root;
+    private EventGroup root;
 
     class MyErrorHandler implements EventLoopErrorHandler {
 
@@ -53,7 +53,7 @@ public class EventLoopTest {
 
     @Before
     public void setUp() throws Exception {
-        root = EventLoopGroup.instance();
+        root = EventGroup.instance();
         //Clear interrupted
         Thread.interrupted();
     }
@@ -61,7 +61,7 @@ public class EventLoopTest {
     @After
     public void tearDown() throws Exception {
         Thread.interrupted();
-        EventLoopGroup.shutdown(root);
+        root.shutdown();
 
         if (false == root.isEmpty()) {
             throw new Exception("tearDown failure, EventLoopGroup not empty");
@@ -80,22 +80,9 @@ public class EventLoopTest {
         assertFalse(thread.isAlive());
     }
 
-    @Test
-    public void testMoveToChildGroup() {
-        EventLoop eventLoop = new EventLoop();
-        EventLoop childEventLoop = new EventLoop();
-
-        //By default in root
-        assertEquals(root, childEventLoop.getGroup());
-        assertEquals(eventLoop.getGroup(), childEventLoop.getGroup());
-
-        childEventLoop.moveToNewChildGroup();
-        assertTrue(eventLoop.getGroup() != childEventLoop.getGroup());
-
-    }
 
     @Test
-    public void testAddEvent() {
+    public void testDispatchEvent() {
         EventTester tester = new EventTester(null);
 
         TestEvent event = new TestEvent("Event");
@@ -103,16 +90,15 @@ public class EventLoopTest {
         tester.eventLoop.subscribe(event.Id(), tester);
 
         tester.thread.start();
-
-        tester.eventLoop.addEvent(event);
-
+        tester.eventLoop.dispatchEvent(event);
+        
         sleep();
         assertEquals(1, tester.events.size());
 
     }
 
     @Test
-    public void testAddEventAfterShutdown() {
+    public void testDispatchEventAfterShutdown() {
 
         EventTester tester = new EventTester(null);
 
@@ -120,7 +106,7 @@ public class EventLoopTest {
 
         tester.eventLoop.shutdown();
 
-        tester.eventLoop.addEvent(event); // No throw
+        tester.eventLoop.dispatchEvent(event); // No throw
     }
 
     @Test
@@ -252,30 +238,6 @@ public class EventLoopTest {
         EventLoop.setErrorHandler(old);
     }
 
-    @Test
-    public void testIsEventSupported() {
-
-        EventTester tester = new EventTester(null);
-        TestEvent event = new TestEvent("Event");
-        tester.eventLoop.subscribe(event.Id(), tester);
-
-        assertTrue(tester.eventLoop.isEventSupported(event.Id()));
-
-        tester.eventLoop.removeSubscribe(event.Id(), tester);
-        assertFalse(tester.eventLoop.isEventSupported(event.Id()));
-    }
-
-    @Test
-    public void testIsEventSupportedAfterShutdown() {
-        EventTester tester = new EventTester(null);
-        TestEvent event = new TestEvent("Event");
-        tester.eventLoop.subscribe(event.Id(), tester);
-
-        assertTrue(tester.eventLoop.isEventSupported(event.Id()));
-
-        tester.eventLoop.shutdown();
-        assertFalse(tester.eventLoop.isEventSupported(event.Id()));
-    }
 
     @Test
     public void testSubscribeSelectableChannel() throws Exception {
@@ -397,11 +359,6 @@ public class EventLoopTest {
         }
     }
 
-    @Test
-    public void testGetGroup() {
-        EventLoop eventLoop = new EventLoop();
-        assertTrue(root == eventLoop.getGroup());
-    }
 
     @Test
     public void testShutdownAllInTheGroup() throws InterruptedException {
@@ -434,7 +391,7 @@ public class EventLoopTest {
         }
 
         //Kill first group
-        testers[0].eventLoop.shutdownAllInTheGroup();
+        testers[0].eventLoop.shutdownGroup();
         testers[0].thread.join(WaitTime);
         assertFalse(testers[0].thread.isAlive());
 
@@ -481,6 +438,8 @@ public class EventLoopTest {
         sleep();
 
         assertFalse(tester.thread.isAlive());
+        
+        tester.eventLoop.shutdownGroup();
     }
 
     @Test

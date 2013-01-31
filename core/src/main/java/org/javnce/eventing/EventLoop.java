@@ -25,7 +25,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  *
  * @see org.javnce.examples.PingPong.PingPong
  */
-public class EventLoop implements Runnable {
+public class EventLoop implements Runnable, EventDispatcher {
 
     /**
      * The error handler.
@@ -50,7 +50,11 @@ public class EventLoop implements Runnable {
     /**
      * The event group.
      */
-    private EventLoopGroup group;
+    private EventGroup group;
+    /**
+     * The event group lock.
+     */
+    final private Object groupLock;
     /**
      * The timer handler.
      */
@@ -78,27 +82,20 @@ public class EventLoop implements Runnable {
      * @param otherLoop the other event loop
      */
     public EventLoop(EventLoop otherLoop) {
+        groupLock = new Object();
         queue = new LinkedBlockingQueue<>();
         eventSubscribers = new EventSubscriberList();
         channelSubscribers = new ChannelSubscriberList();
         timers = new TimerContainer();
         state = new EventLoopState();
 
-        initGroup(otherLoop);
-    }
-
-    /**
-     * Adds event loop into event group.
-     *
-     * @param otherLoop the otherLoop. If null the root group is used.
-     */
-    private void initGroup(EventLoop otherLoop) {
-        if (null == otherLoop) {
-            this.group = EventLoopGroup.instance();
-        } else {
-            this.group = otherLoop.getGroup();
+        if (null != otherLoop) {
+            group = otherLoop.group();
         }
-        this.group.add(this);
+        if (null == group) {
+            group = EventGroup.instance();
+        }
+        group.add(this);
     }
 
     /* (non-Javadoc)
@@ -113,20 +110,23 @@ public class EventLoop implements Runnable {
      * Create new sub event group and move event loop into it.
      */
     public void moveToNewChildGroup() {
-        group = group.moveToNewChild(this);
+        synchronized (groupLock) {
+            group = group.moveToNewChild(this);
+        }
     }
 
     /**
      * Wakeup the event loop.
      */
     private void wakeup() {
+    	queue.add(wakeupEvent);
         channelSubscribers.wakeup();
-        queue.add(wakeupEvent);
     }
 
     /**
-     * Tests if runnable
+     * Tests if runnable.
      *
+     * @return true, if is runnable
      * @returns true if runnable
      */
     boolean isRunnable() {
@@ -135,18 +135,6 @@ public class EventLoop implements Runnable {
             runnable = state.isRunnable();
         }
         return runnable;
-    }
-
-    /**
-     * Adds the event to be processed in this event loop.
-     *
-     * @param event the event
-     */
-    void addEvent(Event event) {
-        if (isRunnable()) {
-            queue.add(event);
-            wakeup();
-        }
     }
 
     /**
@@ -165,20 +153,21 @@ public class EventLoop implements Runnable {
     /**
      * Publish an event.
      *
-     * @param event the event
+     * @param event the published event
      */
     public void publish(Event event) {
-        if (null != group) {
-            group.publish(event);
-        } else {
-            EventLoopGroup.instance().publish(event);
+        EventGroup temp = group();
+
+        if (null == temp) {
+            temp = EventGroup.instance();
         }
+        temp.publish(event);
     }
 
     /**
      * Process timers.
      *
-     * @return timeout of next timer in milliseconds, aero if none
+     * @return timeout of next timer in milliseconds, zero if none
      */
     private long processTimers() {
 
@@ -224,6 +213,7 @@ public class EventLoop implements Runnable {
     /**
      * Waits for next event (blocking).
      *
+     * @param timeOut the time out
      * @throws InterruptedException the interrupted exception
      */
     private void waitEvent(long timeOut) throws InterruptedException {
@@ -263,6 +253,12 @@ public class EventLoop implements Runnable {
         return empty;
     }
 
+    /**
+     * Process channels.
+     *
+     * @param timeOut the time out
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
     private void processChannels(long timeOut) throws IOException {
 
         if (isRunnable()) {
@@ -270,6 +266,11 @@ public class EventLoop implements Runnable {
         }
     }
 
+    /**
+     * Sets the processing.
+     *
+     * @param isProcessing the new processing
+     */
     private void setProcessing(boolean isProcessing) {
         synchronized (state) {
             state.processing(isProcessing);
@@ -302,7 +303,7 @@ public class EventLoop implements Runnable {
             fatalError(this, e);
         } finally {
             setProcessing(false);
-            exit();
+            shutdown();
         }
     }
 
@@ -332,22 +333,6 @@ public class EventLoop implements Runnable {
                 eventSubscribers.remove(id, object);
             }
         }
-    }
-
-    /**
-     * Checks if is event supported in this event loop.
-     *
-     * @param id the id
-     * @return true, if is event supported
-     */
-    public boolean isEventSupported(EventId id) {
-        boolean supported = false;
-        if (isRunnable()) {
-            synchronized (eventSubscribers) {
-                supported = eventSubscribers.contains(id);
-            }
-        }
-        return supported;
     }
 
     /**
@@ -381,15 +366,6 @@ public class EventLoop implements Runnable {
     }
 
     /**
-     * Gets the event group where event loop belongs.
-     *
-     * @return the group
-     */
-    EventLoopGroup getGroup() {
-        return group;
-    }
-
-    /**
      * Fatal error.
      *
      * @param object the calling object
@@ -406,43 +382,16 @@ public class EventLoop implements Runnable {
      * Shutdown all event loops.
      */
     static public void shutdownAll() {
-        EventLoopGroup.shutdown(EventLoopGroup.instance());
+        EventGroup.instance().shutdown();
     }
 
     /**
      * Shutdown all event loops in event group.
      */
-    public void shutdownAllInTheGroup() {
-        EventLoopGroup.shutdown(group);
-    }
-
-    /**
-     * Shutdown this event loop.
-     */
-    public void shutdown() {
-        exit();
-        wakeup();
-    }
-
-    /**
-     * Clear event loop.
-     */
-    private void exit() {
-        boolean processing = false;
-        synchronized (state) {
-            state.shutdown();
-            processing = state.isProcessing();
-        }
-        if (!processing) {
-            try {
-                channelSubscribers.close();
-            } catch (Throwable e) {
-            }
-        }
-        EventLoopGroup temp = group;
+    public void shutdownGroup() {
+        EventGroup temp = group();
         if (null != temp) {
-            group = null;
-            temp.remove(this);
+            temp.shutdown();
         }
     }
 
@@ -456,5 +405,87 @@ public class EventLoop implements Runnable {
         EventLoopErrorHandler old = errorHandler;
         errorHandler = handler;
         return old;
+    }
+
+    /* (non-Javadoc)
+     * @see org.javnce.eventing.EventDispatcher#dispatchEvent(org.javnce.eventing.Event)
+     */
+    @Override
+    public boolean dispatchEvent(Event event) {
+        boolean supported = false;
+        if (isRunnable()) {
+            synchronized (eventSubscribers) {
+                supported = eventSubscribers.contains(event.Id());
+                if (supported) {
+                    queue.add(event);
+                }
+            }
+        }
+        if (supported) {
+            wakeup();
+        }
+        return supported;
+
+    }
+
+    /**
+     * Removes the group.
+     *
+     * @param callingGroup the calling group
+     */
+    private void removeGroup(EventGroup callingGroup) {
+
+        synchronized (groupLock) {
+            if (null != group) {
+                group.remove(this);
+                group = null;
+            }
+        }
+        if (null != callingGroup) {
+            callingGroup.remove(this);
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see org.javnce.eventing.EventDispatcher#shutdown(org.javnce.eventing.EventGroup)
+     */
+    @Override
+    public void shutdown(EventGroup callingGroup) {
+        removeGroup(callingGroup);
+
+        boolean processing = false;
+
+        synchronized (state) {
+            state.shutdown();
+            processing = state.isProcessing();
+        }
+        if (!processing) {
+            try {
+                channelSubscribers.close();
+            } catch (Throwable e) {
+            }
+        } else {
+            wakeup();
+        }
+    }
+
+    /**
+     * Shutdown.
+     */
+    public void shutdown() {
+        shutdown((EventGroup) null);
+    }
+
+    /**
+     * Current group getter.
+     *
+     * @return the current group
+     */
+    private EventGroup group() {
+        EventGroup temp = null;
+        synchronized (groupLock) {
+            temp = group;
+        }
+        return temp;
     }
 }

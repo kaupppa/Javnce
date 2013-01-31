@@ -168,9 +168,14 @@ public class EventSubscriberListTest {
 
         //Lets check that tc is cleaned
         assertNull(ref.get());
+        
+       
+        //Cause clean
+        list.add(null, null);
 
         //Lets check that tc is cleaned in isEmpty
         assertTrue(list.isEmpty());
+        
         assertFalse(list.contains(event.Id()));
 
     }

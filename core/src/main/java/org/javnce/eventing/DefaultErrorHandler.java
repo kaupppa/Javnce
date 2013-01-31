@@ -29,11 +29,10 @@ public class DefaultErrorHandler implements EventLoopErrorHandler {
      */
     @Override
     public void fatalError(Object object, Throwable throwable) {
-    	if (null == object)
-    	{
-    		object = this;
-    	}
+        if (null == object) {
+            object = this;
+        }
         Logger.getLogger(object.getClass().getName()).log(Level.SEVERE, null, throwable);
-        EventLoopGroup.shutdown(EventLoopGroup.instance());
+        EventGroup.instance().shutdown();
     }
 }

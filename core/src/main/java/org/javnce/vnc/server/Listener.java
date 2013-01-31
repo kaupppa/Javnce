@@ -94,6 +94,6 @@ class Listener extends Thread implements ChannelSubscriber {
      * Shutdown.
      */
     void shutdown() {
-        eventLoop.shutdownAllInTheGroup();
+        eventLoop.shutdown();
     }
 }

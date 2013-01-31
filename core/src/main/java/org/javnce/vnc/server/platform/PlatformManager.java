@@ -67,7 +67,7 @@ public class PlatformManager {
      * Shutdown.
      */
     public void shutdown() {
-        new EventLoop().shutdownAllInTheGroup();
+        EventLoop.shutdownAll();
         if (null != framebufferChangeDetector) {
             framebufferChangeDetector.interrupt();
             framebufferChangeDetector = null;

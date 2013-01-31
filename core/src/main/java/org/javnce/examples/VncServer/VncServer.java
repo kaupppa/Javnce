@@ -75,7 +75,7 @@ public class VncServer implements VncServerObserver {
      * Shutdown.
      */
     public void shutdown() {
-    	eventLoop.shutdownAllInTheGroup();
+    	eventLoop.shutdownGroup();
         
     }
     

@@ -75,7 +75,7 @@ class Worker extends Thread implements EventSubscriber {
         ct.start();
 
         //Create protocol handler 
-        ServerProtocolHandler protocolHandler = new ServerProtocolHandler(eventLoop, channel);
+        new ServerProtocolHandler(eventLoop, channel);
 
         eventLoop.process();
         try {
@@ -84,7 +84,7 @@ class Worker extends Thread implements EventSubscriber {
             //Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);
         }
         observer.connectionClosed(userData);
-        eventLoop.shutdownAllInTheGroup();
+        eventLoop.shutdownGroup();
     }
 
     /* (non-Javadoc)
@@ -93,7 +93,7 @@ class Worker extends Thread implements EventSubscriber {
     @Override
     public void event(Event event) {
         if (SocketClosedEvent.eventId().equals(event.Id())) {
-            eventLoop.shutdownAllInTheGroup();
+            eventLoop.shutdownGroup();
         } else {
             EventLoop.fatalError(this, new UnsupportedOperationException("Unsubscribed event " + event.getClass().getName()));
         }

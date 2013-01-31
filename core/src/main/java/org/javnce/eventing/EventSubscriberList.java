@@ -54,6 +54,7 @@ class EventSubscriberList {
             Set<WeakReference<EventSubscriber>> set = getSet(id, true);
             set.add(new WeakReference<>(handler));
         }
+        checkRefs();
     }
 
     /**
@@ -76,6 +77,7 @@ class EventSubscriberList {
                 map.remove(id);
             }
         }
+        checkRefs();
     }
 
     /**
@@ -151,7 +153,6 @@ class EventSubscriberList {
      * @return true if no subscribers
      */
     boolean isEmpty() {
-        checkRefs();
         return map.isEmpty();
     }
 

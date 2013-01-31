@@ -122,7 +122,7 @@ public class VncClient extends Thread implements EventSubscriber, ReceiveMessage
      * Shutdown of client.
      */
     public void shutdown() {
-        eventLoop.shutdownAllInTheGroup();
+        eventLoop.shutdownGroup();
     }
 
     /* (non-Javadoc)
