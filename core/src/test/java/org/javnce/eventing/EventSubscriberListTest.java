@@ -16,7 +16,7 @@
  */
 package org.javnce.eventing;
 
-import java.lang.ref.WeakReference;
+import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -63,120 +63,65 @@ public class EventSubscriberListTest {
 
         list = new EventSubscriberList();
         EventHandler handler = new EventHandler();
-        EventHandler handler2 = new EventHandler();
         TestEvent event = new TestEvent("An event");
         list.add(event.Id(), handler);
-        list.add(event.Id(), handler2);
 
+        list.remove(null);
         assertTrue(list.contains(event.Id()));
-        list.remove(event.Id(), handler);
-        assertTrue(list.contains(event.Id()));
-        list.remove(event.Id(), handler2);
+        list.remove(event.Id());
+
         assertFalse(list.contains(event.Id()));
 
-        list.remove(event.Id(), handler);
-        list.remove(event.Id(), null);
-        list.remove(null, handler);
-        list.remove(null, null);
     }
 
     @Test
     public void testProcess() {
-        TestEvent event1 = new TestEvent("Event 1");
-        TestEvent event2 = new TestEvent("Event 2");
-        TestEvent event3 = new TestEvent("Unknown");
+        TestEvent events[] = new TestEvent[]{new TestEvent("1"), new TestEvent("2"), new TestEvent("3")};
+        EventHandler handlers[] = new EventHandler[events.length];
 
         list = new EventSubscriberList();
-        EventHandler handler1 = new EventHandler();
-        EventHandler handler1a = new EventHandler();
-        EventHandler handler2 = new EventHandler();
 
-        assertNull(handler1.lastEvent);
-        assertNull(handler1a.lastEvent);
-        assertNull(handler2.lastEvent);
+        for (int i = 0; i < events.length; i++) {
+            handlers[i] = new EventHandler();
+            assertNull(handlers[i].lastEvent);
+            list.add(events[i].Id(), handlers[i]);
+        }
 
-
-        list.add(event1.Id(), handler1);
-        list.add(event1.Id(), handler1a);
-        list.add(event2.Id(), handler2);
-
-        list.process(event1);
-
-        assertEquals(event1, handler1.lastEvent);
-        assertEquals(event1, handler1a.lastEvent);
-        assertNull(handler2.lastEvent);
-
-        list.process(event2);
-
-        assertEquals(event1, handler1.lastEvent);
-        assertEquals(event1, handler1a.lastEvent);
-        assertEquals(event2, handler2.lastEvent);
-
-        list.process(event3);
-
-        assertEquals(event1, handler1.lastEvent);
-        assertEquals(event1, handler1a.lastEvent);
-        assertEquals(event2, handler2.lastEvent);
-
-        list.process(null);
-
-        assertEquals(event1, handler1.lastEvent);
-        assertEquals(event1, handler1a.lastEvent);
-        assertEquals(event2, handler2.lastEvent);
-
+        for (int i = 0; i < events.length; i++) {
+            list.process(events[i]);
+            assertEquals(events[i], handlers[i].lastEvent);
+            handlers[i].lastEvent = null;
+            for (int j = 0; j < events.length; j++) {
+                assertNull(handlers[j].lastEvent);
+            }
+        }
+        list.process(null); //No throw
+        list.process(new TestEvent("Unknown")); //No throw
     }
 
     @Test
-    public void testWeakReferenceProcess() {
+    public void testAnonymousCallback() {
 
         list = new EventSubscriberList();
-        EventHandler handler = new EventHandler();
+
         TestEvent event = new TestEvent("An event");
-        list.add(event.Id(), handler);
+        final AtomicInteger integer = new AtomicInteger(0);
 
-        WeakReference<EventHandler> ref = new WeakReference<>(handler);
-        assertNotNull(ref.get());
+        list.add(event.Id(), new EventSubscriber() {
+            @Override
+            public void event(Event event) {
+                integer.set(integer.get() + 1);
 
-        handler = null;
+            }
+        });
+
+
+        //Call garbage collector to test that callback is not cleared
         System.gc();
 
-        //Lets check that tc is cleaned
-        assertNull(ref.get());
-
-        //Lets check that tc is not cleaned in contains (performance reason)
-        assertTrue(list.contains(event.Id()));
-
+        assertEquals(0, integer.get());
         list.process(event);
-
-        //Lets check that tc is cleaned in process
-        assertFalse(list.contains(event.Id()));
-    }
-
-    @Test
-    public void testWeakReferenceIsEmpty() {
-
-        list = new EventSubscriberList();
-        EventHandler handler = new EventHandler();
-        TestEvent event = new TestEvent("An event");
-        list.add(event.Id(), handler);
-
-        WeakReference<EventHandler> ref = new WeakReference<>(handler);
-        assertNotNull(ref.get());
-
-        handler = null;
-        System.gc();
-
-        //Lets check that tc is cleaned
-        assertNull(ref.get());
-        
-       
-        //Cause clean
-        list.add(null, null);
-
-        //Lets check that tc is cleaned in isEmpty
-        assertTrue(list.isEmpty());
-        
-        assertFalse(list.contains(event.Id()));
+        assertEquals(1, integer.get());
 
     }
 }

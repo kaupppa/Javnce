@@ -17,7 +17,6 @@
 package org.javnce.eventing;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
@@ -100,7 +99,7 @@ public class ChannelSubscriberListTest {
             assertFalse(r.isAlive());
         }
     }
-    
+
     @Test
     public void testWakeupBeforeRunning() throws Exception {
 
@@ -111,7 +110,7 @@ public class ChannelSubscriberListTest {
             list.add(loopback.channel1(), tc, SelectionKey.OP_READ);
 
             list.wakeup();
-            
+
             Thread r = createThread(list);
 
             //Wakeup cause list.process(0) to exit
@@ -185,33 +184,34 @@ public class ChannelSubscriberListTest {
     }
 
     @Test
-    public void testWeakReference() throws Exception {
+    public void testAnonymousCallback() throws Exception {
         try (LoopbackChannelPair loopback = new LoopbackChannelPair()) {
             list = new ChannelSubscriberList();
 
-            TestClass tc = new TestClass();
+            final ByteBuffer buffer = ByteBuffer.allocate(100);
 
-            list.add(loopback.channel1(), tc, SelectionKey.OP_READ);
+            list.add(loopback.channel1(), new ChannelSubscriber() {
+                @Override
+                public void channel(SelectionKey key) {
+                    try {
+                        ((SocketChannel) key.channel()).read(buffer);
+                    } catch (IOException e) {
+                    }
+                }
+            }, SelectionKey.OP_READ);
 
-            WeakReference<TestClass> ref = new WeakReference<>(tc);
-            
-            assertNotNull(ref.get());
-            
-            tc = null;
+            //Call garbage collector to test that callback is not cleared
             System.gc();
-            
-            //Lets check that tc is cleaned
-            assertNull(ref.get());
-            
+
             Thread r = createThread(list);
             assertTrue(r.isAlive());
 
-            //Wakeup the thread
             int length = 10;
             loopback.channel2().write(ByteBuffer.allocate(length));
+
             r.join(WaitTime);
-            
-            list.process(0); //This will not block as write caused a remove
+
+            assertEquals(length, buffer.position());
         }
     }
 }

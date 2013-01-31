@@ -96,7 +96,7 @@ class TimerContainer {
     /**
      * Tests if any timers
      *
-     * @param false if no timers
+     * @return true, if no timers
      */
     public boolean isEmpty() {
         return timers.isEmpty();

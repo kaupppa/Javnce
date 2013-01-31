@@ -119,15 +119,14 @@ public class EventLoop implements Runnable, EventDispatcher {
      * Wakeup the event loop.
      */
     private void wakeup() {
-    	queue.add(wakeupEvent);
+        queue.add(wakeupEvent);
         channelSubscribers.wakeup();
     }
 
     /**
      * Tests if runnable.
      *
-     * @return true, if is runnable
-     * @returns true if runnable
+     * @return true, if runnable
      */
     boolean isRunnable() {
         boolean runnable = false;
@@ -308,7 +307,8 @@ public class EventLoop implements Runnable, EventDispatcher {
     }
 
     /**
-     * Event subscribing of given event id.
+     * Event subscribing of given event id. Previous subscriber for event will
+     * be removed, if any.
      *
      * @param id the id
      * @param object the callback object
@@ -325,12 +325,11 @@ public class EventLoop implements Runnable, EventDispatcher {
      * Removes the event subscribe.
      *
      * @param id the id
-     * @param object the callback object
      */
-    public void removeSubscribe(EventId id, EventSubscriber object) {
+    public void removeSubscribe(EventId id) {
         if (isRunnable()) {
             synchronized (eventSubscribers) {
-                eventSubscribers.remove(id, object);
+                eventSubscribers.remove(id);
             }
         }
     }

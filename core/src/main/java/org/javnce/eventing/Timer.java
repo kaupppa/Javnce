@@ -16,8 +16,6 @@
  */
 package org.javnce.eventing;
 
-import java.lang.ref.WeakReference;
-
 /**
  * The Timer Class provides timer is a timer with millisecond accuracy.
  *
@@ -32,7 +30,7 @@ public class Timer {
     /**
      * The callback.
      */
-    final private WeakReference<TimeOutCallback> ref;
+    final private TimeOutCallback callback;
 
     /**
      * Instantiates a new timer.
@@ -45,19 +43,18 @@ public class Timer {
         if (null != callback) {
             timeout = timeInMilliSeconds + System.currentTimeMillis();
         }
-        ref = new WeakReference<>(callback);
+        this.callback = callback;
     }
 
     /**
      * Process timer.
      *
-     * @param currentTime as in {@link System.currentTimeMillis();
+     * @param currentTime as in {@link System.currentTimeMillis()};
      * @return the time left to timer expires, zero if expired
      */
     long process(long currentTime) {
         if (isActive() && currentTime >= timeout) {
             stop();
-            TimeOutCallback callback = ref.get();
             if (null != callback) {
                 callback.timeout();
             }
@@ -79,7 +76,7 @@ public class Timer {
      */
     boolean isActive() {
         boolean active = false;
-        if (timeout != 0 && null != ref.get()) {
+        if (timeout != 0 && null != callback) {
             active = true;
         }
         return active;

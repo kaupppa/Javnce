@@ -15,13 +15,13 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * The package provides event publish/subscribe between threads.
- * 
+ * The package provides event publish/subscribe between threads, socket handling
+ * and timer for threads.
+ *
  * <p> The event loop are implemented as runnable with following features: <ul>
  * <li>Events between threads</li> <li>Non-blocking socket handling</li>
- * <li>Timer</li>
- * <li>Event groups</li> </ul> </p>
- * 
+ * <li>Timer</li> <li>Event groups</li> </ul> </p>
+ *
  * For an example, see {@link org.javnce.examples.PingPong.PingPong }.
  */
 package org.javnce.eventing;

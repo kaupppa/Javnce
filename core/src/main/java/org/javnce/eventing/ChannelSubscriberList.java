@@ -17,7 +17,6 @@
 package org.javnce.eventing;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -105,9 +104,9 @@ class ChannelSubscriberList {
     private void processSelectionKeys(Set<SelectionKey> keys) {
         for (Iterator<SelectionKey> i = keys.iterator(); i.hasNext();) {
             SelectionKey key = i.next();
-            i.remove();
             processSelectionKey(key);
         }
+        keys.clear();
 
     }
 
@@ -117,14 +116,11 @@ class ChannelSubscriberList {
      */
     private void processSelectionKey(SelectionKey key) {
         Object obj = key.attachment();
-        if (null != obj && obj instanceof WeakReference) {
-
-            @SuppressWarnings("unchecked")
-            WeakReference<ChannelSubscriber> ref = (WeakReference<ChannelSubscriber>) obj;
-            ChannelSubscriber callback = (ChannelSubscriber) ref.get();
-            if (null != callback) {
-                callback.channel(key);
-            }
+        if (null != obj && obj instanceof ChannelSubscriber) {
+            ChannelSubscriber callback = (ChannelSubscriber) obj;
+            callback.channel(key);
+        } else {
+            throw new IllegalArgumentException("SelectionKey key attachment removed or changed ?");
         }
     }
 
@@ -141,7 +137,7 @@ class ChannelSubscriberList {
     void add(SelectableChannel channel, ChannelSubscriber object, int ops) throws IOException {
         init();
         if (null != selector) {
-            channel.register(selector, ops, new WeakReference<>(object));
+            channel.register(selector, ops, object);
         }
     }
 

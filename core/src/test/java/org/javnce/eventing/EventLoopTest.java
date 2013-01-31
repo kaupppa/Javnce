@@ -18,6 +18,7 @@ package org.javnce.eventing;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.After;
@@ -80,7 +81,6 @@ public class EventLoopTest {
         assertFalse(thread.isAlive());
     }
 
-
     @Test
     public void testDispatchEvent() {
         EventTester tester = new EventTester(null);
@@ -91,7 +91,7 @@ public class EventLoopTest {
 
         tester.thread.start();
         tester.eventLoop.dispatchEvent(event);
-        
+
         sleep();
         assertEquals(1, tester.events.size());
 
@@ -215,7 +215,7 @@ public class EventLoopTest {
         assertEquals(1, tester.events.size());
         tester.events.clear();
 
-        tester.eventLoop.removeSubscribe(event.Id(), tester);
+        tester.eventLoop.removeSubscribe(event.Id());
         tester.eventLoop.publish(event);
 
         sleep();
@@ -233,11 +233,10 @@ public class EventLoopTest {
         tester.eventLoop.shutdown();
 
         //Remove after shutdown
-        tester.eventLoop.removeSubscribe(event.Id(), tester);
+        tester.eventLoop.removeSubscribe(event.Id());
         assertFalse(h.called);
         EventLoop.setErrorHandler(old);
     }
-
 
     @Test
     public void testSubscribeSelectableChannel() throws Exception {
@@ -330,7 +329,7 @@ public class EventLoopTest {
         EventTester tester = new EventTester(null);
 
         //Remove
-        tester.eventLoop.removeSubscribe(null);
+        tester.eventLoop.removeSubscribe((SocketChannel) null);
 
         assertFalse(h.called);
         EventLoop.setErrorHandler(old);
@@ -358,7 +357,6 @@ public class EventLoopTest {
             fail();
         }
     }
-
 
     @Test
     public void testShutdownAllInTheGroup() throws InterruptedException {
@@ -438,7 +436,7 @@ public class EventLoopTest {
         sleep();
 
         assertFalse(tester.thread.isAlive());
-        
+
         tester.eventLoop.shutdownGroup();
     }
 
