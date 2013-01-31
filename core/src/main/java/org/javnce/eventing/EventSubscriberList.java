@@ -22,6 +22,8 @@ import java.util.Map;
 /**
  * The event subscriber collection with callback handling.
  *
+ * The EventSubscriberList is thread safe.
+ *
  */
 class EventSubscriberList {
 
@@ -29,12 +31,17 @@ class EventSubscriberList {
      * The map of event subscribers.
      */
     final private Map<EventId, EventSubscriber> map;
+    /**
+     * The synchronization lock.
+     */
+    final private Object lock;
 
     /**
      * Instantiates a new event subscriber list.
      */
     EventSubscriberList() {
         map = new HashMap<>();
+        lock = new Object();
     }
 
     /**
@@ -45,7 +52,9 @@ class EventSubscriberList {
      */
     void add(EventId id, EventSubscriber handler) {
         if (null != handler && null != id) {
-            map.put(id, handler);
+            synchronized (lock) {
+                map.put(id, handler);
+            }
         }
     }
 
@@ -55,7 +64,9 @@ class EventSubscriberList {
      * @param id the event id of subscribed event
      */
     void remove(EventId id) {
-        map.remove(id);
+        synchronized (lock) {
+            map.remove(id);
+        }
     }
 
     /**
@@ -65,7 +76,11 @@ class EventSubscriberList {
      * @return true, if subscriber
      */
     boolean contains(EventId id) {
-        return map.containsKey(id);
+        boolean contains = false;
+        synchronized (lock) {
+            contains = map.containsKey(id);
+        }
+        return contains;
     }
 
     /**
@@ -73,14 +88,28 @@ class EventSubscriberList {
      *
      * @param event the event that is passed to all subscribers.
      */
-    void process(Event event) {
+    synchronized void process(Event event) {
         if (null == event) {
             return;
         }
         EventSubscriber subscriber = map.get(event.Id());
         if (null != subscriber) {
+            //Note that subscriber.event must be called outside of synchronized (lock)
             subscriber.event(event);
         }
+    }
+
+    /**
+     * Subscriber getter.
+     *
+     * @return EventSubscriber object or null if not found.
+     */
+    private EventSubscriber get(EventId id) {
+        EventSubscriber subscriber = null;
+        synchronized (lock) {
+            subscriber = map.get(id);
+        }
+        return subscriber;
     }
 
     /**
@@ -89,6 +118,11 @@ class EventSubscriberList {
      * @return true if no subscribers
      */
     boolean isEmpty() {
-        return map.isEmpty();
+        boolean empty = false;
+
+        synchronized (lock) {
+            empty = map.isEmpty();
+        }
+        return empty;
     }
 }

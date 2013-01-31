@@ -22,7 +22,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * The Class for handling timer and timeout
+ * The Class for handling timer and timeout.
+ *
+ * The TimerContainer is thread safe.
  */
 class TimerContainer {
 
@@ -30,12 +32,17 @@ class TimerContainer {
      * The collection of timers.
      */
     final private List<Timer> timers;
+    /**
+     * The synchronization lock.
+     */
+    final private Object lock;
 
     /**
      * Instantiates a new timer container.
      */
     public TimerContainer() {
         timers = new ArrayList<>();
+        lock = new Object();
     }
 
     /**
@@ -52,7 +59,7 @@ class TimerContainer {
      *
      * @return the timeout of next timer. Zero if no timers
      */
-    public long process() {
+    synchronized public long process() {
         long timeout = 0;
         if (!isEmpty()) {
             timeout = process(System.currentTimeMillis());
@@ -64,15 +71,15 @@ class TimerContainer {
     /**
      * Do the process.
      *
+     * Note that timer.process() must be called out side of the lock.
+     *
      * @param currentTime the current time
      * @return the timeout of next timer. Zero if no timers
      */
     private long process(long currentTime) {
         long timeout = Long.MAX_VALUE;
 
-        //Take a snapshot as timer process may modidy the orginal list
-        ArrayList<Timer> list = new ArrayList<>(timers);
-        for (Iterator<Timer> i = list.iterator(); i.hasNext();) {
+        for (Iterator<Timer> i = snapshot().iterator(); i.hasNext();) {
             Timer timer = i.next();
             long timerTimeout = timer.process(currentTime);
             if (timer.isActive()) {
@@ -83,12 +90,27 @@ class TimerContainer {
     }
 
     /**
+     * Get a snapshot of timers.
+     *
+     * @return the list of current timers.
+     */
+    private ArrayList<Timer> snapshot() {
+        ArrayList<Timer> list = null;
+        synchronized (lock) {
+            list = new ArrayList<>(timers);
+        }
+        return list;
+    }
+
+    /**
      * Remove expired timers.
      */
     private void clear() {
-        for (Iterator<Timer> i = timers.iterator(); i.hasNext();) {
-            if (!i.next().isActive()) {
-                i.remove();
+        synchronized (lock) {
+            for (Iterator<Timer> i = timers.iterator(); i.hasNext();) {
+                if (!i.next().isActive()) {
+                    i.remove();
+                }
             }
         }
     }
@@ -100,7 +122,9 @@ class TimerContainer {
      */
     public void add(Timer timer) {
         if (null != timer) {
-            timers.add(timer);
+            synchronized (lock) {
+                timers.add(timer);
+            }
         }
     }
 
@@ -110,6 +134,11 @@ class TimerContainer {
      * @return true, if no timers
      */
     public boolean isEmpty() {
-        return timers.isEmpty();
+        boolean empty = false;
+        synchronized (lock) {
+            empty = timers.isEmpty();
+        }
+        return empty;
     }
+
 }

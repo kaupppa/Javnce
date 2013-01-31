@@ -24,7 +24,9 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Read/write event subscriber handling class.
+ * The ChannelSubscriberList is socket channel subscriber handling class.
+ *
+ * The ChannelSubscriberList is thread safe.
  *
  */
 class ChannelSubscriberList {
@@ -33,20 +35,27 @@ class ChannelSubscriberList {
      * The selector.
      */
     private Selector selector;
+    /**
+     * The synchronization lock.
+     */
+    final private Object lock;
 
     /**
      * Instantiates a new channel subscriber list.
      */
     ChannelSubscriberList() {
         selector = null;
+        lock = new Object();
     }
 
     /**
      * Opens the selector if not existing
      */
     private void init() throws IOException {
-        if (null == selector) {
-            selector = Selector.open();
+        synchronized (lock) {
+            if (null == selector) {
+                selector = Selector.open();
+            }
         }
     }
 
@@ -54,8 +63,10 @@ class ChannelSubscriberList {
      * Method to wake up the selector.
      */
     void wakeup() {
-        if (null != selector) {
-            selector.wakeup();
+        synchronized (lock) {
+            if (null != selector) {
+                selector.wakeup();
+            }
         }
     }
 
@@ -63,10 +74,12 @@ class ChannelSubscriberList {
      * Closes the selector.
      */
     void close() {
-        if (null != selector) {
-            try {
-                selector.close();
-            } catch (IOException e) {
+        synchronized (lock) {
+            if (null != selector) {
+                try {
+                    selector.close();
+                } catch (IOException e) {
+                }
             }
         }
     }
@@ -77,9 +90,13 @@ class ChannelSubscriberList {
      * @return true, if is empty
      */
     boolean isEmpty() {
-        return (null == selector
-                || false == selector.isOpen()
-                || selector.keys().isEmpty());
+        boolean empty = false;
+        synchronized (lock) {
+            empty = (null == selector
+                    || false == selector.isOpen()
+                    || selector.keys().isEmpty());
+        }
+        return empty;
     }
 
     /**
@@ -89,7 +106,7 @@ class ChannelSubscriberList {
      * @param timeOut Max wait time
      * @throws IOException Signals that an I/O exception has occurred.
      */
-    void process(long timeOut) throws IOException {
+    synchronized void process(long timeOut) throws IOException {
         if (!isEmpty()) {
             if (0 < selector.select(Math.max(timeOut, 0))) {
                 processSelectionKeys(selector.selectedKeys());
@@ -136,8 +153,10 @@ class ChannelSubscriberList {
      */
     void add(SelectableChannel channel, ChannelSubscriber object, int ops) throws IOException {
         init();
-        if (null != selector) {
-            channel.register(selector, ops, object);
+        synchronized (lock) {
+            if (null != selector) {
+                channel.register(selector, ops, object);
+            }
         }
     }
 
@@ -148,16 +167,18 @@ class ChannelSubscriberList {
      */
     void remove(SelectableChannel channel) {
         if (!isEmpty()) {
-            Set<SelectionKey> selectedKeys = selector.keys();
-            Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
+            synchronized (lock) {
+                Set<SelectionKey> selectedKeys = selector.keys();
+                Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
 
-            while (keyIterator.hasNext()) {
-                SelectionKey key = keyIterator.next();
+                while (keyIterator.hasNext()) {
+                    SelectionKey key = keyIterator.next();
 
-                if (key.channel().equals(channel)) {
-                    key.cancel();
-                    wakeup();
-                    break;
+                    if (key.channel().equals(channel)) {
+                        key.cancel();
+                        wakeup();
+                        break;
+                    }
                 }
             }
         }

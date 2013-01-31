@@ -143,9 +143,7 @@ public class EventLoop implements Runnable, EventDispatcher {
      */
     public void addTimer(Timer timer) {
         if (isRunnable()) {
-            synchronized (timers) {
-                timers.add(timer);
-            }
+            timers.add(timer);
         }
     }
 
@@ -172,9 +170,7 @@ public class EventLoop implements Runnable, EventDispatcher {
 
         long timeOut = 0;
         if (isRunnable()) {
-            synchronized (timers) {
-                timeOut = timers.process();
-            }
+            timeOut = timers.process();
         }
         return timeOut;
     }
@@ -186,9 +182,7 @@ public class EventLoop implements Runnable, EventDispatcher {
      */
     private void processEvent(Event event) {
         if (null != event && wakeupEvent != event && isRunnable()) {
-            synchronized (eventSubscribers) {
-                eventSubscribers.process(event);
-            }
+            eventSubscribers.process(event);
         }
     }
 
@@ -236,20 +230,7 @@ public class EventLoop implements Runnable, EventDispatcher {
      * @return true, if no timers or subscribers
      */
     private boolean isEmpty() {
-        boolean empty = false;
-        boolean timerEmpty = false;
-        boolean eventsEmpty = false;
-
-        synchronized (timers) {
-            timerEmpty = timers.isEmpty();
-        }
-        synchronized (eventSubscribers) {
-            eventsEmpty = eventSubscribers.isEmpty();
-        }
-        if (channelSubscribers.isEmpty() && eventsEmpty && timerEmpty) {
-            empty = true;
-        }
-        return empty;
+        return (channelSubscribers.isEmpty() && timers.isEmpty() && eventSubscribers.isEmpty());
     }
 
     /**
@@ -315,9 +296,7 @@ public class EventLoop implements Runnable, EventDispatcher {
      */
     public void subscribe(EventId id, EventSubscriber object) {
         if (isRunnable()) {
-            synchronized (eventSubscribers) {
-                eventSubscribers.add(id, object);
-            }
+            eventSubscribers.add(id, object);
         }
     }
 
@@ -328,9 +307,8 @@ public class EventLoop implements Runnable, EventDispatcher {
      */
     public void removeSubscribe(EventId id) {
         if (isRunnable()) {
-            synchronized (eventSubscribers) {
-                eventSubscribers.remove(id);
-            }
+            eventSubscribers.remove(id);
+
         }
     }
 
@@ -413,12 +391,11 @@ public class EventLoop implements Runnable, EventDispatcher {
     public boolean dispatchEvent(Event event) {
         boolean supported = false;
         if (isRunnable()) {
-            synchronized (eventSubscribers) {
-                supported = eventSubscribers.contains(event.Id());
-                if (supported) {
-                    queue.add(event);
-                }
+            supported = eventSubscribers.contains(event.Id());
+            if (supported) {
+                queue.add(event);
             }
+
         }
         if (supported) {
             wakeup();
