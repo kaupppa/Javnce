@@ -53,13 +53,17 @@ public class Timer {
      * @return the time left to timer expires, zero if expired
      */
     long process(long currentTime) {
-        if (isActive() && currentTime >= timeout) {
-            stop();
-            if (null != callback) {
-                callback.timeout();
+        long nextTimeOut = 0;
+        if (isActive()) {
+            nextTimeOut = Math.max(timeout - currentTime, 0);
+            if (currentTime >= timeout) {
+                stop();
+                if (null != callback) {
+                    callback.timeout();
+                }
             }
         }
-        return Math.max(timeout - currentTime, 0);
+        return nextTimeOut;
     }
 
     /**

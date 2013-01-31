@@ -60,6 +60,7 @@ public class TimerContainerTest {
             Thread.sleep(nextTimeOut);
 
             nextTimeOut = container.process();
+
             //nextTimeOut cannot be bigger then Interval
             assertTrue(Interval >= nextTimeOut);
             if ((i + 1) == callbacks.length) {

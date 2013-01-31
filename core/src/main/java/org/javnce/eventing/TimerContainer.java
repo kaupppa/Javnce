@@ -16,9 +16,9 @@
  */
 package org.javnce.eventing;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -29,13 +29,13 @@ class TimerContainer {
     /**
      * The collection of timers.
      */
-    final private Set<Timer> timers;
+    final private List<Timer> timers;
 
     /**
      * Instantiates a new timer container.
      */
     public TimerContainer() {
-        timers = new HashSet<>();
+        timers = new ArrayList<>();
     }
 
     /**
@@ -56,6 +56,7 @@ class TimerContainer {
         long timeout = 0;
         if (!isEmpty()) {
             timeout = process(System.currentTimeMillis());
+            clear();
         }
         return timeout;
     }
@@ -67,19 +68,29 @@ class TimerContainer {
      * @return the timeout of next timer. Zero if no timers
      */
     private long process(long currentTime) {
-        long timeout = 0;
-        for (Iterator<Timer> i = timers.iterator(); i.hasNext();) {
+        long timeout = Long.MAX_VALUE;
+
+        //Take a snapshot as timer process may modidy the orginal list
+        ArrayList<Timer> list = new ArrayList<>(timers);
+        for (Iterator<Timer> i = list.iterator(); i.hasNext();) {
             Timer timer = i.next();
             long timerTimeout = timer.process(currentTime);
-            if (0 >= timerTimeout) {
-                i.remove();
-            } else if (0 == timeout) {
-                timeout = timerTimeout;
-            } else {
+            if (timer.isActive()) {
                 timeout = Math.min(timeout, timerTimeout);
             }
         }
-        return timeout;
+        return (timeout == Long.MAX_VALUE ? 0 : timeout);
+    }
+
+    /**
+     * Remove expired timers.
+     */
+    private void clear() {
+        for (Iterator<Timer> i = timers.iterator(); i.hasNext();) {
+            if (!i.next().isActive()) {
+                i.remove();
+            }
+        }
     }
 
     /**
