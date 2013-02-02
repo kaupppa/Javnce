@@ -446,7 +446,7 @@ public class EventLoop implements Runnable, EventDispatcher {
     }
 
     /**
-     * Shutdown.
+     * Shutdown this event loop.
      */
     public void shutdown() {
         shutdown((EventGroup) null);

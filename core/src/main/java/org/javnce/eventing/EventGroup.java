@@ -28,7 +28,7 @@ import java.util.Set;
  * The Class EventGroup is a event dispatcher container class. EventGroup
  * contains event dispatcher and child groups. EventGroup is thread safe.
  */
-public class EventGroup {
+class EventGroup {
 
     /**
      * The synchronization lock.
@@ -66,7 +66,7 @@ public class EventGroup {
      *
      * @return the root group
      */
-    public static EventGroup instance() {
+    static EventGroup instance() {
         return root;
     }
 
@@ -142,7 +142,7 @@ public class EventGroup {
     /**
      * Request Shutdown of all child groups and dispatcher.
      */
-    public void shutdown() {
+    void shutdown() {
 
         //Loop all children
         for (Iterator<EventGroup> i = childrenList().iterator(); i.hasNext();) {
