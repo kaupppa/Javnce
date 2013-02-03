@@ -19,56 +19,29 @@ package org.javnce.vnc.server.platform;
 import java.nio.ByteBuffer;
 import org.javnce.rfb.types.*;
 
-/**
- * The Class DummyDevice implements FramebufferDevice with fixed data. The
- * PointerDevice and KeyBoardDevice implementations doesn't do anything.
- *
- * DummyDevice is used in view access for PointerDevice and KeyBoardDevice.
- */
-class DummyDevice implements FramebufferDevice, PointerDevice, KeyBoardDevice {
+class DummyFramebufferDevice extends FramebufferDevice {
 
-    /**
-     * The size.
-     */
     final private Size size;
-    /**
-     * The format.
-     */
     final private PixelFormat format;
-    /**
-     * The buffer.
-     */
     final private byte[] buffer;
 
-    /**
-     * Instantiates a new dummy device.
-     */
-    DummyDevice() {
+    DummyFramebufferDevice() {
         size = new Size(1440, 900);
         format = PixelFormat.createARGB888();
         buffer = new byte[size.width() * size.height() * format.bytesPerPixel()];
         updateBuffer();
     }
 
-    /* (non-Javadoc)
-     * @see org.javnce.vnc.server.platform.FramebufferDevice#size()
-     */
     @Override
     public Size size() {
         return size;
     }
 
-    /* (non-Javadoc)
-     * @see org.javnce.vnc.server.platform.FramebufferDevice#format()
-     */
     @Override
     public PixelFormat format() {
         return format;
     }
 
-    /**
-     * Update buffer.
-     */
     private void updateBuffer() {
         byte fillByte = (byte) 0x77;
 
@@ -77,9 +50,6 @@ class DummyDevice implements FramebufferDevice, PointerDevice, KeyBoardDevice {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javnce.vnc.server.platform.FramebufferDevice#buffer(int, int, int, int)
-     */
     @Override
     public ByteBuffer[] buffer(int x, int y, int width, int height) {
         ByteBuffer[] buffers = null;
@@ -101,24 +71,8 @@ class DummyDevice implements FramebufferDevice, PointerDevice, KeyBoardDevice {
         return buffers;
     }
 
-    /* (non-Javadoc)
-     * @see org.javnce.vnc.server.platform.KeyBoardDevice#keyEvent(boolean, long)
-     */
     @Override
-    public void keyEvent(boolean down, long key) {
+    public void grabScreen() {
         //Do nothing
     }
-
-    /* (non-Javadoc)
-     * @see org.javnce.vnc.server.platform.PointerDevice#pointerEvent(int, int, int)
-     */
-    @Override
-    public void pointerEvent(int mask, int x, int y) {
-        //Do nothing
-    }
-
-	@Override
-	public void grabScreen() {
-		//Do nothing
-	}
 }

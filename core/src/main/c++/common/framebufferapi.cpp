@@ -65,6 +65,7 @@ jobjectArray getBuffer(AbstractFrameBuffer *fb, JNIEnv *env, jint x, jint y, jin
         {
             jobject object = createByteBuffer(env, buffer + lineLength * y, height * lineLength);
             array = env->NewObjectArray(1, clazz, object);
+            env->DeleteLocalRef(object);
         }
         else
         {
@@ -75,6 +76,7 @@ jobjectArray getBuffer(AbstractFrameBuffer *fb, JNIEnv *env, jint x, jint y, jin
                 uint8_t *ptr = buffer + lineLength * y + x * bpp;
                 jobject object = createByteBuffer(env, ptr, width * bpp);
                 env->SetObjectArrayElement(array, i, object);
+                env->DeleteLocalRef(object);
             }
         }
     }

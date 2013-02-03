@@ -26,6 +26,5 @@ public class Configuration {
      */
     static public void shutdown() {
         ClientConfiguration.instance().shutdown();
-        ServerConfiguration.instance().shutdown();
     }
 }

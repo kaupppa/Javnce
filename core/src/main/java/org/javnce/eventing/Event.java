@@ -17,9 +17,12 @@
 package org.javnce.eventing;
 
 /**
- * The interface of an event. 
- * <p> The id must be class specific and created only
- * once for performance reasons. </p> <p> An example implementation: </p>
+ * The interface of an event.
+ *
+ * <p> The id must be class specific and created only once for performance
+ * reasons. </p>
+ *
+ * <p> An example implementation: </p>
  * <pre>
  * {@code
  *  public class MyEvent implements Event {
@@ -31,7 +34,7 @@ package org.javnce.eventing;
  * }
  * </pre>
  *
- * @see org.javnce.eventing.EventLoop#publish(org.javnce.eventing.Event) 
+ * @see org.javnce.eventing.EventLoop#publish(org.javnce.eventing.Event)
  * @see org.javnce.eventing.EventSubscriber
  */
 public interface Event {
@@ -41,5 +44,5 @@ public interface Event {
      *
      * @return the event id for the class
      */
-    public EventId Id();
+    EventId Id();
 }

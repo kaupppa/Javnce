@@ -22,15 +22,11 @@ import java.util.HashMap;
 import java.util.Map;
 import org.javnce.vnc.common.KeyMap;
 
-/**
- * Class for mapping keysey's to {@link Robot } key codes.
- *
- */
-class RobotKeyMap {
+class KeysymToAwtKeyCode {
 
     final private Map<Integer, Integer> map; //keysym as key and AWT key code as value
 
-    RobotKeyMap() {
+    KeysymToAwtKeyCode() {
         map = new HashMap<>();
         init();
     }
@@ -156,13 +152,6 @@ class RobotKeyMap {
         map.put(new Integer(KeyMap.XK_Up), new Integer(KeyEvent.VK_UP));
     }
 
-    /**
-     * Converts keysym into AWT/Robot key code.
-     *
-     * @param keysym is value to be converted
-     *
-     * @return AWT/Robot key code or KeyEvent.VK_UNDEFINED if unknown keysym
-     */
     public int keysymToRobotCode(int keysym) {
         int code = KeyEvent.VK_UNDEFINED;
 

@@ -17,28 +17,10 @@
  */
 package org.javnce.vnc.server.platform;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+public class DummyKeyBoardDevice extends KeyBoardDevice {
 
-public abstract class KeyBoardDevice {
-
-    public static KeyBoardDevice factory(boolean fullAccessMode) {
-        KeyBoardDevice dev = null;
-        if (fullAccessMode) {
-            if (XTestKeyBoard.isKeyBoardSupported()) {
-                dev = new XTestKeyBoard();
-            } else if (RobotKeyBoardDevice.isSupported()) {
-                dev = RobotKeyBoardDevice.instance();
-            }
-        }
-        if (null == dev) {
-            dev = new DummyKeyBoardDevice();
-        }
-        Logger.getLogger(KeyBoardDevice.class.getName())
-                .log(Level.INFO, "Using {0}", dev.getClass().getName());
-
-        return dev;
+    @Override
+    public void keyEvent(boolean down, long key) {
+        //Do nothing
     }
-
-    public abstract void keyEvent(boolean down, long key);
 }

@@ -56,7 +56,7 @@ public class VncClientController {
      * @param address the address
      * @param observer the observer
      */
-    public void start(InetSocketAddress address, VncClientObserver observer) {
+    public void start(InetSocketAddress address, RemoteVncServerObserver observer) {
         shutdown();
         client = new VncClient(address, observer);
         client.start();

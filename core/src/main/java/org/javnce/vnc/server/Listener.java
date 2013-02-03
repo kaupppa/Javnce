@@ -16,84 +16,71 @@
  */
 package org.javnce.vnc.server;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import org.javnce.eventing.ChannelSubscriber;
 import org.javnce.eventing.EventLoop;
 
-/**
- * The socket listener.
- */
 class Listener extends Thread implements ChannelSubscriber {
 
-    /**
-     * The server socket channel.
-     */
-    private ServerSocketChannel channel;
-    /**
-     * The event loop.
-     */
     final private EventLoop eventLoop;
-    /**
-     * The observer.
-     */
-    final private VncServerObserver observer;
+    final private VncServerController controller;
 
-    /**
-     * Instantiates a new listener.
-     *
-     * @param observer the observer
-     */
-    Listener(VncServerObserver observer) {
+    Listener(VncServerController controller) {
         eventLoop = new EventLoop();
-        this.observer = observer;
-        setName("Javne-Listener");
+        this.controller = controller;
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Thread#run()
-     */
+    void shutdown() {
+        eventLoop.shutdown();
+    }
+
+    private boolean bind(ServerSocketChannel channel, int port) {
+        boolean binded = false;
+        try {
+            channel.socket().bind(new InetSocketAddress(port));
+            binded = true;
+        } catch (IOException ex) {
+            if (0 != port) {
+                binded = bind(channel, 0);
+            } else {
+                EventLoop.fatalError(this, ex);
+            }
+        }
+
+        return binded;
+    }
+
     @Override
     public void run() {
-        try {
-            channel = ServerSocketChannel.open();
+        try (ServerSocketChannel channel = ServerSocketChannel.open()) {
             channel.configureBlocking(false);
             int port = 5900;
-            channel.socket().bind(new InetSocketAddress(port));
+            if (!bind(channel, port)) {
+                controller.setPort(0);
+                return;
+            }
             eventLoop.subscribe(channel, this, channel.validOps());
-
-            observer.listening(port);
+            controller.setPort(channel.socket().getLocalPort());
             eventLoop.process();
         } catch (Throwable ex) {
-            EventLoop.fatalError(this, ex);
-        }
-
-        try {
-            channel.close();
-        } catch (Throwable ex) {
+            controller.setPort(0);
             EventLoop.fatalError(this, ex);
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javnce.eventing.ChannelSubscriber#channel(java.nio.channels.SelectionKey)
-     */
     @Override
     public void channel(SelectionKey key) {
         try {
             if (key.isAcceptable()) {
-                observer.newConnection(channel.accept());
+                ServerSocketChannel channel = (ServerSocketChannel) key.channel();
+                RemoteClient client = new RemoteClient(channel.accept());
+                controller.addClient(client);
             }
         } catch (Throwable ex) {
             EventLoop.fatalError(this, ex);
         }
-    }
-
-    /**
-     * Shutdown.
-     */
-    void shutdown() {
-        eventLoop.shutdown();
     }
 }

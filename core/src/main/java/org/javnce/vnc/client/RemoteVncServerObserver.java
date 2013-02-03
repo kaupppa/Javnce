@@ -23,12 +23,12 @@ import org.javnce.rfb.types.Size;
 /**
  * The VNC client observer interface.
  */
-public interface VncClientObserver {
+public interface RemoteVncServerObserver {
 
     /**
      * This method is called when connection closes.
      */
-    public void connectionClosed();
+    void connectionClosed();
 
     /**
      * This method is called when framebuffer format and size is available.
@@ -36,12 +36,12 @@ public interface VncClientObserver {
      * @param format the framebuffer format
      * @param size the framebuffer size
      */
-    public void initFramebuffer(PixelFormat format, Size size);
+    void initFramebuffer(PixelFormat format, Size size);
 
     /**
      * This method is called when framebuffer update is received.
      *
      * @param buffers the framebuffers
      */
-    public void framebufferUpdate(Framebuffer[] buffers);
+    void framebufferUpdate(Framebuffer[] buffers);
 }

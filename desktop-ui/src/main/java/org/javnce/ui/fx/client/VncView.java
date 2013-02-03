@@ -38,13 +38,13 @@ import org.javnce.ui.fx.MainFrameObserver;
 import org.javnce.ui.fx.MessageBox;
 import org.javnce.ui.model.ClientConfiguration;
 import org.javnce.upnp.client.RemoteServerInfo;
+import org.javnce.vnc.client.RemoteVncServerObserver;
 import org.javnce.vnc.client.VncClientController;
-import org.javnce.vnc.client.VncClientObserver;
 
 /**
  * The VNC client view.
  */
-public class VncView extends AnchorPane implements Initializable, VncClientObserver, MainFrameObserver {
+public class VncView extends AnchorPane implements Initializable, RemoteVncServerObserver, MainFrameObserver {
 
     /**
      * The fxml url.

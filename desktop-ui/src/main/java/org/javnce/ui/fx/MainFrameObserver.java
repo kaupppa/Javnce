@@ -24,10 +24,10 @@ public interface MainFrameObserver {
     /**
      * Is called on back action.
      */
-    public void previousView();
+    void previousView();
 
     /**
      * Is called when next view is showed.
      */
-    public void nextView();
+    void nextView();
 }

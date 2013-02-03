@@ -25,25 +25,25 @@ import org.junit.Test;
 
 public class TestDummyDeviceTest {
 
-    private DummyDevice dev;
+    private DummyFramebufferDevice dev;
 
     @Test
     public void testDummyDevice() {
-        dev = new DummyDevice();
+        dev = new DummyFramebufferDevice();
 
         assertNotNull(dev);
     }
 
     @Test
     public void testSize() {
-        dev = new DummyDevice();
+        dev = new DummyFramebufferDevice();
         assertTrue(0 != dev.size().width());
         assertTrue(0 != dev.size().height());
     }
 
     @Test
     public void testFormat() {
-        dev = new DummyDevice();
+        dev = new DummyFramebufferDevice();
         assertTrue(dev.format().trueColour());
         assertTrue(!dev.format().bigEndian());
         assertTrue(dev.format().bitsPerPixel() >= dev.format().depth());
@@ -66,7 +66,7 @@ public class TestDummyDeviceTest {
 
     @Test
     public void testBuffer() {
-        dev = new DummyDevice();
+        dev = new DummyFramebufferDevice();
         PixelFormat format = dev.format();
         Size size = dev.size();
 
@@ -100,7 +100,7 @@ public class TestDummyDeviceTest {
 
     @Test
     public void testGrabScreen() {
-        dev = new DummyDevice();
+        dev = new DummyFramebufferDevice();
         dev.grabScreen();
     }
 }

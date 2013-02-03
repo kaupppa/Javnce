@@ -16,13 +16,8 @@
  */
 package org.javnce.ui.fx.server;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.URL;
-import java.nio.channels.SocketChannel;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -36,68 +31,28 @@ import javafx.util.Callback;
 import org.javnce.ui.fx.MainFrame;
 import org.javnce.ui.fx.MainFrameObserver;
 import org.javnce.ui.fx.MessageBox;
-import org.javnce.ui.model.ServerConfiguration;
-import org.javnce.upnp.server.UpnpServerController;
+import org.javnce.upnp.server.UpnPServer;
+import org.javnce.vnc.server.RemoteClient;
+import org.javnce.vnc.server.RemoteClientObserver;
 import org.javnce.vnc.server.VncServerController;
-import org.javnce.vnc.server.VncServerObserver;
 
-/**
- * The VNC server view showing connected clients.
- */
-public class ConnectedVncClients extends AnchorPane implements Initializable, VncServerObserver, MainFrameObserver {
+public class ConnectedVncClients extends AnchorPane implements Initializable, RemoteClientObserver, MainFrameObserver {
 
-    /**
-     * The fxml url.
-     */
     private final static URL fxmlUrl = ConnectedVncClients.class.getResource("ConnectedVncClients.fxml");
-    /**
-     * The VNC controller.
-     */
-    final private VncServerController vncController;
-    /**
-     * The UPnP controller.
-     */
-    final private UpnpServerController upnpController;
-    /**
-     * The server name.
-     */
+    private VncServerController vnc;
+    private UpnPServer upnp;
     final private String name;
-    /**
-     * The full access mode.
-     */
     final private boolean fullAccessMode;
-    /**
-     * The clients.
-     */
     final private ObservableList<String> items;
-    /**
-     * The list view.
-     */
     @FXML
     ListView<String> listView;
 
-    /**
-     * Instantiates a new connected VNC clients.
-     *
-     * @param name the name
-     * @param fullAccessMode the full access mode
-     */
     public ConnectedVncClients(String name, boolean fullAccessMode) {
         this.name = name;
         this.fullAccessMode = fullAccessMode;
-        vncController = ServerConfiguration.instance().getVncController();
-        upnpController = ServerConfiguration.instance().getUpnpController();
         items = FXCollections.observableArrayList();
     }
 
-    /**
-     * Creates the ConnectedVncClients.
-     *
-     * @param name the name
-     * @param fullAccessMode the full access mode
-     * @return the node
-     * @throws Exception the exception
-     */
     public static Node create(final String name, final boolean fullAccessMode) throws Exception {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(fxmlUrl);
@@ -110,93 +65,44 @@ public class ConnectedVncClients extends AnchorPane implements Initializable, Vn
         return (Node) loader.load();
     }
 
-    /**
-     * Initialize.
-     *
-     * @param url the url
-     * @param rb the rb
-     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         MainFrame.getMainFrame().setTitle("Server running");
         MainFrame.getMainFrame().addObserver(this);
-        vncController.start(fullAccessMode, this);
+
         listView.setItems(items);
+
+        vnc = new VncServerController(fullAccessMode);
+        vnc.addObserver(this);
+        vnc.launch();
+
+        int port = vnc.getPort();
+        if (0 < port) {
+            upnp = new UpnPServer(name, port);
+            upnp.start();
+        }
+
+
+
     }
 
-    /* (non-Javadoc)
-     * @see org.javnce.vnc.server.VncServerObserver#listening(int)
-     */
-    @Override
-    public void listening(final int port) {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                upnpController.start(name, port);
-            }
-        });
-    }
-
-    /* (non-Javadoc)
-     * @see org.javnce.vnc.server.VncServerObserver#connectionClosed(java.lang.Object)
-     */
-    @Override
-    public void connectionClosed(Object userData) {
-        final String address = (String) userData;
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                items.remove(address);
-            }
-        });
-    }
-
-    /* (non-Javadoc)
-     * @see org.javnce.vnc.server.VncServerObserver#newConnection(java.nio.channels.SocketChannel)
-     */
-    @Override
-    public void newConnection(final SocketChannel channel) {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                acceptnewConnection(channel);
-            }
-        });
-    }
-
-    /**
-     * Accept new connection.
-     *
-     * @param channel the channel
-     */
-    private void acceptnewConnection(SocketChannel channel) {
-        try {
-            String address = ((InetSocketAddress) channel.getRemoteAddress())
-                    .getAddress()
-                    .getCanonicalHostName();
-            String text = new MessageBox("Accept client ?",
-                    "New client from " + address, "Accept", "Decline").exec();
-            boolean accept = text.equals("Accept");
-            if (accept) {
-                items.add(address);
-            }
-            vncController.acceptConnection(this, channel, accept, address);
-        } catch (IOException ex) {
-            Logger.getLogger(ConnectedVncClients.class.getName()).log(Level.SEVERE, null, ex);
+    private void acceptConnection(RemoteClient client) {
+        String text = new MessageBox("Accept client ?",
+                "New client from " + client.address(), "Accept", "Decline").exec();
+        boolean accept = text.equals("Accept");
+        if (accept) {
+            client.connect();
+        } else {
+            client.disconnect();
         }
     }
 
-    /**
-     * Shutdown.
-     */
     private void shutdown() {
-        ServerConfiguration.instance().shutdown();
+        upnp.shutdown();
+        vnc.shutdown();
         MainFrame.getMainFrame().removeObserver(this);
     }
 
-    /* (non-Javadoc)
-     * @see org.javnce.ui.fx.MainFrameObserver#previousView()
-     */
     @Override
     public void previousView() {
         Platform.runLater(new Runnable() {
@@ -207,9 +113,6 @@ public class ConnectedVncClients extends AnchorPane implements Initializable, Vn
         });
     }
 
-    /* (non-Javadoc)
-     * @see org.javnce.ui.fx.MainFrameObserver#nextView()
-     */
     @Override
     public void nextView() {
         Platform.runLater(new Runnable() {
@@ -219,5 +122,40 @@ public class ConnectedVncClients extends AnchorPane implements Initializable, Vn
             }
         });
 
+    }
+
+    @Override
+    public void vncClientChanged(RemoteClient client) {
+        Runnable r = null;
+
+        if (RemoteClient.State.PendingConnection == client.state()) {
+            final RemoteClient temp = client;
+            r = new Runnable() {
+                @Override
+                public void run() {
+                    acceptConnection(temp);
+                }
+            };
+        } else if (RemoteClient.State.Connected == client.state()) {
+            final String address = client.address();
+            r = new Runnable() {
+                @Override
+                public void run() {
+                    items.add(address);
+                }
+            };
+        } else if (RemoteClient.State.Disconnected == client.state()) {
+            final String address = client.address();
+            r = new Runnable() {
+                @Override
+                public void run() {
+                    items.remove(address);
+                }
+            };
+        }
+
+        if (null != r) {
+            Platform.runLater(r);
+        }
     }
 }

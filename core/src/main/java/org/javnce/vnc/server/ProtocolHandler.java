@@ -34,12 +34,11 @@ import org.javnce.vnc.common.PointerEvent;
 import org.javnce.vnc.common.ReceiveMessageFactory;
 import org.javnce.vnc.common.ReceivedMsgEvent;
 import org.javnce.vnc.server.platform.FramebufferDevice;
-import org.javnce.vnc.server.platform.PlatformController;
 
 /**
  * The Class for handling communication with client.
  */
-class ServerProtocolHandler implements EventSubscriber, ReceiveMessageFactory {
+class ProtocolHandler implements EventSubscriber, ReceiveMessageFactory {
 
     /**
      * The Constant version.
@@ -48,7 +47,7 @@ class ServerProtocolHandler implements EventSubscriber, ReceiveMessageFactory {
     /**
      * The message handler.
      */
-    final private MessageDispatcher messageHandler;
+    private MessageDispatcher messageHandler;
     /**
      * The server name.
      */
@@ -80,17 +79,21 @@ class ServerProtocolHandler implements EventSubscriber, ReceiveMessageFactory {
      * @param eventLoop the event loop
      * @param channel the channel
      */
-    ServerProtocolHandler(EventLoop eventLoop, SocketChannel channel) {
+    ProtocolHandler(EventLoop eventLoop) {
         this.eventLoop = eventLoop;
-        FramebufferDevice dev = PlatformController.instance().getPlatformManager().getFramebufferDevice();
+        FramebufferDevice dev = FramebufferDevice.factory();
 
-        this.format = dev.format();
-        this.size = dev.size();
+        format = dev.format();
+        size = dev.size();
         receiveMessages = new ArrayList<>();
+        factoryMode = false;
+
+    }
+
+    void init(SocketChannel channel) {
         receiveMessages.add(new MsgProtocolVersion());
         receiveMessages.add(new MsgSelectedSecurityType());
         receiveMessages.add(new MsgClientInit());
-        factoryMode = false;
 
         eventLoop.subscribe(ReceivedMsgEvent.eventId(), this);
         messageHandler = new MessageDispatcher(eventLoop, channel, this);

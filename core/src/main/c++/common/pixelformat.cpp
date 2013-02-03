@@ -83,6 +83,8 @@ jobject PixelFormat::toJavaObject(JNIEnv *env)
     jobject object = env->NewObject(clazz, id, (jint)bitsPerPixel, (jint)depth,
                                     (jboolean)bigEndian, (jboolean)trueColour,
                                     max, shift);
+    env->DeleteLocalRef(max);
+    env->DeleteLocalRef(shift);
 
     if (NULL == object)
     {

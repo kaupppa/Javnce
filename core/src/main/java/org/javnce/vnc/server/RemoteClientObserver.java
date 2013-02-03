@@ -15,26 +15,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.javnce.eventing;
+package org.javnce.vnc.server;
 
-/**
- * The Interface EventDispatcher defines ChannelSubscriber controllers
- * interface.
- */
-interface EventDispatcher {
+public interface RemoteClientObserver {
 
-    /**
-     * Dispatch of published event.
-     *
-     * @param event the published event
-     * @return true, if event supported
-     */
-    boolean dispatchEvent(Event event);
-
-    /**
-     * Requests to shutdown the dispatcher.
-     *
-     * @param group the closing group where dispatcher belongs to.
-     */
-    void shutdown(EventGroup group);
+    void vncClientChanged(RemoteClient client);
 }

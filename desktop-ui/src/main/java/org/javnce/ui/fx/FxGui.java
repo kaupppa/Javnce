@@ -27,7 +27,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import org.javnce.eventing.EventLoop;
 import org.javnce.eventing.EventLoopErrorHandler;
-import org.javnce.ui.model.Configuration;
 
 /**
  * The Class FxGui is the main.
@@ -68,7 +67,8 @@ public class FxGui extends Application {
      */
     @Override
     public void stop() {
-        Configuration.shutdown();
+        EventLoop.shutdownAll();
+        Platform.exit();
     }
 
     /**
@@ -79,14 +79,22 @@ public class FxGui extends Application {
                 new EventLoopErrorHandler() {
                     @Override
                     public void fatalError(final Object object, final Throwable throwable) {
-
-                        Platform.runLater(new Runnable() {
+                        //New thread to make sure that no blocking 
+                        Thread t = new Thread(new Runnable() {
                             @Override
                             public void run() {
                                 Logger.getLogger(object.getClass().getName()).log(Level.SEVERE, null, throwable);
-                                stop();
+                                Platform.runLater(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        stop();
+                                    }
+                                });
+
                             }
-                        });
+                        }, "Javnce-fatalError");
+                        t.start();
+
                     }
                 });
     }

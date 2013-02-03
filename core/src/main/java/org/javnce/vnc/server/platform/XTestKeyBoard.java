@@ -16,15 +16,8 @@
  */
 package org.javnce.vnc.server.platform;
 
-/**
- * The Class XTestKeyBoard is Linux specific way to inject key events. Is a Jni
- * implementation.
- */
-class XTestKeyBoard implements KeyBoardDevice {
+class XTestKeyBoard extends KeyBoardDevice {
 
-    /**
-     * The lib name.
-     */
     final static private String libName = "XTestKeyBoard";
 
     static {
@@ -38,11 +31,6 @@ class XTestKeyBoard implements KeyBoardDevice {
         }
     }
 
-    /**
-     * Checks if is key board supported.
-     *
-     * @return true, if is key board supported
-     */
     static boolean isKeyBoardSupported() {
         boolean valid = false;
 
@@ -55,16 +43,8 @@ class XTestKeyBoard implements KeyBoardDevice {
         return valid;
     }
 
-    /**
-     * Checks for xtest.
-     *
-     * @return true, if successful
-     */
     public native boolean hasXTest();
 
-    /* (non-Javadoc)
-     * @see org.javnce.vnc.server.platform.KeyBoardDevice#keyEvent(boolean, long)
-     */
     @Override
     public native void keyEvent(boolean down, long key);
 }

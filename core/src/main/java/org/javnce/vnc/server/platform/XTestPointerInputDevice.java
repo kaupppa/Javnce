@@ -16,15 +16,8 @@
  */
 package org.javnce.vnc.server.platform;
 
-/**
- * The Class XTestPointerInputDevice is Linux specific way to inject pointer
- * events. Is a Jni implementation.
- */
-class XTestPointerInputDevice implements PointerDevice {
+class XTestPointerInputDevice extends PointerDevice {
 
-    /**
-     * The lib name.
-     */
     final static private String libName = "XTestPointerInputDevice";
 
     static {
@@ -39,11 +32,6 @@ class XTestPointerInputDevice implements PointerDevice {
         }
     }
 
-    /**
-     * Checks if is pointer supported.
-     *
-     * @return true, if is pointer supported
-     */
     static boolean isPointerSupported() {
         boolean valid = false;
 
@@ -55,16 +43,8 @@ class XTestPointerInputDevice implements PointerDevice {
         return valid;
     }
 
-    /**
-     * Can support.
-     *
-     * @return true, if successful
-     */
     public native boolean canSupport();
 
-    /* (non-Javadoc)
-     * @see org.javnce.vnc.server.platform.PointerDevice#pointerEvent(int, int, int)
-     */
     @Override
     public native void pointerEvent(int mask, int x, int y);
 }

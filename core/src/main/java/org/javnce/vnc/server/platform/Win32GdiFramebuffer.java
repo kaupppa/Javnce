@@ -18,12 +18,10 @@
 package org.javnce.vnc.server.platform;
 
 import java.nio.ByteBuffer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.javnce.rfb.types.PixelFormat;
 import org.javnce.rfb.types.Size;
 
-public class Win32GdiFramebuffer implements FramebufferDevice {
+public class Win32GdiFramebuffer extends FramebufferDevice {
 
     final static private String libName = getLibName();
 
@@ -31,7 +29,7 @@ public class Win32GdiFramebuffer implements FramebufferDevice {
         try {
             System.loadLibrary(libName);
         } catch (UnsatisfiedLinkError e) {
-            Logger.getLogger(Win32GdiFramebuffer.class.getName()).log(Level.INFO, "Couldn't load " + libName, e);
+            //Logger.getLogger(Win32GdiFramebuffer.class.getName()).log(Level.INFO, "Couldn't load " + libName, e);
         }
     }
 
@@ -65,6 +63,6 @@ public class Win32GdiFramebuffer implements FramebufferDevice {
     @Override
     public native ByteBuffer[] buffer(int x, int y, int width, int height);
 
-	@Override
-	public native void grabScreen();
+    @Override
+    public native void grabScreen();
 }

@@ -32,13 +32,13 @@ import org.javnce.rfb.types.Rect;
 import org.javnce.rfb.types.Size;
 import org.javnce.ui.model.ClientConfiguration;
 import org.javnce.upnp.client.RemoteServerInfo;
+import org.javnce.vnc.client.RemoteVncServerObserver;
 import org.javnce.vnc.client.VncClientController;
-import org.javnce.vnc.client.VncClientObserver;
 
 /**
  * The class for showing the vnc image.
  */
-public class VncPanel extends JPanel implements VncClientObserver {
+public class VncPanel extends JPanel implements RemoteVncServerObserver {
 
     /**
      * The image.

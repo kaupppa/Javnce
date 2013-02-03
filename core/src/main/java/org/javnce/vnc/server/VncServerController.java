@@ -16,101 +16,170 @@
  */
 package org.javnce.vnc.server;
 
-import java.io.IOException;
-import java.nio.channels.SocketChannel;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.javnce.vnc.server.platform.FullAccessPlatformFactory;
-import org.javnce.vnc.server.platform.PlatformController;
-import org.javnce.vnc.server.platform.PlatformFactory;
-import org.javnce.vnc.server.platform.ViewAccessPlatformFactory;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.javnce.eventing.EventLoop;
+import org.javnce.vnc.server.platform.FramebufferHandler;
+import org.javnce.vnc.server.platform.InputEventHandler;
 
-/**
- * The Class VncServerController takes care of listener, platform and worker
- * threads.
- */
 public class VncServerController {
 
-    /**
-     * The controller instance.
-     */
-    final static private VncServerController controller = new VncServerController();
-    /**
-     * The manager.
-     */
-    final private PlatformController manager;
-    /**
-     * The listener.
-     */
+    final private boolean fullAccessMode;
+    final private AtomicInteger port;
     private Listener listener;
+    private InputEventHandler inputEventHandler;
+    private FramebufferHandler framebufferHandler;
+    final private Set<RemoteClientObserver> observers;
+    final private Set<RemoteClient> clients;
+    final private Object lock;
 
-    /**
-     * Instantiates a new vnc server controller.
-     */
-    public VncServerController() {
-        manager = PlatformController.instance();
+    public VncServerController(boolean fullAccessMode) {
+        this.fullAccessMode = fullAccessMode;
+        port = new AtomicInteger(0);
+        observers = new HashSet<>();
+        clients = new HashSet<>();
+        lock = new Object();
     }
 
-    /**
-     * Instance.
-     *
-     * @return the vnc server controller
-     */
-    public static VncServerController instance() {
-        return controller;
-    }
-
-    /**
-     * Start listener and platform.
-     *
-     * @param fullAccessMode the access mode of platform
-     * @param observer the observer
-     */
-    public void start(boolean fullAccessMode, VncServerObserver observer) {
-        shutdown();
-        listener = new Listener(observer);
-        listener.start();
-        PlatformFactory factory;
-        if (fullAccessMode) {
-            factory = new FullAccessPlatformFactory();
-        } else {
-            factory = new ViewAccessPlatformFactory();
-        }
-        manager.start(factory);
-    }
-
-    /**
-     * Shutdown.
-     */
-    synchronized public void shutdown() {
-        manager.shutdown();
-        if (null != listener) {
-            listener.shutdown();
-        }
-        listener = null;
-
-    }
-
-    /**
-     * Accept connection. If accept is false then socket is closed else new
-     * worker is started.
-     *
-     * @param observer the observer
-     * @param channel the channel
-     * @param accept the accept
-     * @param userData the user data that is will be returned untouched 
-     * in {@link VncServerObserver#connectionClosed(java.lang.Object) }
-     */
-    synchronized public void acceptConnection(VncServerObserver observer, SocketChannel channel, boolean accept, Object userData) {
-        if (!accept) {
-            try {
-                channel.close();
-            } catch (IOException ex) {
-                Logger.getLogger(VncServerController.class.getName()).log(Level.INFO, null, ex);
+    public void launch() {
+        synchronized (lock) {
+            if (null == listener) {
+                listener = new Listener(this);
+                listener.start();
             }
-        } else {
-            Worker worker = new Worker(observer, channel, userData);
-            worker.start();
         }
+    }
+
+    void setPort(int listenerPort) {
+        synchronized (port) {
+            port.set(listenerPort);
+            port.notifyAll();
+        }
+    }
+
+    public int getPort() {
+
+        int temp = 0;
+        synchronized (port) {
+            if (0 == port.get()) {
+                try {
+                    port.wait();
+                } catch (InterruptedException ex) {
+                    EventLoop.fatalError(this, ex);
+                }
+            }
+            temp = port.get();
+        }
+        return temp;
+    }
+
+    void addClient(RemoteClient client) {
+        client.setController(this);
+        synchronized (lock) {
+            clients.add(client);
+        }
+        clientChanged(client);
+    }
+
+    void clientChanged(RemoteClient client) {
+
+        for (Iterator<RemoteClientObserver> i = observers().iterator(); i.hasNext();) {
+            i.next().vncClientChanged(client);
+        }
+        if (RemoteClient.State.Connected == client.state()) {
+            synchronized (lock) {
+                if (null == inputEventHandler) {
+                    inputEventHandler = new InputEventHandler(fullAccessMode);
+                    inputEventHandler.launch();
+                }
+                if (null == framebufferHandler) {
+                    framebufferHandler = new FramebufferHandler();
+                    framebufferHandler.launch();
+                }
+            }
+        }
+        if (RemoteClient.State.Disconnected == client.state()) {
+            boolean empty = false;
+            synchronized (lock) {
+                clients.remove(client);
+                empty = clients.isEmpty();
+            }
+            if (empty) {
+                stopHandlers();
+            }
+        }
+    }
+
+    private List<RemoteClientObserver> observers() {
+        ArrayList<RemoteClientObserver> list;
+
+        synchronized (lock) {
+            list = new ArrayList<>(observers);
+        }
+        return list;
+    }
+
+    private List<RemoteClient> clients() {
+        ArrayList<RemoteClient> list;
+
+        synchronized (lock) {
+            list = new ArrayList<>(clients);
+        }
+        return list;
+    }
+
+    public void addObserver(RemoteClientObserver observer) {
+
+        synchronized (lock) {
+            observers.add(observer);
+        }
+
+        for (Iterator<RemoteClient> i = clients().iterator(); i.hasNext();) {
+            observer.vncClientChanged(i.next());
+        }
+
+    }
+
+    public void removeObserver(RemoteClientObserver observer) {
+
+        synchronized (lock) {
+            observers.remove(observer);
+        }
+    }
+
+    public void shutdown() {
+        synchronized (lock) {
+            if (null != listener) {
+                //listener.shutdown();
+                //listener = null;
+            }
+            observers.clear();
+
+            for (Iterator<RemoteClient> i = clients.iterator(); i.hasNext();) {
+                i.next().disconnect();
+                i.remove();
+            }
+        }
+        stopHandlers();
+
+    }
+
+    private void stopHandlers() {
+        synchronized (lock) {
+            if (null != inputEventHandler) {
+                inputEventHandler.shutdown();
+                inputEventHandler = null;
+            }
+            if (null != framebufferHandler) {
+                framebufferHandler.shutdown();
+                framebufferHandler = null;
+            }
+        }
+        //Now there should be lots to clean up so we run cleaner
+        System.gc();
     }
 }

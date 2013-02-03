@@ -72,7 +72,15 @@ class UpnpClient extends Thread {
      * Shutdown.
      */
     void shutdown() {
-        upnpService.shutdown();
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                upnpService.shutdown();
+            }
+        }, "Javnce-UpnpKiller");
+        t.start();
+
+
     }
 
     /* (non-Javadoc)

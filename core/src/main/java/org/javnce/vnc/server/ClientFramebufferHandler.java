@@ -33,17 +33,16 @@ import org.javnce.vnc.common.FbFormatEvent;
 import org.javnce.vnc.common.FbRequestEvent;
 import org.javnce.vnc.common.FbUpdateEvent;
 import org.javnce.vnc.server.platform.FramebufferDevice;
-import org.javnce.vnc.server.platform.PlatformController;
 
 /**
- * The Class ClientFramebuffer handles framebuffer preparing for one client.
+ * The Class ClientFramebufferHandler handles framebuffer preparing for one client.
  */
-class ClientFramebuffer extends Thread implements EventSubscriber {
+class ClientFramebufferHandler extends Thread implements EventSubscriber {
 
     /**
      * The nb.
      */
-    final private FramebufferDevice nb;
+    final private FramebufferDevice dev;
     /**
      * The size.
      */
@@ -82,15 +81,23 @@ class ClientFramebuffer extends Thread implements EventSubscriber {
      *
      * @param parent the parent
      */
-    ClientFramebuffer(EventLoop parent) {
-        this.eventLoop = new EventLoop(parent);
-        nb = PlatformController.instance().getPlatformManager().getFramebufferDevice();
-        size = nb.size();
-        format = nb.format();
+    ClientFramebufferHandler(EventLoop parent) {
+        eventLoop = new EventLoop(parent);
+
+        dev = FramebufferDevice.factory();
+        size = dev.size();
+        format = dev.format();
         dirtyAreas = new RectContainer();
         forceFull = true;
         usedEncoding = Encoding.RAW;
-        setName("Javne-ClientFramebuffer");
+        setName("Javnce-ClientFramebuffer");
+    }
+
+    void init() {
+        eventLoop.subscribe(FbRequestEvent.eventId(), this);
+        eventLoop.subscribe(FbFormatEvent.eventId(), this);
+        eventLoop.subscribe(FbEncodingsEvent.eventId(), this);
+        eventLoop.subscribe(FbChangeEvent.eventId(), this);
     }
 
     /* (non-Javadoc)
@@ -98,10 +105,6 @@ class ClientFramebuffer extends Thread implements EventSubscriber {
      */
     @Override
     public void run() {
-        eventLoop.subscribe(FbRequestEvent.eventId(), this);
-        eventLoop.subscribe(FbFormatEvent.eventId(), this);
-        eventLoop.subscribe(FbEncodingsEvent.eventId(), this);
-        eventLoop.subscribe(FbChangeEvent.eventId(), this);
 
         eventLoop.process();
     }
@@ -119,8 +122,6 @@ class ClientFramebuffer extends Thread implements EventSubscriber {
             event((FbRequestEvent) event);
         } else if (FbChangeEvent.eventId().equals(event.Id())) {
             event((FbChangeEvent) event);
-        } else {
-            EventLoop.fatalError(this, new UnsupportedOperationException("Unsubscribed event " + event.getClass().getName()));
         }
     }
 
@@ -130,7 +131,7 @@ class ClientFramebuffer extends Thread implements EventSubscriber {
      * @param event the event
      */
     private void event(FbFormatEvent event) {
-        if (!event.get().equals(this.nb.format())) {
+        if (!event.get().equals(dev.format())) {
             EventLoop.fatalError(this, new UnsupportedOperationException("Not implemented event : FbFormatEvent"));
         }
         forceFull = true;
@@ -222,7 +223,7 @@ class ClientFramebuffer extends Thread implements EventSubscriber {
         for (int i = 0; i < areas.length; i++) {
             if (requestedArea.overlaps(areas[i])) {
                 Rect rect = requestedArea.overlapping(areas[i]);
-                ByteBuffer[] buffers = nb.buffer(rect.x(), rect.y(), rect.width(), rect.height());
+                ByteBuffer[] buffers = dev.buffer(rect.x(), rect.y(), rect.width(), rect.height());
                 list.add(createFB(rect, buffers));
 
             }

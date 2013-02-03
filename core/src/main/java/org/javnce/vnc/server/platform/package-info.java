@@ -15,7 +15,9 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * Package provides platform related classes. The platform related classes are
- * for example to inject input event or to grabbing framebuffer.
+ * Package provides platform related classes.
+ *
+ * The platform related classes are for example to inject input event or to
+ * grabbing frame buffer.
  */
 package org.javnce.vnc.server.platform;

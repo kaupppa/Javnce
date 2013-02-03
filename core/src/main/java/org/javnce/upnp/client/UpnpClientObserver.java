@@ -26,12 +26,12 @@ public interface UpnpClientObserver {
      *
      * @param server the server
      */
-    public void serverFound(RemoteServerInfo server);
+    void serverFound(RemoteServerInfo server);
 
     /**
      * Called when server is lost.
      *
      * @param server the server
      */
-    public void serverLost(RemoteServerInfo server);
+    void serverLost(RemoteServerInfo server);
 }

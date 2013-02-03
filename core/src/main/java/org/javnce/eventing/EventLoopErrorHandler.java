@@ -18,8 +18,9 @@ package org.javnce.eventing;
 
 /**
  * The error handler interface.
- * 
- * @see org.javnce.eventing.EventLoop#setErrorHandler(org.javnce.eventing.EventLoopErrorHandler) 
+ *
+ * @see
+ * org.javnce.eventing.EventLoop#setErrorHandler(org.javnce.eventing.EventLoopErrorHandler)
  */
 public interface EventLoopErrorHandler {
 
@@ -29,5 +30,5 @@ public interface EventLoopErrorHandler {
      * @param object the object
      * @param throwable the throwable
      */
-    public void fatalError(Object object, Throwable throwable);
+    void fatalError(Object object, Throwable throwable);
 }

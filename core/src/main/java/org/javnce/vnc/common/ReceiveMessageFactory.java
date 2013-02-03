@@ -28,5 +28,5 @@ public interface ReceiveMessageFactory {
      *
      * @return the next message to be received
      */
-    public Message nextReceiveMessage();
+    Message nextReceiveMessage();
 }

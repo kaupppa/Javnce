@@ -60,7 +60,7 @@ public class VncClient extends Thread implements EventSubscriber, ReceiveMessage
     /**
      * The client observer.
      */
-    final private VncClientObserver observer;
+    final private RemoteVncServerObserver observer;
     /**
      * The receive message list.
      */
@@ -80,7 +80,7 @@ public class VncClient extends Thread implements EventSubscriber, ReceiveMessage
      * @param address the address of server
      * @param observer the observer
      */
-    public VncClient(InetSocketAddress address, VncClientObserver observer) {
+    public VncClient(InetSocketAddress address, RemoteVncServerObserver observer) {
         this.eventLoop = new EventLoop();
         this.address = address;
         this.observer = observer;

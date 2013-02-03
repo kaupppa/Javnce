@@ -29,7 +29,7 @@ import org.javnce.eventing.EventLoop;
 /**
  * The Class UpnPServer provides Javnce UPnP device and service.
  */
-class UpnPServer extends Thread {
+public class UpnPServer extends Thread {
 
     /**
      * The UPnP service.
@@ -50,7 +50,7 @@ class UpnPServer extends Thread {
      * @param name the name
      * @param port the port
      */
-    UpnPServer(String name, int port) {
+    public UpnPServer(String name, int port) {
 
         this.name = name;
         this.port = port;
@@ -103,7 +103,13 @@ class UpnPServer extends Thread {
     /**
      * Shutdown.
      */
-    void shutdown() {
-        upnpService.shutdown();
+    public void shutdown() {
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                upnpService.shutdown();
+            }
+        }, "Javnce-UpnpKiller");
+        t.start();
     }
 }

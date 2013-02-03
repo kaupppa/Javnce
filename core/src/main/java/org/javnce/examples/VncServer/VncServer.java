@@ -16,79 +16,66 @@
  */
 package org.javnce.examples.VncServer;
 
-import java.nio.channels.SocketChannel;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.javnce.eventing.EventLoop;
+import org.javnce.eventing.EventLoopErrorHandler;
+import org.javnce.vnc.server.RemoteClient;
+import org.javnce.vnc.server.RemoteClientObserver;
 import org.javnce.vnc.server.VncServerController;
-import org.javnce.vnc.server.VncServerObserver;
 
-/**
- * The Class VncServer is simple vnc server.
- * The VncServer is needed for functional and benchmark testing.
- */
-public class VncServer implements VncServerObserver {
+public class VncServer {
 
-    /** The controller. */
-    final private VncServerController controller;
-    
-    /** The event loop. */
-    final private EventLoop eventLoop;
+    static class ErrorHandler implements EventLoopErrorHandler {
 
-    /**
-     * Instantiates a new vnc server.
-     */
-    public VncServer() {
-        controller = VncServerController.instance();
-        eventLoop = new EventLoop();
+        final private Object wakeup;
+
+        ErrorHandler() {
+            wakeup = new Object();
+        }
+
+        void waitForError() throws InterruptedException {
+            synchronized (wakeup) {
+                wakeup.wait();
+            }
+        }
+
+        @Override
+        public void fatalError(Object object, Throwable throwable) {
+            if (null == object) {
+                object = this;
+            }
+            Logger.getLogger(object.getClass().getName()).log(Level.SEVERE, null, throwable);
+            synchronized (wakeup) {
+                wakeup.notifyAll();
+            }
+        }
     }
 
-    /**
-     * Launch server in new thread.
-     */
-    public void launch() {
-        controller.start(true, this);
-        new Thread(eventLoop).start();
-    }
-
-    /* (non-Javadoc)
-     * @see org.javnce.vnc.server.VncServerObserver#listening(int)
-     */
-    @Override
-    public void listening(int port) {
-    }
-
-    /* (non-Javadoc)
-     * @see org.javnce.vnc.server.VncServerObserver#connectionClosed(java.lang.Object)
-     */
-    @Override
-    public void connectionClosed(Object userData) {
-    }
-
-    /* (non-Javadoc)
-     * @see org.javnce.vnc.server.VncServerObserver#newConnection(java.nio.channels.SocketChannel)
-     */
-    @Override
-    public void newConnection(SocketChannel channel) {
-        controller.acceptConnection(this, channel, true, null);
-    }
-
-    /**
-     * Shutdown.
-     */
-    public void shutdown() {
-    	eventLoop.shutdownGroup();
-        
-    }
-    
-    /**
-     * The main method.
-     *
-     * @param args the arguments
-     */
     public static void main(String[] args) {
-    	VncServer server = new VncServer();
-    	server.controller.start(true, server);
-    	server.eventLoop.process();
-    }
 
-    
+        ErrorHandler error = new ErrorHandler();
+        EventLoop.setErrorHandler(error);
+
+        VncServerController controller = new VncServerController(true);
+
+        controller.addObserver(new RemoteClientObserver() {
+            @Override
+            public void vncClientChanged(RemoteClient client) {
+                if (RemoteClient.State.PendingConnection == client.state()) {
+                    client.connect();
+                }
+            }
+        });
+
+        controller.launch();
+
+        //We are running untill an error occurs
+        try {
+            error.waitForError();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(VncServer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        controller.shutdown();
+    }
 }

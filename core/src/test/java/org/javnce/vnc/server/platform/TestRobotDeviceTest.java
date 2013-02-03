@@ -25,23 +25,23 @@ import org.junit.Test;
 
 public class TestRobotDeviceTest {
 
-    private RobotDevice dev;
+    private RobotFramebufferDevice dev;
 
     @Test
     public void testIsSupported() {
-        assertTrue(RobotDevice.isSupported());
+        assertTrue(RobotFramebufferDevice.isSupported());
     }
 
     @Test
     public void testRobotDevice() {
-        dev = RobotDevice.instance();
+        dev = RobotFramebufferDevice.instance();
 
         assertNotNull(dev);
     }
 
     @Test
     public void testSize() {
-        dev = RobotDevice.instance();
+        dev = RobotFramebufferDevice.instance();
 
         assertTrue(0 != dev.size().width());
         assertTrue(0 != dev.size().height());
@@ -50,7 +50,7 @@ public class TestRobotDeviceTest {
 
     @Test
     public void testFormat() {
-        dev = RobotDevice.instance();
+        dev = RobotFramebufferDevice.instance();
 
         assertTrue(dev.format().trueColour());
         assertTrue(!dev.format().bigEndian());
@@ -75,7 +75,7 @@ public class TestRobotDeviceTest {
 
     @Test
     public void testBuffer() {
-        dev = RobotDevice.instance();
+        dev = RobotFramebufferDevice.instance();
 
         PixelFormat format = dev.format();
         Size size = dev.size();
@@ -106,8 +106,8 @@ public class TestRobotDeviceTest {
 
     @Test
     public void testGrabScreen() {
-        dev = RobotDevice.instance();
-        
+        dev = RobotFramebufferDevice.instance();
+
         dev.grabScreen();
     }
 }
