@@ -23,8 +23,16 @@ import java.util.logging.Logger;
 import org.javnce.rfb.types.PixelFormat;
 import org.javnce.rfb.types.Size;
 
+/**
+ * The Class FramebufferDevice is abstract frame buffer access class.
+ */
 public abstract class FramebufferDevice {
 
+    /**
+     * Creates FramebufferDevice for current environment.
+     *
+     * @return the frame buffer device
+     */
     public static FramebufferDevice factory() {
         FramebufferDevice dev = null;
 
@@ -44,11 +52,33 @@ public abstract class FramebufferDevice {
         return dev;
     }
 
+    /**
+     * Frame buffer size getter.
+     *
+     * @return the size
+     */
     public abstract Size size();
 
+    /**
+     * Frame buffer format getter.
+     *
+     * @return the pixel format
+     */
     public abstract PixelFormat format();
 
+    /**
+     * Frame buffer data getter.
+     *
+     * @param x the x
+     * @param y the y
+     * @param width the width
+     * @param height the height
+     * @return the byte buffer[]
+     */
     public abstract ByteBuffer[] buffer(int x, int y, int width, int height);
 
+    /**
+     * Method to update frame buffer data.
+     */
     public abstract void grabScreen();
 }

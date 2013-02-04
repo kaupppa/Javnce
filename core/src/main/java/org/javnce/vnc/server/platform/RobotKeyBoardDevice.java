@@ -21,14 +21,30 @@ import java.awt.AWTException;
 import java.awt.Robot;
 import java.awt.event.KeyEvent;
 import java.util.logging.Logger;
-import org.javnce.eventing.EventLoop;
 
-public class RobotKeyBoardDevice extends KeyBoardDevice {
+/**
+ * The Class RobotKeyBoardDevice injects key events using Robot class.
+ */
+class RobotKeyBoardDevice extends KeyBoardDevice {
 
+    /**
+     * The instance.
+     */
     static private RobotKeyBoardDevice device = null;
+    /**
+     * The robot.
+     */
     private Robot robot;
+    /**
+     * The keysym to AWT key code mapping.
+     */
     final private KeysymToAwtKeyCode map;
 
+    /**
+     * Instance.
+     *
+     * @return the robot keyboard device
+     */
     static RobotKeyBoardDevice instance() {
         if (null == device) {
             device = new RobotKeyBoardDevice();
@@ -36,6 +52,11 @@ public class RobotKeyBoardDevice extends KeyBoardDevice {
         return device;
     }
 
+    /**
+     * Checks if robot supported.
+     *
+     * @return true, if is supported
+     */
     static boolean isSupported() {
         boolean supported = false;
 
@@ -50,15 +71,20 @@ public class RobotKeyBoardDevice extends KeyBoardDevice {
         return supported;
     }
 
+    /**
+     * Instantiates a new robot key board device.
+     */
     private RobotKeyBoardDevice() {
         map = new KeysymToAwtKeyCode();
         try {
             robot = new Robot();
         } catch (AWTException ex) {
-            EventLoop.fatalError(this, ex);
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.vnc.server.platform.KeyBoardDevice#keyEvent(boolean, long)
+     */
     @Override
     public void keyEvent(boolean down, long key) {
         int keysym = (int) (key & 0xFFFFFFFFl);

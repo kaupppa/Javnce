@@ -29,18 +29,38 @@ import java.awt.image.DataBufferShort;
 import java.awt.image.Raster;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import org.javnce.eventing.EventLoop;
 import org.javnce.rfb.types.Color;
 import org.javnce.rfb.types.PixelFormat;
 import org.javnce.rfb.types.Size;
 
+/**
+ * The Class RobotFramebufferDevice provides access to frame buffer with Robot
+ * class.
+ */
 class RobotFramebufferDevice extends FramebufferDevice {
 
+    /**
+     * The instance.
+     */
     static private RobotFramebufferDevice device = null;
+    /**
+     * The robot.
+     */
     private Robot robot;
+    /**
+     * The size.
+     */
     private Size size;
+    /**
+     * The frame buffer.
+     */
     private byte[] frameBuffer;
 
+    /**
+     * Instance.
+     *
+     * @return the robot framebuffer device
+     */
     static RobotFramebufferDevice instance() {
         if (null == device) {
             device = new RobotFramebufferDevice();
@@ -48,6 +68,11 @@ class RobotFramebufferDevice extends FramebufferDevice {
         return device;
     }
 
+    /**
+     * Checks if Robot supported.
+     *
+     * @return true, if is supported
+     */
     static boolean isSupported() {
         boolean supported = false;
 
@@ -62,30 +87,40 @@ class RobotFramebufferDevice extends FramebufferDevice {
         return supported;
     }
 
+    /**
+     * Instantiates a new robot framebuffer device.
+     */
     private RobotFramebufferDevice() {
         try {
             robot = new Robot();
         } catch (AWTException ex) {
-            EventLoop.fatalError(this, ex);
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.vnc.server.platform.FramebufferDevice#size()
+     */
     @Override
     public Size size() {
         if (null == size) {
             Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
             size = new Size(screensize.width, screensize.height);
         }
-
         return size;
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.vnc.server.platform.FramebufferDevice#format()
+     */
     @Override
     public PixelFormat format() {
         PixelFormat format = new PixelFormat(32, 24, false, true, new Color(255, 255, 255), new Color(16, 8, 0));
         return format;
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.vnc.server.platform.FramebufferDevice#buffer(int, int, int, int)
+     */
     @Override
     public ByteBuffer[] buffer(int x, int y, int width, int height) {
         if (null == frameBuffer) {
@@ -108,10 +143,12 @@ class RobotFramebufferDevice extends FramebufferDevice {
                 }
             }
         }
-
         return buffers;
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.vnc.server.platform.FramebufferDevice#grabScreen()
+     */
     @Override
     public void grabScreen() {
         size();

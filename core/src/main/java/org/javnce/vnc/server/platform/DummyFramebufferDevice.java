@@ -19,12 +19,29 @@ package org.javnce.vnc.server.platform;
 import java.nio.ByteBuffer;
 import org.javnce.rfb.types.*;
 
+/**
+ * The Class DummyFramebufferDevice is a pseudo FramebufferDevice.
+ *
+ * The DummyFramebufferDevice provides fixed data as frame buffer.
+ */
 class DummyFramebufferDevice extends FramebufferDevice {
 
+    /**
+     * The size.
+     */
     final private Size size;
+    /**
+     * The format.
+     */
     final private PixelFormat format;
+    /**
+     * The buffer.
+     */
     final private byte[] buffer;
 
+    /**
+     * Instantiates a new dummy frame buffer device.
+     */
     DummyFramebufferDevice() {
         size = new Size(1440, 900);
         format = PixelFormat.createARGB888();
@@ -32,16 +49,25 @@ class DummyFramebufferDevice extends FramebufferDevice {
         updateBuffer();
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.vnc.server.platform.FramebufferDevice#size()
+     */
     @Override
     public Size size() {
         return size;
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.vnc.server.platform.FramebufferDevice#format()
+     */
     @Override
     public PixelFormat format() {
         return format;
     }
 
+    /**
+     * Update buffer.
+     */
     private void updateBuffer() {
         byte fillByte = (byte) 0x77;
 
@@ -50,6 +76,9 @@ class DummyFramebufferDevice extends FramebufferDevice {
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.vnc.server.platform.FramebufferDevice#buffer(int, int, int, int)
+     */
     @Override
     public ByteBuffer[] buffer(int x, int y, int width, int height) {
         ByteBuffer[] buffers = null;
@@ -71,6 +100,9 @@ class DummyFramebufferDevice extends FramebufferDevice {
         return buffers;
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.vnc.server.platform.FramebufferDevice#grabScreen()
+     */
     @Override
     public void grabScreen() {
         //Do nothing

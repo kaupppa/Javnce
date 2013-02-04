@@ -22,15 +22,27 @@ import java.util.HashMap;
 import java.util.Map;
 import org.javnce.vnc.common.KeyMap;
 
+/**
+ * The Class KeysymToAwtKeyCode provides keysym to AWT key code mapping.
+ */
 class KeysymToAwtKeyCode {
 
+    /**
+     * The map.
+     */
     final private Map<Integer, Integer> map; //keysym as key and AWT key code as value
 
+    /**
+     * Instantiates a new KeysymToAwtKeyCode.
+     */
     KeysymToAwtKeyCode() {
         map = new HashMap<>();
         init();
     }
 
+    /**
+     * Inits the map.
+     */
     private void init() {
 
         //TODO The real thing. Read keyboard layout and build real code and modifier mapping. 
@@ -152,7 +164,13 @@ class KeysymToAwtKeyCode {
         map.put(new Integer(KeyMap.XK_Up), new Integer(KeyEvent.VK_UP));
     }
 
-    public int keysymToRobotCode(int keysym) {
+    /**
+     * Converts keysym to AWT key code.
+     *
+     * @param keysym the keysym
+     * @return the key code or KeyEvent.VK_UNDEFINED is most cases
+     */
+    int keysymToRobotCode(int keysym) {
         int code = KeyEvent.VK_UNDEFINED;
 
         if (map.containsKey(keysym)) {

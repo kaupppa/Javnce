@@ -20,8 +20,17 @@ package org.javnce.vnc.server.platform;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * The Class PointerDevice is abstract pointer injection class.
+ */
 public abstract class PointerDevice {
 
+    /**
+     * Creates PointerDevice for current environment.
+     *
+     * @param fullAccessMode if false then pseudo device created
+     * @return the pointer device object
+     */
     public static PointerDevice factory(boolean fullAccessMode) {
         PointerDevice dev = null;
         if (fullAccessMode) {
@@ -40,5 +49,12 @@ public abstract class PointerDevice {
         return dev;
     }
 
+    /**
+     * Method to inject pointer event.
+     *
+     * @param mask the mask
+     * @param x the x
+     * @param y the y
+     */
     public abstract void pointerEvent(int mask, int x, int y);
 }

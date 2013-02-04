@@ -167,4 +167,21 @@ public class RectTest {
         String text = area51.toString();
         assertNotNull(text);
     }
+
+    @Test
+    public void testContains() {
+
+        Rect area51 = new Rect(100, 100, 100, 100);
+
+        Rect[] array = new Rect[]{new Rect(area51.x() - 1, area51.y(), area51.width(), area51.height()),
+            new Rect(area51.x(), area51.y() - 1, area51.width(), area51.height()),
+            new Rect(area51.x(), area51.y(), area51.width() + 1, area51.height()),
+            new Rect(area51.x(), area51.y(), area51.width(), area51.height() + 1)
+        };
+        for (int i = 0; i < array.length; i++) {
+            assertFalse(area51.contains(array[i]));
+        }
+        assertTrue(area51.contains(new Rect(area51.x() + 1, area51.y() + 1, area51.width() - 2, area51.height() - 2)));
+        assertTrue(area51.contains(area51));
+    }
 }

@@ -20,18 +20,42 @@ package org.javnce.vnc.server.platform;
 import java.awt.AWTException;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
-import org.javnce.eventing.EventLoop;
 
-public class RobotPointerDevice extends PointerDevice {
+/**
+ * The Class RobotPointerDevice injects pointer events Robot class.
+ */
+class RobotPointerDevice extends PointerDevice {
 
+    /**
+     * The instance.
+     */
     static private RobotPointerDevice device = null;
+    /**
+     * The robot.
+     */
     private Robot robot;
+    /**
+     * The previousMask for scroll events.
+     */
     static private final int ScrollMask = (1 << 3) | (1 << 4);
-    private int mask;
+    /**
+     * The mask of previously injected.
+     */
+    private int previousMask;
+    /**
+     * The last_x.
+     */
     private int last_x;
+    /**
+     * The last_y.
+     */
     private int last_y;
-    final private KeysymToAwtKeyCode map;
 
+    /**
+     * Instance.
+     *
+     * @return the robot pointer device
+     */
     static RobotPointerDevice instance() {
         if (null == device) {
             device = new RobotPointerDevice();
@@ -39,6 +63,11 @@ public class RobotPointerDevice extends PointerDevice {
         return device;
     }
 
+    /**
+     * Checks if Robot is supported.
+     *
+     * @return true, if is supported
+     */
     static boolean isSupported() {
         boolean supported = false;
 
@@ -53,23 +82,33 @@ public class RobotPointerDevice extends PointerDevice {
         return supported;
     }
 
+    /**
+     * Instantiates a new robot pointer device.
+     */
     private RobotPointerDevice() {
-        mask = 0;
+        previousMask = 0;
         last_x = -1;
         last_y = -1;
-        map = new KeysymToAwtKeyCode();
         try {
             robot = new Robot();
         } catch (AWTException ex) {
-            EventLoop.fatalError(this, ex);
         }
     }
 
+    /**
+     * Checks if is scroll event.
+     *
+     * @param mask the mask
+     * @return true, if is scroll event
+     */
     private boolean isScrollEvent(int mask) {
         boolean isScroll = (0 != (mask & ScrollMask));
         return isScroll;
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.vnc.server.platform.PointerDevice#pointerEvent(int, int, int)
+     */
     @Override
     public void pointerEvent(int mask, int x, int y) {
         if (x != last_x || y != last_y) {
@@ -84,12 +123,19 @@ public class RobotPointerDevice extends PointerDevice {
         }
     }
 
-    private void absoluteEvent(int newMask, int x, int y) {
+    /**
+     * Absolute event.
+     *
+     * @param mask the new mask
+     * @param x the x
+     * @param y the y
+     */
+    private void absoluteEvent(int mask, int x, int y) {
         for (int i = 0; i < 3; i++) {
             int bitMask = 1 << i;
             int javaMask = 0;
 
-            if ((mask & bitMask) != (newMask & bitMask)) {
+            if ((previousMask & bitMask) != (mask & bitMask)) {
 
                 switch (i) {
                     case 0:
@@ -103,7 +149,7 @@ public class RobotPointerDevice extends PointerDevice {
                         break;
                 }
 
-                boolean is_press = ((newMask & bitMask) == bitMask);
+                boolean is_press = ((mask & bitMask) == bitMask);
 
                 if (is_press) {
                     robot.mousePress(javaMask);
@@ -112,9 +158,14 @@ public class RobotPointerDevice extends PointerDevice {
                 }
             }
         }
-        mask = newMask;
+        previousMask = mask;
     }
 
+    /**
+     * Scroll event.
+     *
+     * @param mask the mask
+     */
     private void scrollEvent(int mask) {
 
         if (0 != (mask & (1 << 3))) {

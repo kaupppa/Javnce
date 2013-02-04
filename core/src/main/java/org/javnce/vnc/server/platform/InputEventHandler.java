@@ -23,19 +23,53 @@ import org.javnce.eventing.EventSubscriber;
 import org.javnce.vnc.common.KeyEvent;
 import org.javnce.vnc.common.PointerEvent;
 
+/**
+ * The Class InputEventHandler handles the PointerEvent and KeyEvent events.
+ *
+ * The InputEventHandler has an event loop and is a thread that injects
+ * PointerEvent and KeyEvent event into platform.
+ *
+ * @see org.javnce.vnc.common.PointerEvent
+ * @see org.javnce.vnc.common.KeyEvent
+ */
 public class InputEventHandler implements EventSubscriber {
 
+    /**
+     * The event loop.
+     */
     private EventLoop eventLoop;
+    /**
+     * The pointer device.
+     */
     private PointerDevice pointerDevice;
+    /**
+     * The keyboard device.
+     */
     private KeyBoardDevice keyBoardDevice;
+    /**
+     * The thread.
+     */
     private Thread thread;
+    /**
+     * The access mode.
+     */
     final private boolean fullAccessMode;
 
+    /**
+     * Instantiates a new input event handler.
+     *
+     * @param fullAccessMode if false then pseudo devices is used.
+     * 
+     * @see KeyBoardDevice
+     * @see PointerDevice
+     */
     public InputEventHandler(boolean fullAccessMode) {
         this.fullAccessMode = fullAccessMode;
-
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.eventing.EventSubscriber#event(org.javnce.eventing.Event)
+     */
     @Override
     public void event(Event event) {
         if (KeyEvent.eventId().equals(event.Id())) {
@@ -45,23 +79,33 @@ public class InputEventHandler implements EventSubscriber {
         }
     }
 
+    /**
+     * KeyEvent handler.
+     *
+     * @param event the event
+     */
     private void event(KeyEvent event) {
         if (null == keyBoardDevice) {
             keyBoardDevice = KeyBoardDevice.factory(fullAccessMode);
         }
         keyBoardDevice.keyEvent(event.down(), event.key());
-
     }
 
+    /**
+     * PointerEvent handler.
+     *
+     * @param event the event
+     */
     private void event(PointerEvent event) {
         if (null == pointerDevice) {
             pointerDevice = PointerDevice.factory(fullAccessMode);
         }
-
         pointerDevice.pointerEvent(event.mask(), event.point().x(), event.point().y());
-
     }
 
+    /**
+     * Launch a thread.
+     */
     public synchronized void launch() {
         if (null == eventLoop) {
             eventLoop = new EventLoop();
@@ -75,6 +119,9 @@ public class InputEventHandler implements EventSubscriber {
         }
     }
 
+    /**
+     * Shutdown the InputEventHandler.
+     */
     public void shutdown() {
         eventLoop.shutdown();
     }

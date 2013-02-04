@@ -25,33 +25,50 @@ import org.javnce.rfb.types.Point;
 import org.javnce.rfb.types.Rect;
 import org.javnce.rfb.types.Size;
 
+/**
+ * The Class FrameBufferCompare searches changes in frame buffer.
+ *
+ * The FrameBufferCompare uses checksum to detect changes.
+ */
 class FrameBufferCompare {
 
+    /**
+     * The current checksums.
+     */
     private long[] checksums;
+    /**
+     * The frame buffer format.
+     */
     private PixelFormat format;
+    /**
+     * The frame buffer size.
+     */
     private Size size;
+    /**
+     * The checksum computer.
+     */
     final private Adler32 adler32;
+    /**
+     * The count of empty lines needed to find changed region.
+     */
     static final private int MaxEmptyLines = 50;
 
+    /**
+     * Instantiates a new frame buffer compare.
+     */
     FrameBufferCompare() {
         adler32 = new Adler32();
-        /*
-         private MessageDigest md;
-         private byte[] lastdigest;
-         md  = MessageDigest.getInstance("MD5");
-         md.reset();
-         md.update(buffer);
-         [] tempDigest = md.digest();
-
-         Arrays.equals(tempDigest, lastdigest)
-         */
-
     }
 
+    /**
+     * Detect changes in given frame buffer.
+     *
+     * @param fb the frame buffer device
+     * @return the list of changed areas in frame buffer.
+     */
     ArrayList<Rect> compare(FramebufferDevice fb) {
 
         ArrayList<Rect> list = null;
-        boolean changeFound = false;
 
         if (!fb.format().equals(format) || !fb.size().equals(size)) {
             checksums = null;
@@ -71,6 +88,12 @@ class FrameBufferCompare {
         return list;
     }
 
+    /**
+     * Calculates checksums.
+     *
+     * @param fb the frame buffer device
+     * @return the list of changed areas in frame buffer.
+     */
     private ArrayList<Rect> calcChecksums(FramebufferDevice fb) {
         ArrayList<Rect> list = new ArrayList<>();
         int min = size.height() + 1;
@@ -100,7 +123,6 @@ class FrameBufferCompare {
                 list.add(rect);
                 min = size.height() + 1;
                 max = -1;
-
             }
             offset += lineLength;
         }

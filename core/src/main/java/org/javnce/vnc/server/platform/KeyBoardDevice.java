@@ -20,8 +20,17 @@ package org.javnce.vnc.server.platform;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * The Class KeyBoardDevice is abstract key event injection class.
+ */
 public abstract class KeyBoardDevice {
 
+    /**
+     * Creates KeyBoardDevice for current environment.
+     *
+     * @param fullAccessMode if false then pseudo device created
+     * @return the KeyBoardDevice object
+     */
     public static KeyBoardDevice factory(boolean fullAccessMode) {
         KeyBoardDevice dev = null;
         if (fullAccessMode) {
@@ -40,5 +49,11 @@ public abstract class KeyBoardDevice {
         return dev;
     }
 
+    /**
+     * Method to inject key event.
+     *
+     * @param down the down
+     * @param key the key
+     */
     public abstract void keyEvent(boolean down, long key);
 }

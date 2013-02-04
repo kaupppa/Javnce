@@ -21,41 +21,35 @@ import java.nio.ByteOrder;
 import org.javnce.rfb.types.PixelFormat;
 import org.javnce.rfb.types.Size;
 import static org.junit.Assert.*;
+import static org.junit.Assume.*;
 import org.junit.Test;
 
-public class TestRobotDeviceTest {
+public class XShmFramebufferTest {
 
-    private RobotFramebufferDevice dev;
+    final private static boolean isLinux = System.getProperty("os.name").startsWith("Linux");
+    private XShmFramebuffer dev;
 
     @Test
     public void testIsSupported() {
-        assertTrue(RobotFramebufferDevice.isSupported());
-    }
-
-    @Test
-    public void testRobotDevice() {
-        dev = RobotFramebufferDevice.instance();
-
-        assertNotNull(dev);
+        assertEquals(isLinux, XShmFramebuffer.isSupported());
     }
 
     @Test
     public void testSize() {
-        dev = RobotFramebufferDevice.instance();
-
+        assumeTrue(isLinux);
+        dev = new XShmFramebuffer();
         assertTrue(0 != dev.size().width());
         assertTrue(0 != dev.size().height());
-
     }
 
     @Test
     public void testFormat() {
-        dev = RobotFramebufferDevice.instance();
+        assumeTrue(isLinux);
+        dev = new XShmFramebuffer();
 
         assertTrue(dev.format().trueColour());
         assertTrue(!dev.format().bigEndian());
         assertTrue(dev.format().bitsPerPixel() >= dev.format().depth());
-
     }
 
     class TestData {
@@ -75,8 +69,8 @@ public class TestRobotDeviceTest {
 
     @Test
     public void testBuffer() {
-        dev = RobotFramebufferDevice.instance();
-
+        assumeTrue(isLinux);
+        dev = new XShmFramebuffer();
         PixelFormat format = dev.format();
         Size size = dev.size();
 
@@ -91,7 +85,11 @@ public class TestRobotDeviceTest {
         for (int i = 0; i < array.length; i++) {
             ByteBuffer[] buffers = dev.buffer(array[i].x, array[i].y, array[i].width, array[i].height);
 
-            assertTrue(1 <= buffers.length);
+            if (array[i].x == 0 && array[i].width == size.width()) {
+                assertEquals(1, buffers.length);
+            } else {
+                assertEquals(array[i].height, buffers.length);
+            }
 
             int length = 0;
 
@@ -106,8 +104,8 @@ public class TestRobotDeviceTest {
 
     @Test
     public void testGrabScreen() {
-        dev = RobotFramebufferDevice.instance();
-
+        assumeTrue(isLinux);
+        dev = new XShmFramebuffer();
         dev.grabScreen();
     }
 }

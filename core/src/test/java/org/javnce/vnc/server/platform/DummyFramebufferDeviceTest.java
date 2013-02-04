@@ -23,7 +23,7 @@ import org.javnce.rfb.types.Size;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-public class TestDummyDeviceTest {
+public class DummyFramebufferDeviceTest {
 
     private DummyFramebufferDevice dev;
 

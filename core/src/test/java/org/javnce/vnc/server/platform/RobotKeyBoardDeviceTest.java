@@ -17,16 +17,28 @@
  */
 package org.javnce.vnc.server.platform;
 
-/**
- * The Class DummyPointerDevice is a pseudo PointerDevice.
- */
-class DummyPointerDevice extends PointerDevice {
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
-    /* (non-Javadoc)
-     * @see org.javnce.vnc.server.platform.PointerDevice#pointerEvent(int, int, int)
-     */
-    @Override
-    public void pointerEvent(int mask, int x, int y) {
-        // Do nothing
+public class RobotKeyBoardDeviceTest {
+
+    @Test
+    public void testInstance() {
+        RobotKeyBoardDevice dev = RobotKeyBoardDevice.instance();
+
+        assertNotNull(dev);
+    }
+
+    @Test
+    public void testIsSupported() {
+        assertTrue(RobotKeyBoardDevice.isSupported());
+    }
+
+    @Test
+    public void testKeyEvent() {
+        RobotKeyBoardDevice dev = RobotKeyBoardDevice.instance();
+        //keysym 0 should not cause an event
+        dev.keyEvent(true, 0x0);
     }
 }

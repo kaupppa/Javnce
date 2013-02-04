@@ -17,16 +17,16 @@
  */
 package org.javnce.vnc.server.platform;
 
-/**
- * The Class DummyPointerDevice is a pseudo PointerDevice.
- */
-class DummyPointerDevice extends PointerDevice {
+import static org.junit.Assert.*;
+import org.junit.Test;
 
-    /* (non-Javadoc)
-     * @see org.javnce.vnc.server.platform.PointerDevice#pointerEvent(int, int, int)
-     */
-    @Override
-    public void pointerEvent(int mask, int x, int y) {
-        // Do nothing
+public class InputEventHandlerTest {
+
+    @Test
+    public void test() {
+        InputEventHandler handler = new InputEventHandler(false);
+        assertNotNull(handler);
+        handler.launch();
+        handler.shutdown();
     }
 }

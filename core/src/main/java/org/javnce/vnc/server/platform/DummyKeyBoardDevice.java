@@ -17,8 +17,14 @@
  */
 package org.javnce.vnc.server.platform;
 
-public class DummyKeyBoardDevice extends KeyBoardDevice {
+/**
+ * The Class DummyKeyBoardDevice is a pseudo KeyBoardDevice.
+ */
+class DummyKeyBoardDevice extends KeyBoardDevice {
 
+    /* (non-Javadoc)
+     * @see org.javnce.vnc.server.platform.KeyBoardDevice#keyEvent(boolean, long)
+     */
     @Override
     public void keyEvent(boolean down, long key) {
         //Do nothing
