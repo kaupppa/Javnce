@@ -217,12 +217,12 @@ class ClientFramebufferHandler extends Thread implements EventSubscriber {
             }
             // if rle is smaller then use it
             if (rleSize < orgSize) {
-                result = new Framebuffer(rect, usedEncoding, list.toArray(new ByteBuffer[list.size()]));
+                result = new Framebuffer(rect, Encoding.JaVNCeRLE, list.toArray(new ByteBuffer[list.size()]));
             }
         }
 
         if (null == result) {
-            result = new Framebuffer(rect, usedEncoding, buffers);
+            result = new Framebuffer(rect, Encoding.RAW, buffers);
         }
 
         return result;
