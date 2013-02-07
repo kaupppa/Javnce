@@ -154,7 +154,7 @@ class ChannelSubscriberList {
     void add(SelectableChannel channel, ChannelSubscriber object, int ops) throws IOException {
         init();
         synchronized (lock) {
-            if (null != selector) {
+            if (null != selector && selector.isOpen()) {
                 channel.register(selector, ops, object);
             }
         }

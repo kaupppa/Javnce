@@ -17,56 +17,52 @@
 package org.javnce.vnc.client;
 
 import java.net.InetSocketAddress;
+import org.javnce.eventing.EventLoop;
 import org.javnce.rfb.types.PixelFormat;
+import org.javnce.rfb.types.Point;
 import org.javnce.rfb.types.Rect;
+import org.javnce.vnc.common.FbFormatEvent;
+import org.javnce.vnc.common.FbRequestEvent;
+import org.javnce.vnc.common.KeyEvent;
+import org.javnce.vnc.common.PointerEvent;
 
 /**
- * The VNC client controller class.
+ * The Class VncClientController handles the VNC socket thread.
+ *
+ * The VncClientController is thread safe.
  */
 public class VncClientController {
 
     /**
-     * The controller instance.
-     */
-    final static private VncClientController controller = new VncClientController();
-    /**
-     * The VNC client.
+     * The client.
      */
     private VncClient client;
 
     /**
-     * Instance.
-     *
-     * @return the VNC client controller
-     */
-    public static VncClientController instance() {
-        return controller;
-    }
-
-    /**
      * Instantiates a new VNC client controller.
      */
-    private VncClientController() {
-        client = null;
+    public VncClientController() {
     }
 
     /**
-     * Start a VNC client.
+     * Launch the protocol thread.
      *
-     * @param address the address
+     * Can be called once.
+     *
+     * @param address the address of server
      * @param observer the observer
      */
-    public void start(InetSocketAddress address, RemoteVncServerObserver observer) {
-        shutdown();
-        client = new VncClient(address, observer);
-        client.start();
+    synchronized public void launch(InetSocketAddress address, RemoteVncServerObserver observer) {
+        if (null == client) {
+            client = new VncClient(address, observer);
+            client.start();
+        }
     }
 
     /**
-     * Shutdown VNC client.
+     * Shutdown the protocol thread.
      */
-    public void shutdown() {
-        //logger.info("");
+    synchronized public void shutdown() {
         if (null != client) {
             client.shutdown();
             client = null;
@@ -74,54 +70,42 @@ public class VncClientController {
     }
 
     /**
-     * Pointer event.
+     * Send pointer event.
      *
      * @param mask the mask
      * @param x the x
      * @param y the y
      */
-    public void pointerEvent(int mask, int x, int y) {
-        //logger.info("");
-        if (null != client) {
-            client.pointerEvent(mask, x, y);
-        }
+    static public void pointerEvent(int mask, int x, int y) {
+        EventLoop.publishToRootGroup(new PointerEvent(mask, new Point(x, y)));
     }
 
     /**
-     * Key event.
+     * Send key event.
      *
      * @param down the down
      * @param key the key
      */
-    public void keyEvent(boolean down, long key) {
-        //logger.info("");
-        if (null != client) {
-            client.keyEvent(down, key);
-        }
+    static public void keyEvent(boolean down, long key) {
+        EventLoop.publishToRootGroup(new KeyEvent(down, key));
     }
 
     /**
-     * Sets the format.
+     * Send set pixel format.
      *
      * @param format the new format
      */
-    public void setFormat(PixelFormat format) {
-        //logger.info("");
-        if (null != client) {
-            client.setFormat(format);
-        }
+    static public void setFormat(PixelFormat format) {
+        EventLoop.publishToRootGroup(new FbFormatEvent(format));
     }
 
     /**
-     * Request framebuffer.
+     * Request frame buffer.
      *
      * @param incremental the incremental
-     * @param rect the rect
+     * @param rect the area
      */
-    public void requestFramebuffer(boolean incremental, Rect rect) {
-        //logger.info("");
-        if (null != client) {
-            client.requestFramebuffer(incremental, rect);
-        }
+    static public void requestFramebuffer(boolean incremental, Rect rect) {
+        EventLoop.publishToRootGroup(new FbRequestEvent(incremental, rect));
     }
 }

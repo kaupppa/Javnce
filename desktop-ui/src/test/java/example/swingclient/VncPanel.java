@@ -30,7 +30,6 @@ import org.javnce.rfb.types.Framebuffer;
 import org.javnce.rfb.types.PixelFormat;
 import org.javnce.rfb.types.Rect;
 import org.javnce.rfb.types.Size;
-import org.javnce.ui.model.ClientConfiguration;
 import org.javnce.upnp.client.RemoteServerInfo;
 import org.javnce.vnc.client.RemoteVncServerObserver;
 import org.javnce.vnc.client.VncClientController;
@@ -73,7 +72,7 @@ public class VncPanel extends JPanel implements RemoteVncServerObserver {
     public VncPanel(RemoteServerInfo info) {
         this.setFocusable(true);
         serverInfo = info;
-        controller = ClientConfiguration.instance().getVncController();
+        controller = new VncClientController();
         image = VncImage.instance();
         init();
     }
@@ -84,7 +83,7 @@ public class VncPanel extends JPanel implements RemoteVncServerObserver {
     private void init() {
         setBorder(BorderFactory.createLineBorder(Color.black));
 
-        controller.start(serverInfo.getAddress(), this);
+        controller.launch(serverInfo.getAddress(), this);
     }
 
     /* (non-Javadoc)
@@ -145,7 +144,7 @@ public class VncPanel extends JPanel implements RemoteVncServerObserver {
         rect = new Rect(0, 0, size.width(), size.height());
         PixelFormat newformat = image.setFormat(size, format);
         if (null != newformat && !newformat.equals(format)) {
-            controller.setFormat(newformat);
+            VncClientController.setFormat(newformat);
         }
         mouseEventDispatcher = new VncPointerDispatcher(size.width(), size.height());
         mouseEventDispatcher.register(this);
@@ -154,7 +153,7 @@ public class VncPanel extends JPanel implements RemoteVncServerObserver {
         keyEventDispatcher = new VncKeyDispatcher();
         keyEventDispatcher.register(this);
 
-        controller.requestFramebuffer(false, rect);
+        VncClientController.requestFramebuffer(false, rect);
         requestFocus();
     }
 
@@ -178,7 +177,7 @@ public class VncPanel extends JPanel implements RemoteVncServerObserver {
      * @param array the array
      */
     private void write(Framebuffer[] array) {
-        controller.requestFramebuffer(true, rect);
+        VncClientController.requestFramebuffer(true, rect);
         RgbDataBuffer dataBuffer = image.dataBuffer();
 
         for (Framebuffer fb : array) {

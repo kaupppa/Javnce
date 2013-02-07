@@ -36,7 +36,6 @@ import org.javnce.rfb.types.Size;
 import org.javnce.ui.fx.MainFrame;
 import org.javnce.ui.fx.MainFrameObserver;
 import org.javnce.ui.fx.MessageBox;
-import org.javnce.ui.model.ClientConfiguration;
 import org.javnce.upnp.client.RemoteServerInfo;
 import org.javnce.vnc.client.RemoteVncServerObserver;
 import org.javnce.vnc.client.VncClientController;
@@ -95,7 +94,7 @@ public class VncView extends AnchorPane implements Initializable, RemoteVncServe
      * @param serverInfo the server info
      */
     public VncView(RemoteServerInfo serverInfo) {
-        controller = ClientConfiguration.instance().getVncController();
+        controller = new VncClientController();
         this.serverInfo = serverInfo;
         running = true;
     }
@@ -129,7 +128,7 @@ public class VncView extends AnchorPane implements Initializable, RemoteVncServe
     public void initialize(URL location, ResourceBundle resources) {
         MainFrame.getMainFrame().setTitle("Connecting to " + serverInfo.getName());
         MainFrame.getMainFrame().addObserver(this);
-        controller.start(serverInfo.getAddress(), this);
+        controller.launch(serverInfo.getAddress(), this);
     }
 
     /* (non-Javadoc)
@@ -214,7 +213,7 @@ public class VncView extends AnchorPane implements Initializable, RemoteVncServe
             //Cannot handle the format
             Platform.exit();
         } else if (!nativeFormat.equals(format)) {
-            controller.setFormat(nativeFormat);
+            VncClientController.setFormat(nativeFormat);
         }
 
         rect = new Rect(0, 0, size.width(), size.height());
@@ -222,7 +221,7 @@ public class VncView extends AnchorPane implements Initializable, RemoteVncServe
 
         initImageView();
         initResizeObservers();
-        controller.requestFramebuffer(false, rect);
+        VncClientController.requestFramebuffer(false, rect);
         mouseEventDispatcher = new VncPointerDispatcher(size.width(), size.height());
         mouseEventDispatcher.register(imageView);
 
@@ -252,8 +251,8 @@ public class VncView extends AnchorPane implements Initializable, RemoteVncServe
      * @param buffers the buffers
      */
     private void update(Framebuffer[] buffers) {
+        VncClientController.requestFramebuffer(true, rect);
         image.write(buffers);
-        controller.requestFramebuffer(true, rect);
         anchorPane.requestLayout();
     }
 

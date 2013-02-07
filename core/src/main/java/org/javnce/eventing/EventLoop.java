@@ -150,6 +150,10 @@ public class EventLoop implements Runnable, EventDispatcher {
     /**
      * Publish an event.
      *
+     * If any object in current group has subscribed the event then it consumed
+     * within group. If no subscriber in current group then it is published to
+     * all groups.
+     *
      * @param event the published event
      */
     public void publish(Event event) {
@@ -464,12 +468,25 @@ public class EventLoop implements Runnable, EventDispatcher {
         }
         return temp;
     }
+
     /**
      * Checks if any event loop object exists.
-     * 
+     *
      * @return True if event loop exists in any event group
      */
     static public boolean exists() {
         return !EventGroup.instance().isEmpty();
+    }
+
+    /**
+     * Publish an event to root group.
+     *
+     * If event is subscribed in root group then event is consumed root group.
+     * If no subscriber in root group then it is published to all groups.
+     *
+     * @param event the published event
+     */
+    static public void publishToRootGroup(Event event) {
+        EventGroup.instance().publish(event);
     }
 }

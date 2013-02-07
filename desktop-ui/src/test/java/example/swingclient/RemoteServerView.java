@@ -27,7 +27,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import org.javnce.ui.model.ClientConfiguration;
 import org.javnce.upnp.client.RemoteServerInfo;
 import org.javnce.upnp.client.UpnpClientController;
 import org.javnce.upnp.client.UpnpClientObserver;
@@ -67,7 +66,7 @@ public class RemoteServerView extends JPanel implements UpnpClientObserver, Acti
         super();
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        controller = ClientConfiguration.instance().getUpnpController();
+        controller = UpnpClientController.instance();
         this.parent = parent;
 
         tableModel = new RemoteServerInfoTableModel();

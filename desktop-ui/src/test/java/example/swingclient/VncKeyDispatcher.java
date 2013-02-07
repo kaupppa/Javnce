@@ -21,7 +21,6 @@ import java.awt.Component;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
-import org.javnce.ui.model.ClientConfiguration;
 import org.javnce.vnc.client.VncClientController;
 import org.javnce.vnc.common.KeyMap;
 
@@ -31,10 +30,6 @@ import org.javnce.vnc.common.KeyMap;
 public class VncKeyDispatcher implements KeyEventDispatcher {
 
     /**
-     * The controller.
-     */
-    final private VncClientController controller;
-    /**
      * The key mapping.
      */
     final private KeyMap<Integer> map;
@@ -43,7 +38,6 @@ public class VncKeyDispatcher implements KeyEventDispatcher {
      * Instantiates a new vnc key dispatcher.
      */
     public VncKeyDispatcher() {
-        controller = ClientConfiguration.instance().getVncController();
         map = new KeyMap<>();
 
         map.addMapping(new Integer(KeyEvent.VK_ALT), KeyMap.XK_Alt_L);
@@ -128,7 +122,7 @@ public class VncKeyDispatcher implements KeyEventDispatcher {
         }
 
         if (KeyMap.None != keysym) {
-            controller.keyEvent(down, keysym);
+            VncClientController.keyEvent(down, keysym);
         }
     }
 }

@@ -21,7 +21,6 @@ import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import org.javnce.ui.model.ClientConfiguration;
 import org.javnce.vnc.client.VncClientController;
 
 /**
@@ -29,10 +28,6 @@ import org.javnce.vnc.client.VncClientController;
  */
 public class VncPointerDispatcher {
 
-    /**
-     * The controller.
-     */
-    final private VncClientController controller;
     /**
      * The VNC image width.
      */
@@ -57,7 +52,6 @@ public class VncPointerDispatcher {
      * @param height the height
      */
     public VncPointerDispatcher(int width, int height) {
-        controller = ClientConfiguration.instance().getVncController();
         this.width = width;
         this.height = height;
         mask = 0;
@@ -161,7 +155,7 @@ public class VncPointerDispatcher {
             return; //Out of area, nothing is dispatched
         }
         //Logger.getLogger(MouseEventDispatcher.class.getName()).info("mouse mask=" + mouseMask + " x="+x+" y="+y);
-        controller.pointerEvent(mouseMask, x, y);
+        VncClientController.pointerEvent(mouseMask, x, y);
     }
 
     /**

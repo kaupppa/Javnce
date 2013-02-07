@@ -19,6 +19,7 @@ package org.javnce.vnc.client;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Logger;
 import org.javnce.eventing.*;
 import org.javnce.rfb.messages.*;
@@ -35,7 +36,7 @@ import org.javnce.vnc.common.SocketClosedEvent;
 /**
  * The Class VncClient handles the VNC client protocol.
  */
-public class VncClient extends Thread implements EventSubscriber, ReceiveMessageFactory {
+class VncClient extends Thread implements EventSubscriber, ReceiveMessageFactory {
 
     /**
      * The supported VNC protocol version.
@@ -66,7 +67,7 @@ public class VncClient extends Thread implements EventSubscriber, ReceiveMessage
      */
     final private ArrayList<Message> receiveMessages;
     /**
-     * The framebuffer format.
+     * The frame buffer format.
      */
     private PixelFormat format;
     /**
@@ -84,7 +85,7 @@ public class VncClient extends Thread implements EventSubscriber, ReceiveMessage
         this.eventLoop = new EventLoop();
         this.address = address;
         this.observer = observer;
-        setName("ClientProtocol");
+        setName("Javnce-VncClient");
         receiveMessages = new ArrayList<>();
         receiveMessages.add(new MsgProtocolVersion());
         receiveMessages.add(new MsgSecurityTypeList());
@@ -122,7 +123,7 @@ public class VncClient extends Thread implements EventSubscriber, ReceiveMessage
      * Shutdown of client.
      */
     public void shutdown() {
-        eventLoop.shutdownGroup();
+        eventLoop.shutdown();
     }
 
     /* (non-Javadoc)
@@ -130,7 +131,6 @@ public class VncClient extends Thread implements EventSubscriber, ReceiveMessage
      */
     @Override
     public void event(Event event) {
-        //logger.info(event.getClass().getName());
         if (ReceivedMsgEvent.eventId().equals(event.Id())) {
             process(((ReceivedMsgEvent) event).get());
         } else if (SocketClosedEvent.eventId().equals(event.Id())) {
@@ -176,7 +176,7 @@ public class VncClient extends Thread implements EventSubscriber, ReceiveMessage
     }
 
     /**
-     * Framebuffer format change event handler.
+     * Frame buffer format change event handler.
      *
      * @param event the event
      */
@@ -186,12 +186,11 @@ public class VncClient extends Thread implements EventSubscriber, ReceiveMessage
     }
 
     /**
-     * Framebuffer request event handler.
+     * Frame buffer request event handler.
      *
      * @param event the event
      */
     private void event(FbRequestEvent event) {
-        //logger.info("");
         messageHandler.send(
                 new MsgFramebufferUpdateRequest(event.incremental(), event.rect()));
     }
@@ -262,10 +261,15 @@ public class VncClient extends Thread implements EventSubscriber, ReceiveMessage
      * @param msg the msg
      */
     private void handle(MsgSecurityTypeList msg) {
+
         if (null != msg.getTypes()) {
-            messageHandler.send(new MsgSelectedSecurityType(SecurityType.None));
+            if (Arrays.asList(msg.getTypes()).contains(SecurityType.None)) {
+                messageHandler.send(new MsgSelectedSecurityType(SecurityType.None));
+            } else {
+                error("Security types not supported");
+            }
         } else {
-            error("SecurityResult failure : " + msg.getText());
+            error("Security typeResult failure : " + msg.getText());
         }
     }
 
@@ -310,7 +314,7 @@ public class VncClient extends Thread implements EventSubscriber, ReceiveMessage
     }
 
     /**
-     * Framebuffer update message handler.
+     * Frame buffer update message handler.
      *
      * @param msg the msg
      */
@@ -319,47 +323,7 @@ public class VncClient extends Thread implements EventSubscriber, ReceiveMessage
     }
 
     /**
-     * Pointer event.
-     *
-     * @param mask the mask
-     * @param x the x
-     * @param y the y
-     */
-    public void pointerEvent(int mask, int x, int y) {
-        eventLoop.publish(new PointerEvent(mask, new Point(x, y)));
-    }
-
-    /**
-     * Key event.
-     *
-     * @param down the down
-     * @param key the key
-     */
-    public void keyEvent(boolean down, long key) {
-        eventLoop.publish(new KeyEvent(down, key));
-    }
-
-    /**
-     * Framebuffer format request.
-     *
-     * @param format the new format
-     */
-    public void setFormat(PixelFormat format) {
-        eventLoop.publish(new FbFormatEvent(format));
-    }
-
-    /**
-     * Request framebuffer.
-     *
-     * @param incremental the incremental
-     * @param rect the rect
-     */
-    public void requestFramebuffer(boolean incremental, Rect rect) {
-        eventLoop.publish(new FbRequestEvent(incremental, rect));
-    }
-
-    /**
-     * Sets the framebuffer format.
+     * Sets the frame buffer format.
      *
      * @param newformat the new pixel format
      */

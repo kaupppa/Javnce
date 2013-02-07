@@ -20,8 +20,6 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-
-import org.javnce.ui.model.ClientConfiguration;
 import org.javnce.vnc.client.VncClientController;
 import org.javnce.vnc.common.KeyMap;
 
@@ -31,10 +29,6 @@ import org.javnce.vnc.common.KeyMap;
 public class VncKeyDispatcher {
 
     /**
-     * The controller.
-     */
-    final private VncClientController controller;
-    /**
      * The key mapping.
      */
     final private KeyMap<KeyCode> map;
@@ -43,7 +37,6 @@ public class VncKeyDispatcher {
      * Instantiates a new dispatcher.
      */
     public VncKeyDispatcher() {
-        controller = ClientConfiguration.instance().getVncController();
         map = new KeyMap<>();
 
         map.addMapping(KeyCode.SHIFT, KeyMap.XK_Shift_L);
@@ -142,7 +135,7 @@ public class VncKeyDispatcher {
         }
 
         if (KeyMap.None != keysym) {
-            controller.keyEvent(down, keysym);
+            VncClientController.keyEvent(down, keysym);
         }
     }
 }

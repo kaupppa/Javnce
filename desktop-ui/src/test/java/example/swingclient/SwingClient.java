@@ -22,12 +22,13 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import org.javnce.ui.model.Configuration;
+import org.javnce.eventing.EventLoop;
 import org.javnce.upnp.client.RemoteServerInfo;
 
 /**
- * The ugly but well performing Javnce client with swing. Just to compare
- * JavaFX performance.
+ * The ugly but well performing Javnce client with swing.
+ *
+ * Just to compare JavaFX performance.
  */
 public class SwingClient {
 
@@ -61,7 +62,7 @@ public class SwingClient {
         f.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                Configuration.shutdown();
+                EventLoop.shutdownAll();
                 System.exit(0);
             }
         });

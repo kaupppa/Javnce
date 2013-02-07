@@ -68,7 +68,6 @@ public class FxGui extends Application {
     @Override
     public void stop() {
         EventLoop.shutdownAll();
-        Platform.exit();
     }
 
     /**

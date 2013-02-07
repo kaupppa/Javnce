@@ -36,7 +36,6 @@ import javafx.util.Callback;
 import org.javnce.ui.fx.MainFrame;
 import org.javnce.ui.fx.MainFrameObserver;
 import org.javnce.ui.fx.NodeFactory;
-import org.javnce.ui.model.ClientConfiguration;
 import org.javnce.upnp.client.RemoteServerInfo;
 import org.javnce.upnp.client.UpnpClientController;
 import org.javnce.upnp.client.UpnpClientObserver;
@@ -79,7 +78,7 @@ public class SelectServer extends AnchorPane implements Initializable, UpnpClien
      */
     public SelectServer() {
         items = FXCollections.observableArrayList();
-        controller = ClientConfiguration.instance().getUpnpController();
+        controller = UpnpClientController.instance();
     }
 
     /**

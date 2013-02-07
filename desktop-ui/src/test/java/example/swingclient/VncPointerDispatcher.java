@@ -24,7 +24,6 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import javax.swing.event.MouseInputListener;
-import org.javnce.ui.model.ClientConfiguration;
 import org.javnce.vnc.client.VncClientController;
 
 /**
@@ -32,10 +31,6 @@ import org.javnce.vnc.client.VncClientController;
  */
 public class VncPointerDispatcher implements MouseInputListener, MouseWheelListener, MouseMotionListener {
 
-    /**
-     * The controller.
-     */
-    final private VncClientController controller;
     /**
      * The component.
      */
@@ -60,7 +55,6 @@ public class VncPointerDispatcher implements MouseInputListener, MouseWheelListe
      * @param height the height
      */
     public VncPointerDispatcher(int width, int height) {
-        controller = ClientConfiguration.instance().getVncController();
         this.width = width;
         this.height = height;
         mask = 0;
@@ -184,7 +178,7 @@ public class VncPointerDispatcher implements MouseInputListener, MouseWheelListe
         }
         //Logger.getLogger(MouseEventDispatcher.class.getName()).info("mouse mask=" + mouseMask + " x="+x+" y="+y);
 
-        controller.pointerEvent(mouseMask, x, y);
+        VncClientController.pointerEvent(mouseMask, x, y);
     }
 
     /**

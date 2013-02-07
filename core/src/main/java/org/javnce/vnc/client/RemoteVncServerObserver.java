@@ -31,17 +31,17 @@ public interface RemoteVncServerObserver {
     void connectionClosed();
 
     /**
-     * This method is called when framebuffer format and size is available.
+     * This method is called when frame buffer format and size is available.
      *
-     * @param format the framebuffer format
-     * @param size the framebuffer size
+     * @param format the frame buffer format
+     * @param size the frame buffer size
      */
     void initFramebuffer(PixelFormat format, Size size);
 
     /**
-     * This method is called when framebuffer update is received.
+     * This method is called when frame buffer update is received.
      *
-     * @param buffers the framebuffers
+     * @param buffers the frame buffers
      */
     void framebufferUpdate(Framebuffer[] buffers);
 }
