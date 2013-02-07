@@ -33,6 +33,10 @@ public class DefaultErrorHandler implements EventLoopErrorHandler {
             object = this;
         }
         Logger.getLogger(object.getClass().getName()).log(Level.SEVERE, null, throwable);
+        exit();
+    }
+    protected void exit() {
         EventGroup.instance().shutdown();
+        System.exit(1);
     }
 }

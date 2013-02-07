@@ -22,7 +22,7 @@ import org.javnce.rfb.types.Rect;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-public class TestRectContainerTest {
+public class RectContainerTest {
 
     @Test
     public void testClear() {
@@ -32,10 +32,7 @@ public class TestRectContainerTest {
             new Rect(0, 0, 10, 10),
             new Rect(0, 100, 10, 10)
         };
-
-        for (Rect rect : array) {
-            list.add(rect);
-        }
+        list.addAll(Arrays.asList(array));
 
         RectContainer container = new RectContainer();
         container.add(list);

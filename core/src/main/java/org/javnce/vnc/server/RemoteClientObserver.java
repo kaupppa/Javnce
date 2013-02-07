@@ -17,7 +17,22 @@
  */
 package org.javnce.vnc.server;
 
+/**
+ * An observer interface for receiving notifications client state changes.
+ */
 public interface RemoteClientObserver {
 
+    /**
+     * This method is called when client state has changed.
+     *
+     * @param client the changed client
+     */
     void vncClientChanged(RemoteClient client);
+
+    /**
+     * Method called when listened port is bind.
+     *
+     * @param port the listener port, if zero then closed.
+     */
+    void portChanged(int port);
 }

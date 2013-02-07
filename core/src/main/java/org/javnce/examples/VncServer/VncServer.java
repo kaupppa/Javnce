@@ -66,6 +66,10 @@ public class VncServer {
                     client.connect();
                 }
             }
+
+            @Override
+            public void portChanged(int port) {
+            }
         });
 
         controller.launch();

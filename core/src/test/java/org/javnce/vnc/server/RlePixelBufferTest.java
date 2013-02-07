@@ -15,25 +15,29 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.javnce.vnc.server.platform;
+package org.javnce.vnc.server;
 
-import org.javnce.eventing.EventLoop;
-import org.junit.After;
+import java.nio.ByteBuffer;
+import java.util.List;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-public class InputEventHandlerTest {
-
-    @After
-    public void tearDown() throws Exception {
-        assertFalse(EventLoop.exists());
-    }
+public class RlePixelBufferTest {
 
     @Test
     public void test() {
-        InputEventHandler handler = new InputEventHandler(false);
-        assertNotNull(handler);
-        handler.launch();
-        handler.shutdown();
+
+        RlePixelBuffer r = new RlePixelBuffer(4);
+
+        r.putByte((byte) 1, 1);
+        r.putShort((short) 1, 1);
+        r.putInt(1, 1);
+        r.put(new byte[]{1, 2, 3}, 2);
+
+        List<ByteBuffer> list = r.getBuffers();
+        assertTrue(0 < list.size());
+
+        ByteBuffer buffer = r.getByteBuffer();
+        assertTrue(0 < buffer.capacity());
     }
 }

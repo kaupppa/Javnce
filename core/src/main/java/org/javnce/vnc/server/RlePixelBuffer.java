@@ -21,8 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The Run-length Encoding encoded framebuffer class. The size of buffer is
- * dynamic.
+ * The Run-length Encoding encoded frame buffer class.
+ *
+ * The size of buffer is dynamic.
  */
 class RlePixelBuffer {
 
@@ -50,7 +51,7 @@ class RlePixelBuffer {
      */
     RlePixelBuffer(int bytePerPixel) {
         this.bytePerPixel = bytePerPixel;
-        list = new ArrayList<ByteBuffer>();
+        list = new ArrayList<>();
         buffer = ByteBuffer.allocate((bytePerPixel + 1) * PixelsPerBuffer);
     }
 

@@ -19,157 +19,134 @@ package org.javnce.vnc.server;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-import org.javnce.eventing.EventLoop;
 import org.javnce.vnc.server.platform.FramebufferHandler;
 import org.javnce.vnc.server.platform.InputEventHandler;
 
-public class VncServerController {
+/**
+ * The Class VncServerController controls the platform and client threads.
+ *
+ * The VncServerController is thread safe.
+ */
+public class VncServerController implements RemoteClientObserver {
 
+    /**
+     * The full access mode.
+     */
     final private boolean fullAccessMode;
-    final private AtomicInteger port;
+    /**
+     * The socket listener.
+     */
     private Listener listener;
+    /**
+     * The input event handler.
+     */
     private InputEventHandler inputEventHandler;
+    /**
+     * The frame buffer handler.
+     */
     private FramebufferHandler framebufferHandler;
-    final private Set<RemoteClientObserver> observers;
+    /**
+     * The observers.
+     */
+    final private RemoteClientObserverCollection observers;
+    /**
+     * The clients.
+     */
     final private Set<RemoteClient> clients;
+    /**
+     * The lock.
+     */
     final private Object lock;
 
+    /**
+     * Instantiates a new VNC server controller.
+     *
+     * @param fullAccessMode the full access mode
+     */
     public VncServerController(boolean fullAccessMode) {
         this.fullAccessMode = fullAccessMode;
-        port = new AtomicInteger(0);
-        observers = new HashSet<>();
+        observers = new RemoteClientObserverCollection();
         clients = new HashSet<>();
         lock = new Object();
     }
 
+    /**
+     * Launch the listener.
+     */
     public void launch() {
         synchronized (lock) {
             if (null == listener) {
-                listener = new Listener(this);
+                listener = new Listener();
+                listener.addObserver(this);
                 listener.start();
             }
         }
     }
 
-    void setPort(int listenerPort) {
-        synchronized (port) {
-            port.set(listenerPort);
-            port.notifyAll();
-        }
+    @Override
+    public void portChanged(int listenerPort) {
+        observers.portChanged(listenerPort);
     }
 
-    public int getPort() {
-
-        int temp = 0;
-        synchronized (port) {
-            if (0 == port.get()) {
-                try {
-                    port.wait();
-                } catch (InterruptedException ex) {
-                    EventLoop.fatalError(this, ex);
-                }
-            }
-            temp = port.get();
-        }
-        return temp;
-    }
-
-    void addClient(RemoteClient client) {
-        client.setController(this);
-        synchronized (lock) {
-            clients.add(client);
-        }
-        clientChanged(client);
-    }
-
-    void clientChanged(RemoteClient client) {
-
-        for (Iterator<RemoteClientObserver> i = observers().iterator(); i.hasNext();) {
-            i.next().vncClientChanged(client);
-        }
-        if (RemoteClient.State.Connected == client.state()) {
+    private void addClient(RemoteClient client) {
+        if (RemoteClient.State.PendingConnection == client.state()) {
+            client.addObserver(this);
             synchronized (lock) {
-                if (null == inputEventHandler) {
-                    inputEventHandler = new InputEventHandler(fullAccessMode);
-                    inputEventHandler.launch();
-                }
-                if (null == framebufferHandler) {
-                    framebufferHandler = new FramebufferHandler();
-                    framebufferHandler.launch();
-                }
+                clients.add(client);
             }
+            startHandlers();
         }
+    }
+
+    private void removeClient(RemoteClient client) {
+        boolean empty = false;
         if (RemoteClient.State.Disconnected == client.state()) {
-            boolean empty = false;
             synchronized (lock) {
                 clients.remove(client);
                 empty = clients.isEmpty();
             }
-            if (empty) {
-                stopHandlers();
-            }
+        }
+        if (empty) {
+            stopHandlers();
         }
     }
 
-    private List<RemoteClientObserver> observers() {
-        ArrayList<RemoteClientObserver> list;
-
-        synchronized (lock) {
-            list = new ArrayList<>(observers);
-        }
-        return list;
+    @Override
+    public void vncClientChanged(RemoteClient client) {
+        addClient(client);
+        observers.vncClientChanged(client);
+        removeClient(client);
     }
 
-    private List<RemoteClient> clients() {
-        ArrayList<RemoteClient> list;
-
-        synchronized (lock) {
-            list = new ArrayList<>(clients);
-        }
-        return list;
-    }
-
+    /**
+     * Adds the observer.
+     *
+     * @param observer the observer
+     */
     public void addObserver(RemoteClientObserver observer) {
-
-        synchronized (lock) {
-            observers.add(observer);
-        }
-
-        for (Iterator<RemoteClient> i = clients().iterator(); i.hasNext();) {
-            observer.vncClientChanged(i.next());
-        }
-
+        observers.add(observer);
     }
 
+    /**
+     * Removes the observer.
+     *
+     * @param observer the observer
+     */
     public void removeObserver(RemoteClientObserver observer) {
-
-        synchronized (lock) {
-            observers.remove(observer);
-        }
+        observers.remove(observer);
     }
 
+    /**
+     * Shutdown.
+     */
     public void shutdown() {
+        ArrayList<RemoteClient> list;
         synchronized (lock) {
             if (null != listener) {
-                //listener.shutdown();
-                //listener = null;
+                listener.shutdown();
+                listener = null;
             }
-            observers.clear();
-
-            for (Iterator<RemoteClient> i = clients.iterator(); i.hasNext();) {
-                i.next().disconnect();
-                i.remove();
-            }
-        }
-        stopHandlers();
-
-    }
-
-    private void stopHandlers() {
-        synchronized (lock) {
             if (null != inputEventHandler) {
                 inputEventHandler.shutdown();
                 inputEventHandler = null;
@@ -178,8 +155,46 @@ public class VncServerController {
                 framebufferHandler.shutdown();
                 framebufferHandler = null;
             }
+            list = new ArrayList<>(clients);
         }
-        //Now there should be lots to clean up so we run cleaner
-        System.gc();
+        for (Iterator<RemoteClient> i = list.iterator(); i.hasNext();) {
+            i.next().disconnect();
+        }
+
+        stopHandlers();
+    }
+
+    private void startHandlers() {
+        synchronized (lock) {
+            if (null == inputEventHandler) {
+                inputEventHandler = new InputEventHandler(fullAccessMode);
+                inputEventHandler.launch();
+            }
+            if (null == framebufferHandler) {
+                framebufferHandler = new FramebufferHandler();
+                framebufferHandler.launch();
+            }
+
+        }
+    }
+
+    private void stopHandlers() {
+        boolean stopped = false;
+        synchronized (lock) {
+            if (null != inputEventHandler) {
+                inputEventHandler.shutdown();
+                inputEventHandler = null;
+                stopped = true;
+            }
+            if (null != framebufferHandler) {
+                framebufferHandler.shutdown();
+                framebufferHandler = null;
+                stopped = true;
+            }
+        }
+        if (stopped) {
+            //Now there should be lots to clean up so we run cleaner
+            System.gc();
+        }
     }
 }

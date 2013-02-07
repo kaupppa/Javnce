@@ -464,4 +464,12 @@ public class EventLoop implements Runnable, EventDispatcher {
         }
         return temp;
     }
+    /**
+     * Checks if any event loop object exists.
+     * 
+     * @return True if event loop exists in any event group
+     */
+    static public boolean exists() {
+        return !EventGroup.instance().isEmpty();
+    }
 }

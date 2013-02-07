@@ -66,7 +66,7 @@ public class ConnectedVncClients extends AnchorPane implements Initializable, Re
     }
 
     @Override
-    public void initialize(URL url, ResourceBundle rb) {
+    synchronized public void initialize(URL url, ResourceBundle rb) {
         MainFrame.getMainFrame().setTitle("Server running");
         MainFrame.getMainFrame().addObserver(this);
 
@@ -75,18 +75,9 @@ public class ConnectedVncClients extends AnchorPane implements Initializable, Re
         vnc = new VncServerController(fullAccessMode);
         vnc.addObserver(this);
         vnc.launch();
-
-        int port = vnc.getPort();
-        if (0 < port) {
-            upnp = new UpnPServer(name, port);
-            upnp.start();
-        }
-
-
-
     }
 
-    private void acceptConnection(RemoteClient client) {
+    synchronized private void acceptConnection(RemoteClient client) {
         String text = new MessageBox("Accept client ?",
                 "New client from " + client.address(), "Accept", "Decline").exec();
         boolean accept = text.equals("Accept");
@@ -97,7 +88,8 @@ public class ConnectedVncClients extends AnchorPane implements Initializable, Re
         }
     }
 
-    private void shutdown() {
+    synchronized private void shutdown() {
+        vnc.removeObserver(this);
         upnp.shutdown();
         vnc.shutdown();
         MainFrame.getMainFrame().removeObserver(this);
@@ -125,7 +117,7 @@ public class ConnectedVncClients extends AnchorPane implements Initializable, Re
     }
 
     @Override
-    public void vncClientChanged(RemoteClient client) {
+    synchronized public void vncClientChanged(RemoteClient client) {
         Runnable r = null;
 
         if (RemoteClient.State.PendingConnection == client.state()) {
@@ -156,6 +148,14 @@ public class ConnectedVncClients extends AnchorPane implements Initializable, Re
 
         if (null != r) {
             Platform.runLater(r);
+        }
+    }
+
+    @Override
+    synchronized public void portChanged(int port) {
+        if (null == upnp && 0 < port) {
+            upnp = new UpnPServer(name, port);
+            upnp.start();
         }
     }
 }

@@ -35,7 +35,14 @@ import org.javnce.vnc.common.FbUpdateEvent;
 import org.javnce.vnc.server.platform.FramebufferDevice;
 
 /**
- * The Class ClientFramebufferHandler handles framebuffer preparing for one client.
+ * The Class ClientFramebufferHandler handles frame buffer preparing for one
+ * client.
+ *
+ * @see org.javnce.vnc.common.FbChangeEvent
+ * @see org.javnce.vnc.common.FbEncodingsEvent
+ * @see org.javnce.vnc.common.FbFormatEvent
+ * @see org.javnce.vnc.common.FbRequestEvent
+ * @see org.javnce.vnc.common.FbUpdateEvent
  */
 class ClientFramebufferHandler extends Thread implements EventSubscriber {
 
@@ -77,7 +84,7 @@ class ClientFramebufferHandler extends Thread implements EventSubscriber {
     final private EventLoop eventLoop;
 
     /**
-     * Instantiates a new client framebuffer.
+     * Instantiates a new client frame buffer.
      *
      * @param parent the parent
      */
@@ -126,7 +133,7 @@ class ClientFramebufferHandler extends Thread implements EventSubscriber {
     }
 
     /**
-     * Framebuffer format change event handler.
+     * Frame buffer format change event handler.
      *
      * @param event the event
      */
@@ -155,7 +162,7 @@ class ClientFramebufferHandler extends Thread implements EventSubscriber {
     }
 
     /**
-     * Framebuffer request event handler.
+     * Frame buffer request event handler.
      *
      * @param event the event
      */
@@ -170,7 +177,7 @@ class ClientFramebufferHandler extends Thread implements EventSubscriber {
     }
 
     /**
-     * Framebuffer change event handler.
+     * Frame buffer change event handler.
      *
      * @param event the event
      */
@@ -184,28 +191,37 @@ class ClientFramebufferHandler extends Thread implements EventSubscriber {
     }
 
     /**
-     * Preparer framebuffers for client.
+     * Preparer frame buffers for client.
      *
      * @param rect the area
      * @param buffers the buffers
-     * @return the framebuffer
+     * @return the frame buffer
      */
     private Framebuffer createFB(Rect rect, ByteBuffer buffers[]) {
-        Framebuffer result;
+        Framebuffer result = null;
 
         if (usedEncoding == Encoding.JaVNCeRLE) {
 
             List<ByteBuffer> list = new ArrayList<>();
             int bytesPerPixel = format.bytesPerPixel();
-
+            int orgSize = 0;
             for (int i = 0; i < buffers.length; i++) {
                 buffers[i].clear();
-                List<ByteBuffer> rleBuffers = RunLengthEncoder.encode(buffers[i], bytesPerPixel);
-                list.addAll(rleBuffers);
+                orgSize += buffers[i].capacity();
+                list.addAll(RunLengthEncoder.encode(buffers[i], bytesPerPixel));
+                buffers[i].clear();
             }
+            int rleSize = 0;
+            for (ByteBuffer temp : list) {
+                rleSize += temp.capacity();
+            }
+            // if rle is smaller then use it
+            if (rleSize < orgSize) {
+                result = new Framebuffer(rect, usedEncoding, list.toArray(new ByteBuffer[list.size()]));
+            }
+        }
 
-            result = new Framebuffer(rect, usedEncoding, list.toArray(new ByteBuffer[list.size()]));
-        } else {
+        if (null == result) {
             result = new Framebuffer(rect, usedEncoding, buffers);
         }
 
@@ -213,7 +229,7 @@ class ClientFramebufferHandler extends Thread implements EventSubscriber {
     }
 
     /**
-     * Publish framebuffer for sending to client.
+     * Publish frame buffer for sending to client.
      *
      * @param areas the areas
      */

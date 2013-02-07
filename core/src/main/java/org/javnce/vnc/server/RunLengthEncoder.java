@@ -33,7 +33,7 @@ public class RunLengthEncoder {
     /**
      * Run-length Encoder method.
      *
-     * @param buffer the RAW framebuffer
+     * @param buffer the RAW frame buffer
      * @param bytePerPixel the byte per pixel
      * @return the list of run-length encoded buffers
      */

@@ -92,7 +92,7 @@ class EventSubscriberList {
         if (null == event) {
             return;
         }
-        EventSubscriber subscriber = map.get(event.Id());
+        EventSubscriber subscriber = get(event.Id());
         if (null != subscriber) {
             //Note that subscriber.event must be called outside of synchronized (lock)
             subscriber.event(event);

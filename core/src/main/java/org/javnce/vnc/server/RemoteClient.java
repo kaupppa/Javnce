@@ -22,42 +22,100 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 import org.javnce.eventing.EventLoop;
 
+/**
+ * The Class RemoteClient handles the state of one client.
+ *
+ * The RemoteClient is thread safe.
+ */
 public class RemoteClient {
 
+    /**
+     * The client channel.
+     */
     private SocketChannel channel;
+    /**
+     * The state.
+     */
     private State state;
-    private VncServerController controller;
+    /**
+     * The observer collection.
+     */
+    final private RemoteClientObserverCollection observers;
+    /**
+     * The lock.
+     */
     final private Object lock;
+    /**
+     * The worker.
+     */
     private RemoteClientWorker worker;
+    /**
+     * The client's address.
+     */
     private String address;
 
+    /**
+     * The client State.
+     */
     public enum State {
 
+        /**
+         * The client connection is waiting for {@link #connect()} or
+         * {@link #disconnect()}.
+         */
         PendingConnection,
+        /**
+         * The client is connected and protocol is up and running.
+         */
         Connected,
+        /**
+         * The client is disconnected.
+         */
         Disconnected
     }
 
+    /**
+     * Instantiates a new remote client.
+     *
+     * @param channel the channel
+     */
     public RemoteClient(SocketChannel channel) {
         this.channel = channel;
         state = State.PendingConnection;
         lock = new Object();
+        observers = new RemoteClientObserverCollection();
         try {
             address = ((InetSocketAddress) channel.getRemoteAddress())
                     .getAddress()
                     .getCanonicalHostName();
         } catch (IOException ex) {
-            address = "I don't know the address";
             EventLoop.fatalError(this, ex);
         }
     }
 
-    void setController(VncServerController controller) {
-        synchronized (lock) {
-            this.controller = controller;
-        }
+    /**
+     * Adds the observer.
+     *
+     * @param observer the observer
+     */
+    public void addObserver(RemoteClientObserver observer) {
+        observers.add(observer);
     }
 
+    /**
+     * Removes the observer.
+     *
+     * @param observer the observer
+     */
+    public void removeObserver(RemoteClientObserver observer) {
+        observers.remove(observer);
+    }
+
+    /**
+     * Client address getter.
+     *
+     * @return the string
+     */
     public String address() {
         String temp;
         synchronized (lock) {
@@ -66,15 +124,11 @@ public class RemoteClient {
         return temp;
     }
 
-    VncServerController getController() {
-        VncServerController temp;
-        synchronized (lock) {
-            temp = controller;
-        }
-        return temp;
-
-    }
-
+    /**
+     * The client state getter.
+     *
+     * @return the state
+     */
     public State state() {
         State temp;
 
@@ -84,7 +138,12 @@ public class RemoteClient {
         return temp;
     }
 
-    void setState(State state) {
+    /**
+     * Sets the client state.
+     *
+     * @param state the new state
+     */
+    private void setState(State state) {
         Boolean changed = false;
 
         synchronized (lock) {
@@ -93,44 +152,64 @@ public class RemoteClient {
                 changed = true;
             }
         }
-        VncServerController cntlr = getController();
-        if (changed && null != cntlr) {
-            cntlr.clientChanged(this);
+        if (changed) {
+            //Outside lock as observers have it's own locks
+            observers.vncClientChanged(this);
         }
     }
 
+    /**
+     * Connect the client.
+     *
+     * Method launches RemoteClientWorker thread.
+     */
     public void connect() {
-
-        State temp = state();
-        synchronized (lock) {
-            if (State.PendingConnection == temp && null != channel && null == worker) {
-                worker = new RemoteClientWorker(this);
-                worker.start();
-                temp = State.Connected;
-            } else {
-                EventLoop.fatalError(this, new UnsupportedOperationException("Operation not supported"));
-            }
-        }
-        setState(temp);
-    }
-
-    public void disconnect() {
-        synchronized (lock) {
-            if (null != worker) {
-                worker.shutdown();
-                worker = null;
-            }
-            if (null != channel) {
-                try {
-                    channel.close();
-                } catch (IOException ex) {
+        boolean allowConnect = false;
+        if (State.PendingConnection == state()) {
+            synchronized (lock) {
+                if (null != channel && null == worker) {
+                    worker = new RemoteClientWorker(this);
+                    allowConnect = true;
+                } else {
+                    EventLoop.fatalError(this, new UnsupportedOperationException("Operation not supported"));
                 }
-                channel = null;
             }
         }
-        setState(State.Disconnected);
+        if (allowConnect) {
+            setState(State.Connected);
+            worker.start();
+        }
+
     }
 
+    /**
+     * Disconnect the client.
+     */
+    public void disconnect() {
+        if (State.Disconnected != state()) {
+            setState(State.Disconnected);
+            synchronized (lock) {
+                if (null != worker) {
+                    worker.shutdown();
+                    worker = null;
+                }
+                if (null != channel) {
+                    try {
+                        channel.close();
+                    } catch (IOException ex) {
+                    }
+                    channel = null;
+                }
+            }
+        }
+
+    }
+
+    /**
+     * Client channel getter.
+     *
+     * @return the socket channel
+     */
     public SocketChannel giveChannel() {
         SocketChannel temp;
         synchronized (lock) {

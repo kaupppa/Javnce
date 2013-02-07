@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestRunLengthEncoderTest {
+public class RunLengthEncoderTest {
 
     final private static Random rnd = new Random();
     static private ByteBuffer[] fb8Bit;

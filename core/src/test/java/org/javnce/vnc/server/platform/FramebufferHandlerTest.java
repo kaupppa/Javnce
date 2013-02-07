@@ -17,10 +17,17 @@
  */
 package org.javnce.vnc.server.platform;
 
+import org.javnce.eventing.EventLoop;
+import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
 public class FramebufferHandlerTest {
+
+    @After
+    public void tearDown() throws Exception {
+    	assertFalse(EventLoop.exists());
+    }
 
     @Test
     public void test() {

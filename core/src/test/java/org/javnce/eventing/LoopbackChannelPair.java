@@ -116,12 +116,18 @@ public class LoopbackChannelPair implements AutoCloseable {
      * @see java.lang.AutoCloseable#close()
      */
     @Override
-    public void close() throws Exception {
+    public void close() {
         if (null != ch1) {
-            ch1.close();
+            try {
+                ch1.close();
+            } catch (IOException ex) {
+            }
         }
         if (null != ch2) {
-            ch2.close();
+            try {
+                ch2.close();
+            } catch (IOException ex) {
+            }
         }
     }
 }

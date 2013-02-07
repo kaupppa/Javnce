@@ -23,53 +23,84 @@ import org.javnce.eventing.EventLoop;
 import org.javnce.eventing.EventSubscriber;
 import org.javnce.vnc.common.SocketClosedEvent;
 
+/**
+ * The Class RemoteClientWorker is a thread that takes care of communicating
+ * with client.
+ */
 class RemoteClientWorker extends Thread implements EventSubscriber {
 
+    /**
+     * The event loop.
+     */
     final private EventLoop eventLoop;
+    /**
+     * The connected client.
+     */
     final private RemoteClient client;
+    /**
+     * The protocol handler.
+     */
     final private ProtocolHandler handler;
+    /**
+     * The frame buffer handler.
+     */
     private ClientFramebufferHandler frameHandler;
 
+    /**
+     * Instantiates a new remote client worker.
+     *
+     * @param client the client
+     */
     RemoteClientWorker(RemoteClient client) {
         this.client = client;
         eventLoop = new EventLoop();
         eventLoop.moveToNewChildGroup();
+
+        eventLoop.subscribe(SocketClosedEvent.eventId(), this);
         handler = new ProtocolHandler(eventLoop);
         setName("Javnce-RemoteClientWorker");
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Thread#run()
+     */
     @Override
     public void run() {
-
         SocketChannel channel = client.giveChannel();
-        try {
-            eventLoop.subscribe(SocketClosedEvent.eventId(), this);
-
+        if (RemoteClient.State.Connected == client.state() && null != channel) {
             //Create framebuffer handler
             frameHandler = new ClientFramebufferHandler(eventLoop);
             frameHandler.init();
             frameHandler.start();
             handler.init(channel);
             eventLoop.process();
-        } finally {
-            eventLoop.shutdownGroup();
+        }
+        if (null != channel) {
             try {
                 channel.close();
             } catch (IOException ex) {
                 EventLoop.fatalError(this, ex);
             }
-            client.disconnect();
         }
+        shutdown();
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.eventing.EventSubscriber#event(org.javnce.eventing.Event)
+     */
     @Override
     public void event(Event event) {
         if (SocketClosedEvent.eventId().equals(event.Id())) {
-            eventLoop.shutdownGroup();
+            eventLoop.shutdown();
         }
     }
 
+    /**
+     * Shutdown.
+     */
     public void shutdown() {
-        eventLoop.shutdown();
+        // Shutdown ClientFramebufferHandler and RemoteClientWorker 
+        eventLoop.shutdownGroup();
+        client.disconnect();
     }
 }
