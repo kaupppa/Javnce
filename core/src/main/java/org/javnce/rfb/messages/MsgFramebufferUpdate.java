@@ -54,7 +54,7 @@ public class MsgFramebufferUpdate extends Message {
 
     /**
      * Instantiates a new FramebufferUpdate message for receiving.
-     * 
+     *
      * @param format tells byte per pixel that raw format have.
      */
     public MsgFramebufferUpdate(PixelFormat format) {
@@ -64,7 +64,7 @@ public class MsgFramebufferUpdate extends Message {
 
     /**
      * Instantiates a new FramebufferUpdate message for sending.
-     * 
+     *
      * @param format tells byte per pixel that raw format have.
      * @param fb the frame buffers to be sent
      */
@@ -93,7 +93,7 @@ public class MsgFramebufferUpdate extends Message {
     private boolean parseMsgHeader(ByteBuffer buffer) {
 
         if (null == fb && 4 <= buffer.remaining()) {
-            byte newtype = buffer.get();
+            buffer.get();
             // padding
             buffer.get();
             int count = buffer.getShort() & 0xFFFF;
@@ -289,8 +289,7 @@ public class MsgFramebufferUpdate extends Message {
                     list.add(temp);
                 }
             }
-            if (null != buffer)
-            {
+            if (null != buffer) {
                 buffer.clear();
                 list.add(buffer);
                 buffer = null;

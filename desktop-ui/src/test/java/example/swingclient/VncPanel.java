@@ -30,7 +30,7 @@ import org.javnce.rfb.types.Framebuffer;
 import org.javnce.rfb.types.PixelFormat;
 import org.javnce.rfb.types.Rect;
 import org.javnce.rfb.types.Size;
-import org.javnce.upnp.client.RemoteServerInfo;
+import org.javnce.upnp.RemoteServerInfo;
 import org.javnce.vnc.client.RemoteVncServerObserver;
 import org.javnce.vnc.client.VncClientController;
 

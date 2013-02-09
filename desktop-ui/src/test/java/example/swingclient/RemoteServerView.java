@@ -27,9 +27,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import org.javnce.upnp.client.RemoteServerInfo;
-import org.javnce.upnp.client.UpnpClientController;
-import org.javnce.upnp.client.UpnpClientObserver;
+import org.javnce.upnp.RemoteServerInfo;
+import org.javnce.upnp.UpnpClient;
+import org.javnce.upnp.UpnpClientObserver;
 
 /**
  * The view for showing found remote servers.
@@ -47,7 +47,7 @@ public class RemoteServerView extends JPanel implements UpnpClientObserver, Acti
     /**
      * The controller.
      */
-    final private UpnpClientController controller;
+    final private UpnpClient upnp;
     /**
      * The parent.
      */
@@ -66,7 +66,8 @@ public class RemoteServerView extends JPanel implements UpnpClientObserver, Acti
         super();
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        controller = UpnpClientController.instance();
+        upnp = new UpnpClient();
+
         this.parent = parent;
 
         tableModel = new RemoteServerInfoTableModel();
@@ -91,7 +92,8 @@ public class RemoteServerView extends JPanel implements UpnpClientObserver, Acti
      */
     private void init() {
         button.addActionListener(this);
-        controller.start(this);
+        upnp.setObserver(this);
+        new Thread(upnp).start();
     }
 
     /* (non-Javadoc)
@@ -124,7 +126,13 @@ public class RemoteServerView extends JPanel implements UpnpClientObserver, Acti
         int i = table.getSelectedRow();
         if (-1 != i) {
             parent.createVncView(this, tableModel.getRemoteServerInfo(i));
-            controller.shutdown();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    upnp.shutdown();
+                }
+            }).start();
+
 
         }
     }

@@ -14,9 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
-package org.javnce.upnp.server;
+package org.javnce.upnp;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import org.fourthline.cling.UpnpService;
 import org.fourthline.cling.UpnpServiceImpl;
 import org.fourthline.cling.binding.*;
@@ -27,22 +29,26 @@ import org.fourthline.cling.model.types.*;
 import org.javnce.eventing.EventLoop;
 
 /**
- * The Class UpnPServer provides Javnce UPnP device and service.
+ * The Class UpnPServer provides the UPnP device and service.
  */
-public class UpnPServer extends Thread {
+public class UpnPServer implements Runnable {
 
     /**
-     * The UPnP service.
-     */
-    private final UpnpService upnpService;
-    /**
-     * The server name.
+     * The friendly name.
      */
     private final String name;
     /**
-     * The server port.
+     * The VNC port.
      */
     private final int port;
+    /**
+     * The UPnP service.
+     */
+    private UpnpService upnpService;
+    /**
+     * The upnp killer.
+     */
+    private Thread killer;
 
     /**
      * Instantiates a new UPnP server.
@@ -51,28 +57,51 @@ public class UpnPServer extends Thread {
      * @param port the port
      */
     public UpnPServer(String name, int port) {
-
         this.name = name;
         this.port = port;
-        upnpService = new UpnpServiceImpl();
-        setName("Javnce-Upnp-Server");
-
     }
 
     /* (non-Javadoc)
-     * @see java.lang.Thread#run()
+     * @see java.lang.Runnable#run()
      */
     @Override
     public void run() {
+        killer = new Thread() {
+            @Override
+            public void run() {
+                killMe();
+            }
+        };
+        Runtime.getRuntime().addShutdownHook(killer);
 
         try {
-
+            upnpService = new UpnpServiceImpl();
             // Add the bound local device to the registry
             upnpService.getRegistry().addDevice(createDevice());
         } catch (Throwable ex) {
             EventLoop.fatalError(this, ex);
         }
+    }
 
+    /**
+     * Provides salt.
+     *
+     * @return the string
+     */
+    private static String salt() {
+        String salt = "Javnce";
+        try {
+            NetworkInterface network = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
+
+            byte[] mac = network.getHardwareAddress();
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < mac.length; i++) {
+                sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
+            }
+            salt = salt + sb.toString();
+        } catch (Throwable ex) {
+        }
+        return salt;
     }
 
     /**
@@ -85,31 +114,43 @@ public class UpnPServer extends Thread {
      */
     private LocalDevice createDevice() throws ValidationException, LocalServiceBindingException, IOException {
 
-        DeviceIdentity identity = new DeviceIdentity(UDN.uniqueSystemIdentifier("JaVNCe"));
 
-        DeviceType type = new UDADeviceType("JaVNCe", 1);
+        DeviceIdentity identity = new DeviceIdentity(UDN.uniqueSystemIdentifier(salt()));
+
+        DeviceType type = new UDADeviceType(Upnp.deviceName, Upnp.version);
 
         DeviceDetails details = new DeviceDetails(name,
-                new ManufacturerDetails(""),
-                new ModelDetails("JaVNCe", "Java VNC remote Application", "0.0.0.1"));
+                new ManufacturerDetails("Pauli Kauppinen", "https://github.com/kaupppa/Javnce"),
+                new ModelDetails("Javnce", "An easy screen sharing application", "0.0.0.1"));
         Icon icon = null;
 
+        @SuppressWarnings("unchecked")
         LocalService<VncService> service = new AnnotationLocalServiceBinder().read(VncService.class);
-        service.setManager(new DefaultServiceManager(service, VncService.class));
+        service.setManager(new DefaultServiceManager<VncService>(service, VncService.class));
         service.getManager().getImplementation().setPort(port);
         return new LocalDevice(identity, type, details, icon, service);
     }
 
     /**
+     * Kill me.
+     */
+    synchronized private void killMe() {
+        if (null != upnpService) {
+            upnpService.shutdown();
+            upnpService = null;
+        }
+        if (null != killer) {
+            killer = null;
+        }
+    }
+
+    /**
      * Shutdown.
      */
-    public void shutdown() {
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                upnpService.shutdown();
-            }
-        }, "Javnce-UpnpKiller");
-        t.start();
+    synchronized public void shutdown() {
+        if (null != killer) {
+            Runtime.getRuntime().removeShutdownHook(killer);
+        }
+        killMe();
     }
 }

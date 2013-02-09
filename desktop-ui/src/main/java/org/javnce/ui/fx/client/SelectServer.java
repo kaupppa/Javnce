@@ -17,6 +17,7 @@
 package org.javnce.ui.fx.client;
 
 import java.net.URL;
+import java.util.Iterator;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -36,9 +37,10 @@ import javafx.util.Callback;
 import org.javnce.ui.fx.MainFrame;
 import org.javnce.ui.fx.MainFrameObserver;
 import org.javnce.ui.fx.NodeFactory;
-import org.javnce.upnp.client.RemoteServerInfo;
-import org.javnce.upnp.client.UpnpClientController;
-import org.javnce.upnp.client.UpnpClientObserver;
+import org.javnce.upnp.RemoteServerInfo;
+import org.javnce.upnp.UpnpClient;
+import org.javnce.upnp.UpnpClientObserver;
+import org.javnce.vnc.server.RemoteClientObserver;
 
 /**
  * The view for showing found Javnce servers.
@@ -56,7 +58,7 @@ public class SelectServer extends AnchorPane implements Initializable, UpnpClien
     /**
      * The UPnP controller.
      */
-    final private UpnpClientController controller;
+    final private UpnpClient upnp;
     /**
      * The progress indicator.
      */
@@ -78,7 +80,7 @@ public class SelectServer extends AnchorPane implements Initializable, UpnpClien
      */
     public SelectServer() {
         items = FXCollections.observableArrayList();
-        controller = UpnpClientController.instance();
+        upnp = new UpnpClient();
     }
 
     /**
@@ -99,7 +101,6 @@ public class SelectServer extends AnchorPane implements Initializable, UpnpClien
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        controller.start(this);
         listView.setItems(items);
         listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
@@ -124,6 +125,9 @@ public class SelectServer extends AnchorPane implements Initializable, UpnpClien
 
 
         MainFrame.getMainFrame().addObserver(this);
+        upnp.setObserver(this);
+        new Thread(upnp).start();
+
         update();
     }
 
@@ -135,6 +139,8 @@ public class SelectServer extends AnchorPane implements Initializable, UpnpClien
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
+                //Remove in case of update
+                remove(server);
                 items.add(server);
                 update();
                 if (1 == items.size()) {
@@ -145,6 +151,14 @@ public class SelectServer extends AnchorPane implements Initializable, UpnpClien
 
     }
 
+    private void remove(RemoteServerInfo server) {
+        for (Iterator<RemoteServerInfo> i = items.iterator(); i.hasNext();) {
+            if (server.getId().equals(i.next().getId())) {
+                i.remove();
+            }
+        }
+    }
+
     /* (non-Javadoc)
      * @see org.javnce.upnp.client.UpnpClientObserver#serverLost(org.javnce.upnp.client.RemoteServerInfo)
      */
@@ -153,7 +167,7 @@ public class SelectServer extends AnchorPane implements Initializable, UpnpClien
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                items.remove(server);
+                remove(server);
                 update();
             }
         });
@@ -237,7 +251,13 @@ public class SelectServer extends AnchorPane implements Initializable, UpnpClien
      * Shutdown.
      */
     private void shutdown() {
-        controller.shutdown();
+        upnp.setObserver(null);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                upnp.shutdown();
+            }
+        }).start();
         MainFrame.getMainFrame().removeObserver(this);
     }
 }

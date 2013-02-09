@@ -19,7 +19,7 @@ package example.swingclient;
 
 import java.util.ArrayList;
 import javax.swing.table.AbstractTableModel;
-import org.javnce.upnp.client.RemoteServerInfo;
+import org.javnce.upnp.RemoteServerInfo;
 
 /**
  * The JTable model for showing remote Javnce servers.

@@ -64,38 +64,34 @@ public class FxGui extends Application {
 
     /**
      * Stop.
+     *
+     * @throws Exception
      */
     @Override
-    public void stop() {
+    public void stop() throws Exception {
         EventLoop.shutdownAll();
+        super.stop();
+
+        //This is needed to get addShutdownHook called
+        System.exit(1);
     }
 
     /**
-     * Init error handler.
+     * Set error handler.
      */
     private void initErrorHandler() {
-        EventLoop.setErrorHandler(
-                new EventLoopErrorHandler() {
+        EventLoop.setErrorHandler(new EventLoopErrorHandler() {
+            @Override
+            public void fatalError(final Object object, final Throwable throwable) {
+                Logger.getLogger(object.getClass().getName()).log(Level.SEVERE, null, throwable);
+                Platform.runLater(new Runnable() {
                     @Override
-                    public void fatalError(final Object object, final Throwable throwable) {
-                        //New thread to make sure that no blocking 
-                        Thread t = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Logger.getLogger(object.getClass().getName()).log(Level.SEVERE, null, throwable);
-                                Platform.runLater(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        stop();
-                                    }
-                                });
-
-                            }
-                        }, "Javnce-fatalError");
-                        t.start();
-
+                    public void run() {
+                        Platform.exit();
                     }
                 });
+            }
+        });
     }
 
     /**

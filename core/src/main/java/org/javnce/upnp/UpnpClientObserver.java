@@ -14,7 +14,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
+package org.javnce.upnp;
+
 /**
- * Package provides UPnP client related classes.
+ * An interface for receiving remote server information.
  */
-package org.javnce.upnp.client;
+public interface UpnpClientObserver {
+
+    /**
+     * Called when server found.
+     *
+     * @param server the server
+     */
+    void serverFound(RemoteServerInfo server);
+
+    /**
+     * Called when server is lost.
+     *
+     * @param server the server
+     */
+    void serverLost(RemoteServerInfo server);
+}

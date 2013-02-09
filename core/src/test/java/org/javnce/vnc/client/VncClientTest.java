@@ -45,7 +45,7 @@ public class VncClientTest {
     void sleep() {
         try {
             Thread.yield();
-            Thread.sleep(20l);
+            Thread.sleep(90l);
             Thread.yield();
         } catch (InterruptedException ex) {
             EventLoop.fatalError(this, ex);

@@ -36,7 +36,7 @@ import org.javnce.rfb.types.Size;
 import org.javnce.ui.fx.MainFrame;
 import org.javnce.ui.fx.MainFrameObserver;
 import org.javnce.ui.fx.MessageBox;
-import org.javnce.upnp.client.RemoteServerInfo;
+import org.javnce.upnp.RemoteServerInfo;
 import org.javnce.vnc.client.RemoteVncServerObserver;
 import org.javnce.vnc.client.VncClientController;
 

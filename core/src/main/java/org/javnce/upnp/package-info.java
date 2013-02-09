@@ -14,36 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
-package org.javnce.upnp.server;
-
-import org.fourthline.cling.binding.annotations.*;
-
 /**
- * The Class VncService is the UPnP service description.
+ * Package provides UPnP related classes.
  */
-@UpnpService(
-    serviceId = @UpnpServiceId("VncService"),
-    serviceType = @UpnpServiceType(value = "VncService", version = 1))
-
-public class VncService {
-
-    /**
-     * The state variable port .
-     */
-    @UpnpStateVariable(sendEvents = false)
-    private int port = 0;
-
-    /**
-     * The UPnP action.
-     *
-     * @return the port
-     */
-    @UpnpAction(out = @UpnpOutputArgument(name = "vncPort"))
-    public int getPort() {
-        return port;
-    }
-
-    void setPort(int newPort) {
-        port = newPort;
-    }
-}
+package org.javnce.upnp;

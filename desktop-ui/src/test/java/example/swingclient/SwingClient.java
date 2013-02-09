@@ -23,7 +23,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import org.javnce.eventing.EventLoop;
-import org.javnce.upnp.client.RemoteServerInfo;
+import org.javnce.upnp.RemoteServerInfo;
 
 /**
  * The ugly but well performing Javnce client with swing.

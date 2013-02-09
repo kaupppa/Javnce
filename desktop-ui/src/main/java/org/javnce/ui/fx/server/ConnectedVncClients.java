@@ -31,7 +31,7 @@ import javafx.util.Callback;
 import org.javnce.ui.fx.MainFrame;
 import org.javnce.ui.fx.MainFrameObserver;
 import org.javnce.ui.fx.MessageBox;
-import org.javnce.upnp.server.UpnPServer;
+import org.javnce.upnp.UpnPServer;
 import org.javnce.vnc.server.RemoteClient;
 import org.javnce.vnc.server.RemoteClientObserver;
 import org.javnce.vnc.server.VncServerController;
@@ -89,8 +89,13 @@ public class ConnectedVncClients extends AnchorPane implements Initializable, Re
     }
 
     synchronized private void shutdown() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                upnp.shutdown();
+            }
+        }).start();
         vnc.removeObserver(this);
-        upnp.shutdown();
         vnc.shutdown();
         MainFrame.getMainFrame().removeObserver(this);
     }
@@ -155,7 +160,7 @@ public class ConnectedVncClients extends AnchorPane implements Initializable, Re
     synchronized public void portChanged(int port) {
         if (null == upnp && 0 < port) {
             upnp = new UpnPServer(name, port);
-            upnp.start();
+            new Thread(upnp).start();
         }
     }
 }
