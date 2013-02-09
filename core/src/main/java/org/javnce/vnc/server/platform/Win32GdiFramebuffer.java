@@ -18,6 +18,8 @@
 package org.javnce.vnc.server.platform;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicBoolean;
+import org.javnce.eventing.EventLoop;
 import org.javnce.rfb.types.PixelFormat;
 import org.javnce.rfb.types.Size;
 
@@ -30,6 +32,72 @@ import org.javnce.rfb.types.Size;
 class Win32GdiFramebuffer extends FramebufferDevice {
 
     /**
+     * The screen size.
+     */
+    static private Size size = null;
+    /**
+     * The screen format.
+     */
+    static private PixelFormat format = null;
+    /**
+     * The is needed GDI features supported.
+     */
+    static private AtomicBoolean supported = null;
+    /**
+     * The screen shot taker.
+     */
+    final static private Grabber grabber = new Grabber();
+    /**
+     * The thread.
+     */
+    static private Thread thread = null;
+
+    /**
+     * The Class Grabber handles the concurrency when taking screen shot.
+     */
+    static class Grabber {
+
+        /**
+         * Is screen grabbed or not.
+         */
+        private boolean grabbed;
+
+        /**
+         * Instantiates a new grabber.
+         */
+        Grabber() {
+            grabbed = false;
+        }
+
+        /**
+         * Grab.
+         *
+         * @throws InterruptedException the interrupted exception
+         */
+        synchronized void grab() throws InterruptedException {
+            if (grabbed) {
+                wait();
+            }
+            takeScreenShotJni();
+            grabbed = true;
+            notifyAll();
+        }
+
+        /**
+         * Wait grapping.
+         */
+        synchronized void requestGrabbing() {
+            if (!grabbed) {
+                try {
+                    wait();
+                } catch (InterruptedException ex) {
+                }
+            }
+            grabbed = false;
+            notifyAll();
+        }
+    }
+    /**
      * The name of native implementation.
      */
     final static private String libName = getLibName();
@@ -40,6 +108,79 @@ class Win32GdiFramebuffer extends FramebufferDevice {
         } catch (UnsatisfiedLinkError e) {
         }
     }
+
+    /**
+     * Wait grapping.
+     */
+    synchronized static private void grab() {
+
+        if (null == thread) {
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    size = sizeJni();
+                    format = formatJni();
+                    while (true) {
+                        try {
+                            grabber.grab();
+                        } catch (InterruptedException ex) {
+                            EventLoop.fatalError(this, ex);
+                            break;
+                        }
+                    }
+                }
+            };
+            thread = new Thread(r, "Javnce-WindowsGDI");
+            thread.setDaemon(true);
+            thread.start();
+        }
+        grabber.requestGrabbing();
+    }
+
+    /**
+     * Instantiates a new win32 gdi framebuffer.
+     */
+    public Win32GdiFramebuffer() {
+        //Make sure that first screenshot is taken
+        grab();
+    }
+
+    /**
+     * Take screen shot jni.
+     */
+    static private native void takeScreenShotJni();
+
+    /**
+     * Size jni.
+     *
+     * @return the size
+     */
+    static private native Size sizeJni();
+
+    /**
+     * Format jni.
+     *
+     * @return the pixel format
+     */
+    static private native PixelFormat formatJni();
+
+    /**
+     * Buffer jni.
+     *
+     * @param x the x
+     * @param y the y
+     * @param width the width
+     * @param height the height
+     * @return the byte buffer[]
+     */
+    static private native ByteBuffer[] bufferJni(int x, int y, int width, int height);
+
+    /**
+     * Checks if is supported jni.
+     *
+     * @return true, if is supported jni
+     */
+    static private native boolean isSupportedJni();
 
     /**
      * Gets the x64 or x86 implementation name for current environment.
@@ -59,45 +200,49 @@ class Win32GdiFramebuffer extends FramebufferDevice {
      *
      * @return true, if native implementation is supported
      */
-    static boolean isSupported() {
-        boolean valid = false;
+    synchronized static boolean isSupported() {
 
-        try {
-            valid = new Win32GdiFramebuffer().hasGdiFramebuffer();
-        } catch (Throwable e) {
-            // Logger.getLogger(XShmFramebuffer.class.getName()).log(Level.INFO, "Couldn't load " + libName, e);
+        if (null == supported) {
+            supported = new AtomicBoolean(false);
+            try {
+                boolean valid = false;
+                valid = isSupportedJni();
+                supported.set(valid);
+            } catch (Throwable e) {
+            }
         }
-        return valid;
+        return supported.get();
     }
-
-    /**
-     * Checks that needed GDI features are supported.
-     *
-     * @return true, if supported
-     */
-    private native boolean hasGdiFramebuffer();
 
     /* (non-Javadoc)
      * @see org.javnce.vnc.server.platform.FramebufferDevice#size()
      */
     @Override
-    public native Size size();
+    public Size size() {
+        return size;
+    }
 
     /* (non-Javadoc)
      * @see org.javnce.vnc.server.platform.FramebufferDevice#format()
      */
     @Override
-    public native PixelFormat format();
+    public PixelFormat format() {
+        return format;
+    }
 
     /* (non-Javadoc)
      * @see org.javnce.vnc.server.platform.FramebufferDevice#buffer(int, int, int, int)
      */
     @Override
-    public native ByteBuffer[] buffer(int x, int y, int width, int height);
+    public ByteBuffer[] buffer(int x, int y, int width, int height) {
+        return bufferJni(x, y, width, height);
+    }
 
     /* (non-Javadoc)
      * @see org.javnce.vnc.server.platform.FramebufferDevice#grabScreen()
      */
     @Override
-    public native void grabScreen();
+    public void grabScreen() {
+        grab();
+    }
 }

@@ -34,7 +34,7 @@ static void init();
 static AbstractFrameBuffer *dev = 0;
 static Mutex mutex;
 
-JNIEXPORT jboolean JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_hasGdiFramebuffer(JNIEnv *, jobject)
+JNIEXPORT jboolean JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_isSupportedJni(JNIEnv *, jclass)
 {
     jboolean valid = false;
 
@@ -46,37 +46,54 @@ JNIEXPORT jboolean JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuff
     return valid;
 }
 
-JNIEXPORT jobject JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_size(JNIEnv *env, jobject)
+JNIEXPORT jobject JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_sizeJni(JNIEnv *env, jclass)
 {
+	jobject object = 0;
     init();
-    return getSize(dev, env);
+	{
+		MutexLocker locker(&mutex);
+		object = getSize(dev, env);
+	}
+    return object;
 }
 
-JNIEXPORT jobject JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_format(JNIEnv *env, jobject)
+JNIEXPORT jobject JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_formatJni(JNIEnv *env, jclass)
 {
+	jobject object = 0;
     init();
-    return getFormat(dev, env);
+	{
+		MutexLocker locker(&mutex);
+		object = getFormat(dev, env);
+	}
+    return object;
 }
 
-
-JNIEXPORT jobjectArray JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_buffer
+JNIEXPORT jobjectArray JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_bufferJni
 (
     JNIEnv *env,
-    jobject,
+    jclass,
     jint x,
     jint y,
     jint width,
     jint height
 )
 {
+	jobjectArray array=0;
     init();
-    return getBuffer(dev, env, x, y, width, height);
+	{
+		MutexLocker locker(&mutex);
+		array = getBuffer(dev, env, x, y, width, height);
+	}
+    return array;
 }
 
-JNIEXPORT void JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_grabScreen(JNIEnv *, jobject)
+JNIEXPORT void JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_takeScreenShotJni(JNIEnv *, jclass)
 {
     init();
-    dev->grab();
+	{
+		MutexLocker locker(&mutex);
+		dev->grab();
+	}
 }
 
 

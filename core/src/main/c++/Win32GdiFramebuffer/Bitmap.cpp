@@ -99,25 +99,12 @@ void Bitmap::copy()
         {
             LOG_ERROR("GetDIBits failure");
         }
-        fixAlpha();
     }
 }
 
 uint8_t *Bitmap::getPixels()
 {
     return d->buffer;
-}
-
-void Bitmap::fixAlpha()
-{
-    //TODO A hack; needs better solution
-    if (NULL != d->buffer && 32 == d->bitmapInfo.bmBitsPixel)
-    {
-        for(DWORD i=3; i < d->size; i +=4)
-        {
-            d->buffer[i] = 0xFF;
-        }
-    }
 }
 
 DWORD Bitmap::size() const
@@ -144,6 +131,5 @@ void Bitmap::dump() const
     LOG_DEBUG("bitmapInfo.bmWidth = %d", d->bitmapInfo.bmWidth);
     LOG_DEBUG("bitmapInfo.bmWidthBytes = %d", d->bitmapInfo.bmWidthBytes);
 }
-
 
 }//End of Javnce
