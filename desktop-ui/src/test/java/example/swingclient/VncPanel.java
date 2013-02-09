@@ -40,6 +40,10 @@ import org.javnce.vnc.client.VncClientController;
 public class VncPanel extends JPanel implements RemoteVncServerObserver {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -1142949991381407966L;
+    /**
      * The image.
      */
     final private VncImage image;

@@ -27,6 +27,10 @@ import org.javnce.upnp.RemoteServerInfo;
 public class RemoteServerInfoTableModel extends AbstractTableModel {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = 2861553478940411094L;
+    /**
      * The column names.
      */
     static final private String[] columnNames = {"Name", "Address"};
@@ -62,7 +66,7 @@ public class RemoteServerInfoTableModel extends AbstractTableModel {
      * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
      */
     @Override
-    public Class getColumnClass(int column) {
+    public Class<?> getColumnClass(int column) {
         return String.class;
     }
 

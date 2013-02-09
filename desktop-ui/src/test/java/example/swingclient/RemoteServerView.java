@@ -37,6 +37,10 @@ import org.javnce.upnp.UpnpClientObserver;
 public class RemoteServerView extends JPanel implements UpnpClientObserver, ActionListener {
 
     /**
+     *
+     */
+    private static final long serialVersionUID = -411909184007381186L;
+    /**
      * The table model.
      */
     final private RemoteServerInfoTableModel tableModel;
