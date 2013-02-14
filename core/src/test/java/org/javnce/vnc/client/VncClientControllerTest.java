@@ -36,8 +36,8 @@ public class VncClientControllerTest {
         VncClientController controller = new VncClientController();
 
         TestServer server = new TestServer();
-
-        controller.launch(server.address(), new TestObserver());
+        controller.setObserver(new TestObserver());
+        controller.launch(server.address());
         server.accept();
         controller.shutdown();
         server.close();

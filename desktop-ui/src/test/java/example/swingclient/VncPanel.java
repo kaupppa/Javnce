@@ -86,8 +86,8 @@ public class VncPanel extends JPanel implements RemoteVncServerObserver {
      */
     private void init() {
         setBorder(BorderFactory.createLineBorder(Color.black));
-
-        controller.launch(serverInfo.getAddress(), this);
+        controller.setObserver(this);
+        controller.launch(serverInfo.getAddress());
     }
 
     /* (non-Javadoc)

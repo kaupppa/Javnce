@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?scenebuilder-preview-i18n-resource MainView_en.properties?>
+
+<AnchorPane id="AnchorPane" fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml">
+  <children>
+    <VBox fx:id="layout" prefHeight="-1.0" prefWidth="-1.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <children>
+        <AnchorPane id="AnchorPane" fx:id="toolbar" disable="false" prefHeight="50.0" prefWidth="-1.0" styleClass="titlebackground" visible="true">
+          <children>
+            <HBox alignment="TOP_CENTER" prefHeight="-1.0" prefWidth="-1.0" spacing="15.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+              <children>
+                <Button fx:id="fullscreenButton" mnemonicParsing="false" prefWidth="90.0" text="%fullscreenButton.text" />
+              </children>
+              <padding>
+                <Insets />
+              </padding>
+            </HBox>
+            <Button id="button" fx:id="backButton" mnemonicParsing="false" prefWidth="90.0" text="%backButton.text" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
+            <Button fx:id="helpButton" mnemonicParsing="false" prefWidth="90.0" text="%helpButton.text" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="0.0" />
+          </children>
+          <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+          </padding>
+        </AnchorPane>
+        <AnchorPane fx:id="child" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="10000.0" prefWidth="-1.0" styleClass="background" />
+      </children>
+    </VBox>
+  </children>
+  <stylesheets>
+    <URL value="@Javnce.css" />
+  </stylesheets>
+</AnchorPane>

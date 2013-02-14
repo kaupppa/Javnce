@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
-package org.javnce.ui.fx;
+package org.javnce.ui;
 
 import java.io.IOException;
 import java.net.URL;
@@ -45,7 +45,7 @@ public class MessageBox extends AnchorPane implements Initializable {
     /**
      * The fxml url.
      */
-    private final static URL fxmlUrl = AboutView.class.getResource("MessageBox.fxml");
+    private final static URL fxmlUrl = MessageBox.class.getResource("MessageBox.fxml");
     /**
      * The stage.
      */

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
-package org.javnce.ui.fx.client;
+package org.javnce.ui;
 
 import java.nio.ByteBuffer;
 import javafx.scene.image.PixelFormat;
@@ -61,16 +61,16 @@ public class VncImage {
                 vncFormat = org.javnce.rfb.types.PixelFormat.createARGB888();
                 break;
             //TODO RGB565 needed but how ....
-		case BYTE_INDEXED:
-			break;
-		case BYTE_RGB:
-			break;
-		case INT_ARGB:
-			break;
-		case INT_ARGB_PRE:
-			break;
-		default:
-			break;
+            case BYTE_INDEXED:
+                break;
+            case BYTE_RGB:
+                break;
+            case INT_ARGB:
+                break;
+            case INT_ARGB_PRE:
+                break;
+            default:
+                break;
         }
 
         return vncFormat;

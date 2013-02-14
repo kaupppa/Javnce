@@ -18,9 +18,11 @@ package org.javnce.vnc.client;
 
 import java.net.InetSocketAddress;
 import org.javnce.eventing.EventLoop;
+import org.javnce.rfb.types.Framebuffer;
 import org.javnce.rfb.types.PixelFormat;
 import org.javnce.rfb.types.Point;
 import org.javnce.rfb.types.Rect;
+import org.javnce.rfb.types.Size;
 import org.javnce.vnc.common.FbFormatEvent;
 import org.javnce.vnc.common.FbRequestEvent;
 import org.javnce.vnc.common.KeyEvent;
@@ -31,17 +33,24 @@ import org.javnce.vnc.common.PointerEvent;
  *
  * The VncClientController is thread safe.
  */
-public class VncClientController {
+public class VncClientController implements RemoteVncServerObserver {
 
     /**
      * The client.
      */
     private VncClient client;
+    private RemoteVncServerObserver observer;
 
     /**
      * Instantiates a new VNC client controller.
      */
     public VncClientController() {
+    }
+
+    public RemoteVncServerObserver setObserver(RemoteVncServerObserver observer) {
+        RemoteVncServerObserver old = this.observer;
+        this.observer = observer;
+        return old;
     }
 
     /**
@@ -52,9 +61,9 @@ public class VncClientController {
      * @param address the address of server
      * @param observer the observer
      */
-    synchronized public void launch(InetSocketAddress address, RemoteVncServerObserver observer) {
+    synchronized public void launch(InetSocketAddress address) {
         if (null == client) {
-            client = new VncClient(address, observer);
+            client = new VncClient(address, this);
             client.start();
         }
     }
@@ -107,5 +116,26 @@ public class VncClientController {
      */
     static public void requestFramebuffer(boolean incremental, Rect rect) {
         EventLoop.publishToRootGroup(new FbRequestEvent(incremental, rect));
+    }
+
+    @Override
+    public void connectionClosed() {
+        if (null != observer) {
+            observer.connectionClosed();
+        }
+    }
+
+    @Override
+    public void initFramebuffer(PixelFormat format, Size size) {
+        if (null != observer) {
+            observer.initFramebuffer(format, size);
+        }
+    }
+
+    @Override
+    public void framebufferUpdate(Framebuffer[] buffers) {
+        if (null != observer) {
+            observer.framebufferUpdate(buffers);
+        }
     }
 }

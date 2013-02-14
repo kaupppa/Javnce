@@ -1,10 +1,14 @@
 .titlebackground{
-    -fx-background-color: linear-gradient(white 0%, #cbd0d7 100%);
+    -fx-background-color: linear-gradient(to bottom, white 0%, #cbd0d7 100%);
+}
+toolbar{
+    -fx-background-color: linear-gradient(to bottom, white 0%, #cbd0d7 100%);
 }
 
 .background{
-        -fx-background-color: linear-gradient(#cbd0d7 0%,  white 100%);
+        -fx-background-color: linear-gradient(to bottom, #cbd0d7 0%,  white 100%);
 }
+
 .hyperlink{
     -fx-font-size: 14pt;
     -fx-text-fill: #5086bb;
@@ -37,8 +41,11 @@
 .list-view {
     -fx-background-color: linear-gradient(#cbd0d7 0%,  white 100%);
 }
+.list-cell:hover {
+    -fx-background-color: linear-gradient(#cbd0d7 0%, white 100%);
+}
+
 .list-cell {
-    -fx-padding: 3 3 3 3;
     -fx-background-color: linear-gradient(white 0%, #cbd0d7 100%);
     -fx-font-size: 16pt;
     -fx-text-fill: #5086bb;
@@ -54,7 +61,6 @@
 .list-cell:selected {
     -fx-font-weight:bold;
     -fx-text-fill: #325c5b;
-    -fx-background-color: linear-gradient(#cbd0d7 0%,  white 100%);
 }
 
 .check-box {
