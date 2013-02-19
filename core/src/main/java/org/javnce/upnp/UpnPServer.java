@@ -72,9 +72,9 @@ public class UpnPServer implements Runnable {
                 killMe();
             }
         };
-        Runtime.getRuntime().addShutdownHook(killer);
 
         try {
+            Runtime.getRuntime().addShutdownHook(killer);
             upnpService = new UpnpServiceImpl();
             // Add the bound local device to the registry
             upnpService.getRegistry().addDevice(createDevice());

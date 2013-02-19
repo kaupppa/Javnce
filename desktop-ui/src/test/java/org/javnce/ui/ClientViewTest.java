@@ -17,7 +17,6 @@
  */
 package org.javnce.ui;
 
-import javafx.scene.Node;
 import static org.junit.Assert.*;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -28,26 +27,11 @@ public class ClientViewTest {
     public static FXRule classRule = new FXRule();
 
     @Test
-    public void testCreateNode() throws Exception {
-        TestController controller = new TestController();
-        ClientView instance = new ClientView(controller);
-        Node result = instance.createNode();
-        assertNotNull(result);
-    }
-
-    @Test
-    public void testOnExit() {
-        TestController controller = new TestController();
-        ClientView instance = new ClientView(controller);
-        instance.onExit(); //No throw
-    }
-
-    @Test
     public void testInitProperties() {
         TestController controller = new TestController();
         ClientView instance = new ClientView(controller);
         instance.initProperties(controller.properties);
-       
+
         assertTrue(controller.properties.getNextDisabled().get());
         assertFalse(controller.properties.getHelpDisabled().get());
         assertFalse(controller.properties.getBackDisabled().get());
@@ -61,12 +45,5 @@ public class ClientViewTest {
         ViewFactory result = instance.createFactory();
         assertNotNull(result);
         assertNull(result.viewFactory(controller));
-    }
-
-    @Test
-    public void testConnectionClosed() {
-        TestController controller = new TestController();
-        ClientView instance = new ClientView(controller);
-        instance.connectionClosed(); //No throw
     }
 }
