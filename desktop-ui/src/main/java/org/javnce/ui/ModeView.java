@@ -29,28 +29,58 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 
-public class ModeViewController implements ViewController, Initializable {
+/**
+ * The Class ModeView implements the server/client selection view.
+ */
+public class ModeView extends View implements Initializable {
 
-    final static private ResourceBundle bundle = ResourceBundle.getBundle("org.javnce.ui.ModeView", Locale.getDefault());
-    final static private URL fxmlUrl = MainViewController.class.getResource("ModeView.fxml");
-    private Node node;
+    /**
+     * The share button.
+     */
     @FXML
     private Button shareButton;
+    /**
+     * The connect button.
+     */
     @FXML
     private Button connectButton;
 
-    @Override
-    public Node getNode() throws IOException {
-        if (null == node) {
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(fxmlUrl);
-            loader.setResources(bundle);
-            loader.setController(this);
-            node = (Node) loader.load();
-        }
-        return node;
+    /**
+     * Instantiates a new mode view.
+     *
+     * @param controller the controller
+     */
+    ModeView(Controller controller) {
+        super(controller);
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.ui.View#initProperties(org.javnce.ui.ViewProperties)
+     */
+    @Override
+    public void initProperties(ViewProperties properties) {
+        super.initProperties(properties);
+        properties.getBackDisabled().set(true);
+    }
+
+    /* (non-Javadoc)
+     * @see org.javnce.ui.View#createNode()
+     */
+    @Override
+    public Node createNode() throws IOException {
+        ResourceBundle bundle = ResourceBundle.getBundle("org.javnce.ui.ModeView", Locale.getDefault());
+        URL fxmlUrl = ViewController.class.getResource("ModeView.fxml");
+
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(fxmlUrl);
+        loader.setResources(bundle);
+        loader.setController(this);
+        return (Node) loader.load();
+    }
+
+    /* (non-Javadoc)
+     * @see javafx.fxml.Initializable#initialize(java.net.URL, java.util.ResourceBundle)
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         shareButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -67,25 +97,29 @@ public class ModeViewController implements ViewController, Initializable {
         });
     }
 
+    /**
+     * On client mode selected.
+     */
     public void onConnect() {
-        MainViewController.setViewController(new ServerSearchViewController());
+        getController().showView(new SearchView(getController()));
     }
 
+    /**
+     * On server mode selected.
+     */
     public void onShare() {
-        MainViewController.setViewController(new SettingsViewController());
+        getController().showView(new SettingsView(getController()));
     }
 
-    @Override
-    public void exit() {
-        //Nothing to do
-    }
-
+    /* (non-Javadoc)
+     * @see org.javnce.ui.View#createFactory()
+     */
     @Override
     public ViewFactory createFactory() {
         return new ViewFactory() {
             @Override
-            public ViewController viewFactory() {
-                return new ModeViewController();
+            public View viewFactory(Controller controller) {
+                return new ModeView(controller);
             }
         };
     }

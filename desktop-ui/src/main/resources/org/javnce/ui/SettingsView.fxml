@@ -3,31 +3,72 @@
 <?import java.lang.*?>
 <?import java.net.*?>
 <?import java.util.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 <?scenebuilder-preview-i18n-resource SettingsView_en.properties?>
 
-<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" styleClass="background" xmlns:fx="http://javafx.com/fxml">
+<AnchorPane id="AnchorPane" maxHeight="-1.0" maxWidth="-1.0" minHeight="-1.0" minWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" styleClass="background" xmlns:fx="http://javafx.com/fxml">
   <children>
-    <VBox id="VBox" alignment="CENTER" spacing="30.0" AnchorPane.bottomAnchor="78.0" AnchorPane.leftAnchor="147.0" AnchorPane.rightAnchor="144.0" AnchorPane.topAnchor="88.0">
+    <AnchorPane padding="$x1" prefHeight="-1.0" prefWidth="-1.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <children>
-        <VBox id="VBox" alignment="CENTER" spacing="5.0">
+        <HBox id="HBox" alignment="CENTER" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
           <children>
-            <Label text="%label.name.text" />
-            <TextField fx:id="name" prefHeight="38.0" prefWidth="309.0" promptText="" text="Server name" />
+            <Label alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" styleClass="titleText" text="%label.tittle.text" />
           </children>
-        </VBox>
-        <Separator prefWidth="200.0" />
-        <Group id="Group" autoSizeChildren="true">
+          <padding>
+            <Insets fx:id="x1" />
+          </padding>
+        </HBox>
+      </children>
+    </AnchorPane>
+    <VBox id="VBox" alignment="TOP_CENTER" prefHeight="343.0" spacing="5.0" AnchorPane.bottomAnchor="28.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="29.0">
+      <children>
+        <Separator prefWidth="-1.0" VBox.margin="$x1" VBox.vgrow="ALWAYS" />
+        <AnchorPane id="AnchorPane" padding="$x1" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
           <children>
-            <CheckBox fx:id="fullAccess" alignment="CENTER" contentDisplay="LEFT" graphicTextGap="4.0" layoutX="2.0" layoutY="59.0" mnemonicParsing="false" prefWidth="-1.0" selected="false" text="%checkbox.fullaccess.text" />
-            <CheckBox id="viewfullAccess" fx:id="viewAccess" alignment="CENTER" layoutX="0.0" layoutY="0.0" mnemonicParsing="false" prefWidth="-1.0" text="%checkbox.viewaccess.text" />
+            <VBox id="VBox" alignment="CENTER" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+              <children>
+                <Label alignment="CENTER" text="%label.name.text" VBox.vgrow="ALWAYS">
+                  <labelFor>
+                    <TextField fx:id="name" alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0" promptText="" text="Server name" VBox.vgrow="ALWAYS" />
+                  </labelFor>
+                </Label>
+                <fx:reference source="name" />
+              </children>
+              <padding>
+                <Insets left="30.0" right="30.0" />
+              </padding>
+            </VBox>
           </children>
-        </Group>
-        <Separator prefWidth="200.0" />
-        <Button fx:id="buttonShare" mnemonicParsing="false" text="%button.launch.text" />
+        </AnchorPane>
+        <Separator prefWidth="-1.0" VBox.margin="$x1" VBox.vgrow="ALWAYS" />
+        <AnchorPane id="AnchorPane" padding="$x1" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+          <children>
+            <VBox id="VBox" alignment="CENTER" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+              <children>
+                <RadioButton fx:id="fullAccess" alignment="CENTER" mnemonicParsing="false" prefWidth="-1.0" text="%checkbox.fullaccess.text" VBox.vgrow="ALWAYS">
+                  <toggleGroup>
+                    <ToggleGroup fx:id="group" />
+                  </toggleGroup>
+                </RadioButton>
+                <RadioButton fx:id="viewAccess" alignment="CENTER" mnemonicParsing="false" prefWidth="-1.0" text="%checkbox.viewaccess.text" toggleGroup="$group" VBox.vgrow="ALWAYS" />
+              </children>
+            </VBox>
+          </children>
+        </AnchorPane>
+        <Separator prefWidth="-1.0" VBox.margin="$x1" VBox.vgrow="ALWAYS" />
+        <AnchorPane id="AnchorPane" padding="$x1" prefHeight="-1.0" prefWidth="600.0" VBox.vgrow="ALWAYS">
+          <children>
+            <VBox id="VBox" alignment="CENTER" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+              <children>
+                <CheckBox id="autoconnect" fx:id="autoConnect" mnemonicParsing="false" text="%checkbox.autoconnect.text" VBox.vgrow="ALWAYS" />
+              </children>
+            </VBox>
+          </children>
+        </AnchorPane>
       </children>
     </VBox>
   </children>

@@ -21,29 +21,80 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.javnce.eventing.EventLoop;
 import org.javnce.eventing.EventLoopErrorHandler;
 
+/**
+ * The Class JavnceFx is the Javnce Application.
+ */
 public class JavnceFx extends Application {
 
+    /**
+     * The view controller.
+     */
+    private Controller controller;
+
+    /**
+     * Bind full screen property with stage property.
+     *
+     * @param stage the stage
+     */
+    private void bindFullScreen(final Stage stage) {
+        //fullScreenProperty is read only -> binding with listeners
+        stage.fullScreenProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                controller.getProperties().getFullScreen().set(newValue);
+            }
+        });
+        controller.getProperties().getFullScreen().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (newValue) {
+                    stage.setFullScreen(newValue);
+                }
+            }
+        });
+    }
+
+    /* (non-Javadoc)
+     * @see javafx.application.Application#start(javafx.stage.Stage)
+     */
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(final Stage stage) throws Exception {
         initErrorHandler();
-        MainViewController.setScene(stage);
-        MainViewController.setViewController(new ModeViewController());
+
+        controller = new ViewController();
+
+        stage.setScene(new Scene(controller.getParent()));
 
         stage.setTitle("Javnce - Java VNC");
         stage.getIcons().add(new Image(getClass().getResourceAsStream("logo.png")));
+
+        bindFullScreen(stage);
+
         stage.show();
     }
 
+    /* (non-Javadoc)
+     * @see javafx.application.Application#stop()
+     */
     @Override
     public void stop() throws Exception {
-        MainViewController.exit();
+        if (null != controller) {
+            controller.exit();
+        }
+        EventLoop.shutdownAll();
     }
 
+    /**
+     * Add own error handler.
+     */
     private void initErrorHandler() {
         EventLoop.setErrorHandler(new EventLoopErrorHandler() {
             @Override
@@ -59,6 +110,11 @@ public class JavnceFx extends Application {
         });
     }
 
+    /**
+     * The main method.
+     *
+     * @param args the arguments
+     */
     public static void main(String[] args) {
         launch(args);
     }

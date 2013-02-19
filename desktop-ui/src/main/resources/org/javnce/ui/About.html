@@ -1,25 +1,56 @@
 <!DOCTYPE HTML>
 <html>
-<head>
-<title>About Javnce</title>
-</head>
-<body>
-<h1>Javnce - desktop sharing client and server.</h1>
-<p>The Javnce is for easy desktop sharing.</p>
-<h2>Sharing your desktop</h2>
-<p>When sharing your desktop you need to tell two things:</p>
-<ul>
-<li>Name
-    <p>Name is used for recognize the different servers from each others.</p>
-</li>
-<li>Mode
-    <p>Defines if client can only see the desktop or if client interact your 
-        desktop using keyboard and mouse.</p>
-</li>
-</ul>     
-<h2>Connecting to shared desktop</h2>
-<p>Javnce searches the shared desktop. Just select to with one you want to connect.</p>
-<h1>Home page</h1>
-<p>todooo</p>
-</body>
+    <head>
+        <style type="text/css">
+            body {
+                background: -linear-gradient(top, #cbd0d7, white);
+                background: -webkit-linear-gradient(top, #cbd0d7, white);
+            }
+            ul.a 
+            {
+                list-style-type: none;
+            }
+        </style>
+    </head>
+    <body >
+        <div >
+            <h1>Javnce - desktop sharing client and server.</h1>
+            <p>The Javnce is for easily share desktop or connect to a shared desktop.</p>
+        </div>
+        <div  id="serverUsage">
+            <h2>Sharing your desktop</h2>
+            <p>Sharing your desktop with others is easy. You need only select following when asked:</p>
+            <ul>
+                <li>Name
+                    <p>Server name is shown to other Javnce users. The name is just for recognize the different servers from each others.</p>
+                </li>
+                <li>View access mode
+                    <p>When you select this one then users can only see your desktop. Other users cannot not interact with your desktop.</p>
+                </li>
+                <li>Full access mode
+                    <p>When you select this one then users can interact with your desktop, i.e. user have access to your mouse and keyboard and can do what ever you can do.</p>
+                </li>
+                <li>Auto-connect. 
+                    <p>If Auto-connect is not selected then you can either accept or decline users request to connect to your desktop.</p>
+                    <p>That is if you select Auto-connect then users can connect to your desktop without your interaction.</p>
+                    <p>Note that the accept or decline users request to connect is only "security" feature in Javnce.</p>
+                </li>
+            </ul> 
+        </div>
+        <div  id="clientUsage">
+            <h2>Connecting to shared desktop</h2>
+            <p>Connecting to shared desktop is easy.</p>
+            <p>The Javnce searches the shared desktop and you just select to with one you want to connect.</p>
+        </div>
+        <div  id="links" >
+            <h2>Links</h2>
+            <ul>
+                <li><a href="https://github.com/kaupppa/Javnce/wiki">Javance Wiki</a> </li>
+            </ul>
+            <p>Third party SW</p>
+            <ul>
+                <li><a href="http://4thline.org/projects/cling/">Cling - Java/Android UPnP library and tools</a> </li>
+            </ul>
+        </div>
+    </body>
 </html> 

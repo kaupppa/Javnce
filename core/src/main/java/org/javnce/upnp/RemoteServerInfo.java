@@ -45,7 +45,7 @@ public class RemoteServerInfo {
      * @param hostname the host name
      * @param port the port
      */
-    private RemoteServerInfo(String id, String name, String hostname, int port) {
+    public RemoteServerInfo(String id, String name, String hostname, int port) {
         this.id = id;
         this.name = name;
         this.hostname = hostname;

@@ -17,20 +17,28 @@
  */
 package org.javnce.ui;
 
-import java.util.prefs.Preferences;
+import javafx.application.Application;
+import javafx.stage.Stage;
 
-public class Settings {
+public class TestApplication extends Application {
 
-    static final private Preferences prefs = Preferences.userNodeForPackage(Settings.class);
+    private static TestApplication instance;
+    final private static Object lock = new Object();
 
-    public static Preferences get() {
-        return prefs;
+    @Override
+    public void start(Stage stage) throws Exception {
+        synchronized (lock) {
+            instance = this;
+            lock.notifyAll();
+        }
     }
 
-    public static String key(Class<?> clazz, String name) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(clazz.getName()).append(".").append(name);
-
-        return sb.toString().toLowerCase();
+    public static TestApplication waitForApplication() throws InterruptedException {
+        synchronized (lock) {
+            if (null == instance) {
+                lock.wait();
+            }
+        }
+        return instance;
     }
 }

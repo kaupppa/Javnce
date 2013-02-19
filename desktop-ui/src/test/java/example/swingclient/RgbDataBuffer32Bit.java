@@ -102,7 +102,7 @@ public class RgbDataBuffer32Bit implements RgbDataBuffer {
 
         while ((rleSize) <= buffer.remaining()) {
             count = buffer.get() & 0xff;
-            count = count + 1;
+            count += 1;
 
             pixel = buffer.getInt();
 

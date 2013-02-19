@@ -38,7 +38,7 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 
 /**
- * The Javafx v.2.2 does not have MessageBox so this is a workaround.
+ * The class MessageBox is ugly MessageBox imlementation.
  */
 public class MessageBox extends AnchorPane implements Initializable {
 
@@ -96,13 +96,12 @@ public class MessageBox extends AnchorPane implements Initializable {
 
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(fxmlUrl);
-        loader.setControllerFactory(new Callback() {
+        loader.setControllerFactory(new Callback<Class<?>, Object>() {
             @Override
-            public Object call(Object p) {
+            public Object call(Class<?> p) {
                 return controller;
             }
         });
-
         try {
             AnchorPane panel = (AnchorPane) loader.load();
             stage.setScene(new Scene(panel));

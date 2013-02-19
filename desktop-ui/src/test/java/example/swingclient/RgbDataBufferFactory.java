@@ -66,4 +66,7 @@ public class RgbDataBufferFactory {
         return dataBuffer;
 
     }
+
+    private RgbDataBufferFactory() {
+    }
 }

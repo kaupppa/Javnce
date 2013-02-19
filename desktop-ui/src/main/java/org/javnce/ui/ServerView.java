@@ -34,41 +34,62 @@ import org.javnce.vnc.server.RemoteClient;
 import org.javnce.vnc.server.RemoteClientObserver;
 import org.javnce.vnc.server.VncServerController;
 
-public class ServerViewController implements ViewController, Initializable, RemoteClientObserver {
+/**
+ * The Class ServerView implements the server view where connected clients are
+ * shown.
+ */
+public class ServerView extends View implements Initializable, RemoteClientObserver {
 
-    final static private ResourceBundle bundle = ResourceBundle.getBundle("org.javnce.ui.ServerView", Locale.getDefault());
-    final static private URL fxmlUrl = ViewController.class.getResource("ServerView.fxml");
-    private Node node;
+    /**
+     * The VNC server.
+     */
     final private VncServerController vnc;
+    /**
+     * The UPnP server.
+     */
     private UpnPServer upnp;
-    final private String name;
+    /**
+     * The items.
+     */
     final private ObservableList<String> items;
-    final private boolean fullAccessMode;
+    /**
+     * The list view.
+     */
     @FXML
     ListView<String> listView;
 
-    public ServerViewController(String name, boolean fullAccessMode) {
-        this.name = name;
-        this.fullAccessMode = fullAccessMode;
+    /**
+     * Instantiates a new server view.
+     *
+     * @param controller the controller
+     */
+    public ServerView(Controller controller) {
+        super(controller);
         items = FXCollections.observableArrayList();
-        vnc = new VncServerController(fullAccessMode);
+        vnc = new VncServerController(controller.getConfig().fullAccessMode().get());
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.ui.View#createNode()
+     */
     @Override
-    public Node getNode() throws IOException {
-        if (null == node) {
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(fxmlUrl);
-            loader.setResources(bundle);
-            loader.setController(this);
-            node = (Node) loader.load();
-        }
-        return node;
-
+    public Node createNode() throws IOException {
+        ResourceBundle bundle = ResourceBundle.getBundle("org.javnce.ui.ServerView", Locale.getDefault());
+        URL fxmlUrl = View.class.getResource("ServerView.fxml");
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(fxmlUrl);
+        loader.setResources(bundle);
+        loader.setController(this);
+        return (Node) loader.load();
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.ui.View#onExit()
+     */
     @Override
-    public void exit() {
+    public void onExit() {
+        vnc.removeObserver(this);
+        vnc.shutdown();
         if (null != upnp) {
             new Thread(new Runnable() {
                 @Override
@@ -77,21 +98,24 @@ public class ServerViewController implements ViewController, Initializable, Remo
                 }
             }).start();
         }
-        vnc.removeObserver(this);
-        vnc.shutdown();
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.ui.View#createFactory()
+     */
     @Override
     public ViewFactory createFactory() {
         return new ViewFactory() {
             @Override
-            public ViewController viewFactory() {
-                return new ServerViewController(name, fullAccessMode);
+            public View viewFactory(Controller controller) {
+                return new ServerView(controller);
             }
         };
-
     }
 
+    /* (non-Javadoc)
+     * @see javafx.fxml.Initializable#initialize(java.net.URL, java.util.ResourceBundle)
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         listView.setItems(items);
@@ -99,6 +123,9 @@ public class ServerViewController implements ViewController, Initializable, Remo
         vnc.launch();
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.vnc.server.RemoteClientObserver#vncClientChanged(org.javnce.vnc.server.RemoteClient)
+     */
     @Override
     public void vncClientChanged(RemoteClient client) {
         Runnable r = null;
@@ -135,18 +162,31 @@ public class ServerViewController implements ViewController, Initializable, Remo
 
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.vnc.server.RemoteClientObserver#portChanged(int)
+     */
     @Override
     public void portChanged(int port) {
         if (null == upnp && 0 < port) {
-            upnp = new UpnPServer(name, port);
+            upnp = new UpnPServer(getController().getConfig().serverName().get(), port);
             new Thread(upnp).start();
         }
     }
 
+    /**
+     * Accept connection.
+     *
+     * @param client the client
+     */
     private void acceptConnection(RemoteClient client) {
-        String text = new MessageBox("Accept client ?",
-                "New client from " + client.address(), "Accept", "Decline").exec();
-        boolean accept = text.equals("Accept");
+        boolean accept;
+        if (getController().getConfig().autoConnect().get()) {
+            accept = true;
+        } else {
+            String text = new MessageBox("Accept client ?",
+                    "New client from " + client.address(), "Accept", "Decline").exec();
+            accept = text.equals("Accept");
+        }
         if (accept) {
             client.connect();
         } else {

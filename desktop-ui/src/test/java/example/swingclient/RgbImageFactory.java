@@ -98,4 +98,7 @@ public class RgbImageFactory {
     static private WritableRaster createWritableRaster(SampleModel model, DataBuffer dataBuffer) {
         return Raster.createWritableRaster(model, dataBuffer, null);
     }
+
+    private RgbImageFactory() {
+    }
 }

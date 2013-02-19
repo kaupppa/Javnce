@@ -35,77 +35,118 @@ import org.javnce.rfb.types.Framebuffer;
 import org.javnce.rfb.types.PixelFormat;
 import org.javnce.rfb.types.Rect;
 import org.javnce.rfb.types.Size;
-import org.javnce.upnp.RemoteServerInfo;
 import org.javnce.vnc.client.RemoteVncServerObserver;
 import org.javnce.vnc.client.VncClientController;
 
-public class ClientViewController implements ViewController, Initializable, RemoteVncServerObserver {
+/**
+ * The Class ClientView is the VNC client view.
+ *
+ * The ClientView shows the remote frame buffer and dispatches mouse and key
+ * events to server.
+ */
+public class ClientView extends View implements Initializable, RemoteVncServerObserver {
 
-    final static private URL fxmlUrl = ViewController.class.getResource("ClientView.fxml");
-    private Node node;
-    final private RemoteServerInfo serverInfo;
-    final private VncClientController controller;
+    /**
+     * The VNC client.
+     */
+    final private VncClientController vncClient;
+    /**
+     * The remote frame buffer .
+     */
     private VncImage image;
+    /**
+     * The mouse event dispatcher.
+     */
     private VncPointerDispatcher mouseEventDispatcher;
+    /**
+     * The key event dispatcher.
+     */
     private VncKeyDispatcher keyEventDispatcher;
+    /**
+     * The frame buffer full area.
+     */
     private Rect rect;
+    /**
+     * The image view.
+     */
     @FXML
     ImageView imageView;
+    /**
+     * The anchor pane.
+     */
     @FXML
     AnchorPane anchorPane;
 
-    public ClientViewController(RemoteServerInfo serverInfo) {
-        controller = new VncClientController();
-        this.serverInfo = serverInfo;
+    /**
+     * Instantiates a new client view.
+     *
+     * @param controller the controller
+     */
+    public ClientView(Controller controller) {
+        super(controller);
+        vncClient = new VncClientController();
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.ui.View#createNode()
+     */
     @Override
-    public Node getNode() throws IOException {
-        if (null == node) {
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(fxmlUrl);
-            loader.setController(this);
-            node = (Node) loader.load();
-        }
-        return node;
-
+    public Node createNode() throws IOException {
+        URL fxmlUrl = View.class.getResource("ClientView.fxml");
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(fxmlUrl);
+        loader.setController(this);
+        return (Node) loader.load();
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.ui.View#onExit()
+     */
     @Override
-    public void exit() {
-        controller.setObserver(null);
-        controller.shutdown();
+    public void onExit() {
+        vncClient.setObserver(null);
+        vncClient.shutdown();
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.ui.View#createFactory(org.javnce.ui.Controller)
+     */
     @Override
     public ViewFactory createFactory() {
         return new ViewFactory() {
             @Override
-            public ViewController viewFactory() {
-                return new ClientViewController(serverInfo);
+            public View viewFactory(Controller controller) {
+                return null;
             }
         };
     }
 
+    /* (non-Javadoc)
+     * @see javafx.fxml.Initializable#initialize(java.net.URL, java.util.ResourceBundle)
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        controller.setObserver(this);
-        controller.launch(serverInfo.getAddress());
+        vncClient.setObserver(this);
+        vncClient.launch(getController().getConfig().getServerInfo().getAddress());
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.vnc.client.RemoteVncServerObserver#connectionClosed()
+     */
     @Override
     public void connectionClosed() {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                exit();
-                MainViewController.previous();
+                getController().previousView();
                 new MessageBox("Connection closed", "Connection closed", "Ok").exec();
             }
         });
-
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.vnc.client.RemoteVncServerObserver#initFramebuffer(org.javnce.rfb.types.PixelFormat, org.javnce.rfb.types.Size)
+     */
     @Override
     public void initFramebuffer(PixelFormat format, Size size) {
         final org.javnce.rfb.types.PixelFormat newformat = format;
@@ -117,9 +158,11 @@ public class ClientViewController implements ViewController, Initializable, Remo
                 config(newformat, newsize);
             }
         });
-
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.vnc.client.RemoteVncServerObserver#framebufferUpdate(org.javnce.rfb.types.Framebuffer[])
+     */
     @Override
     public void framebufferUpdate(Framebuffer[] buffers) {
         final Framebuffer[] newbuffers = buffers;
@@ -130,9 +173,13 @@ public class ClientViewController implements ViewController, Initializable, Remo
                 update(newbuffers);
             }
         });
-
     }
 
+    /**
+     * Gets the pixel format of WritableImage.
+     *
+     * @return the native
+     */
     private org.javnce.rfb.types.PixelFormat getNative() {
 
         WritableImage temp = new WritableImage(1, 1);
@@ -140,11 +187,17 @@ public class ClientViewController implements ViewController, Initializable, Remo
         return VncImage.convertPixelFormat(writer.getPixelFormat());
     }
 
+    /**
+     * Inits the image view.
+     */
     private void initImageView() {
         resize();
         imageView.setImage(image.getImage());
     }
 
+    /**
+     * Inits the resize observers.
+     */
     private void initResizeObservers() {
         resize();
         final ChangeListener<Number> listener = new ChangeListener<Number>() {
@@ -157,6 +210,12 @@ public class ClientViewController implements ViewController, Initializable, Remo
         anchorPane.heightProperty().addListener(listener);
     }
 
+    /**
+     * Configures the image and dispathers.
+     *
+     * @param format the format
+     * @param size the size
+     */
     private void config(org.javnce.rfb.types.PixelFormat format, Size size) {
 
         org.javnce.rfb.types.PixelFormat nativeFormat = getNative();
@@ -182,12 +241,20 @@ public class ClientViewController implements ViewController, Initializable, Remo
         imageView.requestFocus();
     }
 
+    /**
+     * Update image.
+     *
+     * @param buffers the buffers
+     */
     private void update(Framebuffer[] buffers) {
         VncClientController.requestFramebuffer(true, rect);
         image.write(buffers);
         anchorPane.requestLayout();
     }
 
+    /**
+     * Resize image.
+     */
     private void resize() {
         imageView.setFitWidth(anchorPane.getWidth());
         imageView.setFitHeight(anchorPane.getHeight());

@@ -17,16 +17,14 @@
  */
 package org.javnce.ui;
 
-/**
- * A factory for creating View objects.
- */
-public interface ViewFactory {
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 
-    /**
-     * View factory.
-     *
-     * @param controller the controller
-     * @return the view or null if back cannot be supported.
-     */
-    View viewFactory(Controller controller);
+public class FXRule implements TestRule{
+
+    @Override
+    public Statement apply(Statement statement, Description description) {
+        return new FXStatement(statement);
+    }
 }

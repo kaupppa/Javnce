@@ -17,16 +17,30 @@
  */
 package org.javnce.ui;
 
-/**
- * A factory for creating View objects.
- */
-public interface ViewFactory {
+import javafx.scene.Parent;
+import static org.junit.Assert.*;
+import org.junit.Test;
 
-    /**
-     * View factory.
-     *
-     * @param controller the controller
-     * @return the view or null if back cannot be supported.
-     */
-    View viewFactory(Controller controller);
+public class ViewControllerTest {
+    
+    @Test
+    public void testGetConfig() {
+        ViewController instance = new ViewController();
+        Config result = instance.getConfig();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testGetParent() throws Exception {
+        ViewController instance = new ViewController();
+        Parent result = instance.getParent();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testGetProperties() {
+        ViewController instance = new ViewController();
+        ViewProperties result = instance.getProperties();
+        assertNotNull(result);
+    }
 }

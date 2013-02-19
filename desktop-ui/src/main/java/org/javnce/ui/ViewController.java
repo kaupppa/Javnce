@@ -18,13 +18,147 @@
 package org.javnce.ui;
 
 import java.io.IOException;
-import javafx.scene.Node;
+import java.util.Stack;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.scene.Parent;
+import org.javnce.eventing.EventLoop;
 
-public interface ViewController {
+/**
+ * The Class ViewController handles View in MainView.
+ *
+ * The ViewController has stack of ViewFactory to support back.
+ */
+public class ViewController implements Controller {
 
-    Node getNode() throws IOException;
+    /**
+     * The view satck.
+     */
+    final private Stack<ViewFactory> viewSatck;
+    /**
+     * The current view.
+     */
+    private View currentView;
+    /**
+     * The main view.
+     */
+    final private MainView mainView;
+    /**
+     * The config.
+     */
+    final private Config config;
 
-    void exit();
+    /**
+     * Instantiates a new view controller.
+     */
+    public ViewController() {
+        viewSatck = new Stack<>();
+        config = new Config();
+        mainView = new MainView(config);
+        init();
+    }
 
-    ViewFactory createFactory();
+    /**
+     * Inits the.
+     */
+    private void init() {
+        final ViewController controller = this;
+        mainView.getProperties().getInitDone().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (newValue) {
+                    setView(new ModeView(controller));
+                }
+            }
+        });
+    }
+
+    /**
+     * Sets the view.
+     *
+     * @param view the new view
+     */
+    private void setView(View view) {
+        if (null != view) {
+            try {
+                currentView = view;
+                mainView.setView(view);
+            } catch (IOException ex) {
+                EventLoop.fatalError(this, ex);
+            }
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see org.javnce.ui.Controller#showView(org.javnce.ui.View)
+     */
+    @Override
+    public void showView(View view) {
+
+        if (null != currentView) {
+            viewSatck.push(currentView.createFactory());
+        }
+        setView(view);
+    }
+
+    /* (non-Javadoc)
+     * @see org.javnce.ui.Controller#previousView()
+     */
+    @Override
+    public void previousView() {
+        if (!viewSatck.isEmpty()) {
+            ViewFactory factory = viewSatck.pop();
+            View view = factory.viewFactory(this);
+            if (null != view) {
+                setView(view);
+            } else {
+                previousView();
+            }
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see org.javnce.ui.Controller#exit()
+     */
+    @Override
+    public void exit() {
+        mainView.exit();
+    }
+
+    /* (non-Javadoc)
+     * @see org.javnce.ui.Controller#getConfig()
+     */
+    @Override
+    public Config getConfig() {
+        return config;
+    }
+
+    /* (non-Javadoc)
+     * @see org.javnce.ui.Controller#getParent()
+     */
+    @Override
+    public Parent getParent() throws IOException {
+        Parent parent = null;
+
+        if (null != mainView) {
+            parent = (Parent) mainView.getNode();
+        }
+        return parent;
+    }
+
+    /* (non-Javadoc)
+     * @see org.javnce.ui.Controller#showHelp()
+     */
+    @Override
+    public void showHelp() {
+        showView(new AboutView(this));
+    }
+
+    /* (non-Javadoc)
+     * @see org.javnce.ui.Controller#getProperties()
+     */
+    @Override
+    public ViewProperties getProperties() {
+        return mainView.getProperties();
+    }
 }

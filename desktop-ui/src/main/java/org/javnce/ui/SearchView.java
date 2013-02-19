@@ -23,15 +23,16 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressIndicator;
@@ -41,39 +42,65 @@ import org.javnce.upnp.RemoteServerInfo;
 import org.javnce.upnp.UpnpClient;
 import org.javnce.upnp.UpnpClientObserver;
 
-public class ServerSearchViewController implements ViewController, Initializable, UpnpClientObserver {
+/**
+ * The Class SearchView implements search and selection of servers view.
+ */
+public class SearchView extends View implements Initializable, UpnpClientObserver {
 
-    final static private ResourceBundle bundle = ResourceBundle.getBundle("org.javnce.ui.ServerSearchView", Locale.getDefault());
-    final static private URL fxmlUrl = ViewController.class.getResource("ServerSearchView.fxml");
+    /** The items. */
     final private ObservableList<RemoteServerInfo> items;
+    
+    /** The upnp. */
     final private UpnpClient upnp;
-    private Node node;
+    
+    /** The bundle. */
+    final private ResourceBundle bundle;
+    
+    /** The progress indicator. */
     @FXML
     ProgressIndicator progressIndicator;
+    
+    /** The list view. */
     @FXML
     ListView<RemoteServerInfo> listView;
+    
+    /** The label. */
     @FXML
-    Button connectButton;
+    Label label;
 
-    public ServerSearchViewController() {
+    /**
+     * Instantiates a new search view.
+     *
+     * @param controller the controller
+     */
+    public SearchView(Controller controller) {
+        super(controller);
         items = FXCollections.observableArrayList();
         upnp = new UpnpClient();
+        bundle = ResourceBundle.getBundle("org.javnce.ui.ServerSearchView", Locale.getDefault());
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.ui.View#createNode()
+     */
     @Override
-    public Node getNode() throws IOException {
-        if (null == node) {
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(fxmlUrl);
-            loader.setResources(bundle);
-            loader.setController(this);
-            node = (Node) loader.load();
-        }
-        return node;
+    public Node createNode() throws IOException {
+        URL fxmlUrl = View.class.getResource("ServerSearchView.fxml");
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(fxmlUrl);
+        loader.setResources(bundle);
+        loader.setController(this);
+        return (Node) loader.load();
     }
 
+    /**
+     * The Class MyCell.
+     */
     static class MyCell extends ListCell<RemoteServerInfo> {
 
+        /* (non-Javadoc)
+         * @see javafx.scene.control.Cell#updateItem(java.lang.Object, boolean)
+         */
         @Override
         protected void updateItem(RemoteServerInfo item, boolean empty) {
             super.updateItem(item, empty);
@@ -84,40 +111,66 @@ public class ServerSearchViewController implements ViewController, Initializable
         }
     }
 
+    /**
+     * A factory for creating MyCell objects.
+     */
     static class MyCellFactory implements Callback<ListView<RemoteServerInfo>, ListCell<RemoteServerInfo>> {
 
+        /* (non-Javadoc)
+         * @see javafx.util.Callback#call(java.lang.Object)
+         */
         @Override
         public ListCell<RemoteServerInfo> call(ListView<RemoteServerInfo> p) {
             return new MyCell();
         }
     }
 
+    /* (non-Javadoc)
+     * @see javafx.fxml.Initializable#initialize(java.net.URL, java.util.ResourceBundle)
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        connectButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                onConnect();
-            }
-        });
         listView.setCellFactory(new MyCellFactory());
         listView.setItems(items);
         listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        //Call update when items changes
+        items.addListener(new ListChangeListener<RemoteServerInfo>() {
+            @Override
+            public void onChanged(Change<? extends RemoteServerInfo> change) {
+                update();
+            }
+        });
+        //Call update when listView selection changes
+        listView.getSelectionModel().selectedItemProperty()
+                .addListener(new ChangeListener<RemoteServerInfo>() {
+            @Override
+            public void changed(ObservableValue<? extends RemoteServerInfo> ov, RemoteServerInfo t, RemoteServerInfo t1) {
+                update();
+            }
+        });
         upnp.setObserver(this);
         new Thread(upnp).start();
         update();
     }
 
-    public void onConnect() {
+    /* (non-Javadoc)
+     * @see org.javnce.ui.View#onNext()
+     */
+    @Override
+    public void onNext() {
         ObservableList<RemoteServerInfo> selected = listView.getSelectionModel().getSelectedItems();
         if (1 >= selected.size()) {
             final RemoteServerInfo server = selected.get(0);
-            MainViewController.setViewController(new ClientViewController(server));
+            getController().getConfig().setServerInfo(server);
+            getController().showView(new ClientView(getController()));
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.ui.View#onExit()
+     */
     @Override
-    public void exit() {
+    public void onExit() {
         upnp.setObserver(null);
         new Thread(new Runnable() {
             @Override
@@ -127,16 +180,22 @@ public class ServerSearchViewController implements ViewController, Initializable
         }).start();
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.ui.View#createFactory()
+     */
     @Override
     public ViewFactory createFactory() {
         return new ViewFactory() {
             @Override
-            public ViewController viewFactory() {
-                return new ServerSearchViewController();
+            public View viewFactory(Controller controller) {
+                return new SearchView(controller);
             }
         };
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.upnp.UpnpClientObserver#serverFound(org.javnce.upnp.RemoteServerInfo)
+     */
     @Override
     public void serverFound(final RemoteServerInfo server) {
         Platform.runLater(new Runnable() {
@@ -145,25 +204,28 @@ public class ServerSearchViewController implements ViewController, Initializable
                 //Remove in case of update
                 remove(server);
                 items.add(server);
-                update();
-                if (1 == items.size()) {
-                    listView.getSelectionModel().select(0);
-                }
             }
         });
     }
 
+    /* (non-Javadoc)
+     * @see org.javnce.upnp.UpnpClientObserver#serverLost(org.javnce.upnp.RemoteServerInfo)
+     */
     @Override
     public void serverLost(final RemoteServerInfo server) {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
                 remove(server);
-                update();
             }
         });
     }
 
+    /**
+     * Removes the.
+     *
+     * @param server the server
+     */
     private void remove(RemoteServerInfo server) {
         for (Iterator<RemoteServerInfo> i = items.iterator(); i.hasNext();) {
             if (server.getId().equals(i.next().getId())) {
@@ -172,18 +234,31 @@ public class ServerSearchViewController implements ViewController, Initializable
         }
     }
 
+    /**
+     * Update.
+     */
     private void update() {
         if (items.isEmpty()) {
+            //Bug in ListView, selection not cleared if empty ?
+            listView.getSelectionModel().clearSelection();
             progressIndicator.setProgress(-1.0f);
             progressIndicator.setVisible(true);
             listView.setVisible(false);
-            connectButton.setVisible(false);
+            label.setText(bundle.getString("searching.title.text"));
+            getProperties().getNextDisabled().set(true);
 
         } else {
             progressIndicator.setVisible(false);
             listView.setVisible(true);
             progressIndicator.setProgress(0);
-            connectButton.setVisible(true);
+            label.setText(bundle.getString("select.title.text"));
+
+            ObservableList<RemoteServerInfo> selected = listView.getSelectionModel().getSelectedItems();
+            if (1 <= selected.size()) {
+                getProperties().getNextDisabled().set(false);
+            } else {
+                getProperties().getNextDisabled().set(true);
+            }
         }
     }
 }

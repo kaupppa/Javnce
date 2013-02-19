@@ -44,7 +44,8 @@ public class VncImage {
     /**
      * The image format in FX style.
      */
-    final private PixelFormat fxFormat;
+    @SuppressWarnings("rawtypes")
+	final private PixelFormat fxFormat;
 
     /**
      * Convert pixel format.
@@ -52,7 +53,8 @@ public class VncImage {
      * @param format the format
      * @return the org.javnce.rfb.types. pixel format
      */
-    static public org.javnce.rfb.types.PixelFormat convertPixelFormat(PixelFormat format) {
+    @SuppressWarnings("rawtypes")
+	static public org.javnce.rfb.types.PixelFormat convertPixelFormat(PixelFormat format) {
         org.javnce.rfb.types.PixelFormat vncFormat = null;
 
         switch (format.getType()) {
@@ -130,7 +132,8 @@ public class VncImage {
      * @param w the w
      * @param h the h
      */
-    private void writeRaw(ByteBuffer buffer, int x, int y, int w, int h) {
+    @SuppressWarnings("unchecked")
+	private void writeRaw(ByteBuffer buffer, int x, int y, int w, int h) {
         writer.setPixels(x, y, w, h, fxFormat, buffer, w * format.bytesPerPixel());
     }
 
@@ -154,7 +157,7 @@ public class VncImage {
         while ((rleSize) <= src.remaining() && bytePerPixel <= dst.remaining()) {
 
             int count = src.get() & 0xff;
-            count = count + 1;
+            count += 1;
 
             src.get(pixel);
 

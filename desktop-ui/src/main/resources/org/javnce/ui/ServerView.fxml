@@ -3,18 +3,26 @@
 <?import java.lang.*?>
 <?import java.net.*?>
 <?import java.util.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 <?scenebuilder-preview-i18n-resource ServerView_en.properties?>
 
-<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" styleClass="background" xmlns:fx="http://javafx.com/fxml">
+<AnchorPane id="AnchorPane" maxHeight="-1.0" maxWidth="-1.0" minHeight="-1.0" minWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" styleClass="background" xmlns:fx="http://javafx.com/fxml">
   <children>
-    <VBox id="VBox" alignment="CENTER" spacing="5.0" AnchorPane.bottomAnchor="120.0" AnchorPane.leftAnchor="108.0" AnchorPane.rightAnchor="105.0" AnchorPane.topAnchor="83.0">
+    <VBox id="VBox" alignment="CENTER" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <children>
-        <Label text="%label.clients.text" />
-        <ListView fx:id="listView" editable="false" prefHeight="173.0" prefWidth="387.0" />
+        <Label alignment="CENTER" styleClass="titleText" text="%label.clients.text" VBox.vgrow="ALWAYS">
+          <VBox.margin>
+            <Insets bottom="10.0" top="10.0" />
+          </VBox.margin>
+        </Label>
+        <ListView fx:id="listView" editable="false" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS" />
       </children>
+      <padding>
+        <Insets bottom="15.0" left="30.0" right="30.0" top="15.0" />
+      </padding>
     </VBox>
   </children>
   <stylesheets>
