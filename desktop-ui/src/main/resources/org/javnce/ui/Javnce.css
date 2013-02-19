@@ -1,84 +1,56 @@
-.background{
-        -fx-background-color: linear-gradient(to bottom, #cbd0d7 0%,  white 100%);
+.root {
+    -fx-background-color: linear-gradient(to bottom, #cbd0d7 0%, white 100%);
 }
 
-.label {
+#toolbar {
+    -fx-background-color: linear-gradient(to bottom, white 0%, #cbd0d7 100%);
+}
+
+.button, .radio-button, .check-box, .list-cell {
+    -fx-background-color: linear-gradient(to bottom, #cbd0d7 0%, white 100%);
     -fx-font-size: 16pt;
+    -fx-text-fill: #5086bb;
+    -fx-background-radius: 23;
+    -fx-border-radius: 23;
+    -fx-padding: 8;
+    -fx-effect: dropshadow( one-pass-box , #cbd0d7 , 10 , 0.0 , 3 , 3 );
+    -fx-alignment:center;
 }
 
-.titleText {
-    -fx-font-size: 20pt;
+.radio-button {
+    -fx-alignment:center-left ;
+}
+
+.button:pressed, .button:hover, .button:focused, .list-cell:filled:selected, .list-cell:filled:hover {
+    -fx-background-color: linear-gradient(to bottom, white 0%, #cbd0d7 100%);
     -fx-font-weight:bold;
-    -fx-text-fill: #325c5b;
+}
+
+.list-view, .list-cell:empty {
+    -fx-background-fills:null;
 }
 
 .button:disabled {
     visibility:hidden;
 }
 
-.button {
-    -fx-background-color: linear-gradient(to bottom, white 0%, #cbd0d7 100%);
+.label {
     -fx-font-size: 16pt;
     -fx-text-fill: #5086bb;
-    -fx-padding: 8;
-    -fx-background-radius: 23;
-    -fx-border-radius: 23;
-}
-
-.button:hover {
-    -fx-background-color: linear-gradient(to bottom, #cbd0d7 0%, white 100%);
-}
-
-.list-view {
-    -fx-background-color: linear-gradient(to bottom, #cbd0d7 0%,  white 100%);
-}
-.list-cell:hover {
-    -fx-background-color: linear-gradient(to bottom, #cbd0d7 0%, white 100%);
-}
-
-.list-cell {
-    -fx-background-color: linear-gradient(to bottom, white 0%, #cbd0d7 100%);
-    -fx-font-size: 16pt;
-    -fx-text-fill: #5086bb;
-    -fx-background-radius: 23;
-    -fx-border-radius: 23;
-    -fx-alignment:center 
-}
- 
-.list-cell:empty {
-   -fx-opacity: 0.0;
-    visibility:hidden;
-}
-
-.list-cell:selected {
-    -fx-font-weight:bold;
-    -fx-text-fill: #325c5b;
-}
-
-.radio-button {
-    -fx-font-size: 16pt;
-    -fx-text-fill: #5086bb;
-    -fx-background-color: linear-gradient(to bottom, white 0%, #cbd0d7 100%);
-    -fx-padding: 10;
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
-}
-.check-box {
-    -fx-font-size: 16pt;
-    -fx-text-fill: #5086bb;
-    -fx-background-color: linear-gradient(to bottom, white 0%, #cbd0d7 100%);
-    -fx-padding: 10;
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
 }
 
 .text-input {
     -fx-font-size: 16pt;
     -fx-text-fill: #325c5b;
-    -fx-background-color: linear-gradient(to bottom, white 0%, #cbd0d7 100%);
-    -fx-padding: 10;
     -fx-background-radius: 10;
     -fx-border-radius: 10;
-    -fx-border-color: #767676;
+    -fx-effect: dropshadow( one-pass-box , #cbd0d7 , 10 , 0.0 , 3 , 3 );
+}
+
+#titleLabel {
+    -fx-font-size: 20pt;
+    -fx-font-weight:bold;
+    -fx-text-fill: #325c5b;
+    -fx-label-padding: 3 3 3 3;
 }
 

@@ -9,13 +9,13 @@
 <?import javafx.scene.paint.*?>
 <?scenebuilder-preview-i18n-resource MainView_en.properties?>
 
-<AnchorPane id="AnchorPane" fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml">
+<AnchorPane id="AnchorPane" fx:id="root" disable="false" focusTraversable="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" visible="true" xmlns:fx="http://javafx.com/fxml">
   <children>
-    <VBox fx:id="layout" prefHeight="-1.0" prefWidth="-1.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+    <VBox fx:id="layout" focusTraversable="false" prefHeight="-1.0" prefWidth="-1.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <children>
-        <AnchorPane id="AnchorPane" fx:id="toolbar" disable="false" focusTraversable="false" prefHeight="50.0" prefWidth="-1.0" styleClass="titlebackground" visible="true">
+        <AnchorPane fx:id="toolbar" disable="false" focusTraversable="false" prefHeight="50.0" prefWidth="-1.0" visible="true">
           <children>
-            <HBox id="HBox" alignment="CENTER" spacing="5.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <HBox id="HBox" alignment="CENTER" focusTraversable="false" spacing="5.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
               <children>
                 <Button fx:id="fullscreenButton" mnemonicParsing="false" prefWidth="-1.0" text="%fullscreenButton.text">
                   <HBox.margin>
@@ -25,14 +25,14 @@
                 <Button fx:id="helpButton" contentDisplay="LEFT" mnemonicParsing="false" prefHeight="-1.0" prefWidth="-1.0" text="%helpButton.text" />
               </children>
             </HBox>
-            <Button id="button" fx:id="backButton" contentDisplay="LEFT" mnemonicParsing="false" prefHeight="-1.0" prefWidth="-1.0" text="%backButton.text" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
             <Button fx:id="nextButton" mnemonicParsing="false" text="%nextButton.text" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+            <Button id="button" fx:id="backButton" contentDisplay="LEFT" mnemonicParsing="false" prefHeight="-1.0" prefWidth="-1.0" text="%backButton.text" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
           </children>
           <padding>
             <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
           </padding>
         </AnchorPane>
-        <AnchorPane fx:id="child" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" styleClass="background" VBox.vgrow="ALWAYS" />
+        <AnchorPane fx:id="child" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" styleClass="default" VBox.vgrow="ALWAYS" />
       </children>
     </VBox>
   </children>
