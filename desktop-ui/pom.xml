@@ -151,7 +151,9 @@
                                                      vendor="Javnce"
                                                      category="Network"
                                                      license="GPLv2"
-                                                     description="Javnce- Desktop sharing application.">
+                                                     copyright="Copyright Pauli Kauppinen 2013"
+                                                     description="Javnce - Desktop sharing application.">
+                                                <fx:icon href="src/main/resources/org/javnce/ui/logo.png" kind="shortcut"/> 
                                             </fx:info>
                                             <fx:permissions elevated="true"/>
                                             <fx:preferences install="false" shortcut="true  "/>
