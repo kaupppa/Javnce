@@ -99,6 +99,19 @@ void Bitmap::copy()
         {
             LOG_ERROR("GetDIBits failure");
         }
+        fixAlpha();
+    }
+}
+
+void Bitmap::fixAlpha()
+{
+    //TODO A hack; needs better solution
+    if (NULL != d->buffer && 32 == d->bitmapInfo.bmBitsPixel)
+    {
+        for(DWORD i=3; i < d->size; i +=4)
+        {
+            d->buffer[i] = 0xFF;
+        }
     }
 }
 
