@@ -27,8 +27,7 @@ public class ServerViewTest {
     @ClassRule
     public static FXRule classRule = new FXRule();
 
-    //@Test
-    //Disabled as this seg-faults in Linux x86 
+    @Test
     public void testCreateNode() throws Exception {
         TestController controller = new TestController();
         ServerView instance = new ServerView(controller);
@@ -36,8 +35,7 @@ public class ServerViewTest {
         assertNotNull(result);
     }
 
-    //@Test
-    //Disabled as this seg-faults in Linux x86 
+    @Test
     public void testOnExit() {
         TestController controller = new TestController();
         ServerView instance = new ServerView(controller);
