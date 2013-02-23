@@ -37,7 +37,7 @@ public class FramebufferHandler implements TimeOutCallback {
     /**
      * The frame buffer loading interval.
      */
-    static final private int FrameGrappingIntervalInMs = 50;
+    static final private int FrameGrappingIntervalInMs = 75;
     /**
      * The event loop.
      */
@@ -59,7 +59,9 @@ public class FramebufferHandler implements TimeOutCallback {
      * Instantiates a new frame buffer handler.
      */
     public FramebufferHandler() {
-        compare = new FrameBufferCompare();
+        //compare = new FrameBufferLineCompare();
+        compare = new FrameBufferBlockCompare();
+
     }
 
     /* (non-Javadoc)
@@ -72,7 +74,6 @@ public class FramebufferHandler implements TimeOutCallback {
         }
         dev.grabScreen();
         ArrayList<Rect> list = compare.compare(dev);
-
         int waitTime = FrameGrappingIntervalInMs;
         if (list.isEmpty()) {
             //If nothing changed then increase wait time to reduce cpu load

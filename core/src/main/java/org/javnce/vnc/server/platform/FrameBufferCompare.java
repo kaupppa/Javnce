@@ -17,48 +17,14 @@
  */
 package org.javnce.vnc.server.platform;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.zip.Adler32;
-import org.javnce.rfb.types.PixelFormat;
-import org.javnce.rfb.types.Point;
 import org.javnce.rfb.types.Rect;
-import org.javnce.rfb.types.Size;
 
 /**
- * The Class FrameBufferCompare searches changes in frame buffer.
+ * The interface FrameBufferCompare defines frame buffer change detector.
  *
- * The FrameBufferCompare uses checksum to detect changes.
  */
-class FrameBufferCompare {
-
-    /**
-     * The current checksums.
-     */
-    private long[] checksums;
-    /**
-     * The frame buffer format.
-     */
-    private PixelFormat format;
-    /**
-     * The frame buffer size.
-     */
-    private Size size;
-    /**
-     * The checksum computer.
-     */
-    final private Adler32 adler32;
-    /**
-     * The count of empty lines needed to find changed region.
-     */
-    static final private int MaxEmptyLines = 50;
-
-    /**
-     * Instantiates a new frame buffer compare.
-     */
-    FrameBufferCompare() {
-        adler32 = new Adler32();
-    }
+interface FrameBufferCompare {
 
     /**
      * Detect changes in given frame buffer.
@@ -66,72 +32,5 @@ class FrameBufferCompare {
      * @param fb the frame buffer device
      * @return the list of changed areas in frame buffer.
      */
-    ArrayList<Rect> compare(FramebufferDevice fb) {
-
-        ArrayList<Rect> list = null;
-
-        if (!fb.format().equals(format) || !fb.size().equals(size)) {
-            checksums = null;
-            format = fb.format();
-            size = fb.size();
-        }
-
-        if (null == checksums) {
-            checksums = new long[size.height()];
-            list = new ArrayList<>();
-            list.add(new Rect(new Point(0, 0), size));
-            calcChecksums(fb);
-        } else {
-            list = calcChecksums(fb);
-        }
-
-        return list;
-    }
-
-    /**
-     * Calculates checksums.
-     *
-     * @param fb the frame buffer device
-     * @return the list of changed areas in frame buffer.
-     */
-    private ArrayList<Rect> calcChecksums(FramebufferDevice fb) {
-        ArrayList<Rect> list = new ArrayList<>();
-        int min = size.height() + 1;
-        int max = -1;
-
-
-        ByteBuffer buffers[] = fb.buffer(0, 0, size.width(), size.height());
-        byte[] bytes = new byte[buffers[0].capacity()];
-        ByteBuffer.wrap(bytes).put(buffers[0]);
-
-        int lineLength = size.width() * format.bytesPerPixel();
-        int height = size.height();
-
-        int offset = 0;
-
-        for (int i = 0; i < height; i++) {
-            adler32.reset();
-            adler32.update(bytes, offset, lineLength);
-            long value = adler32.getValue();
-
-            if (checksums[i] != value) {
-                checksums[i] = value;
-                min = Math.min(min, i);
-                max = Math.max(max, i);
-            } else if (-1 != max && (max + MaxEmptyLines) < i) {
-                Rect rect = new Rect(0, min, size.width(), max - min + 1);
-                list.add(rect);
-                min = size.height() + 1;
-                max = -1;
-            }
-            offset += lineLength;
-        }
-
-        if (-1 != max) {
-            Rect rect = new Rect(0, min, size.width(), max - min + 1);
-            list.add(rect);
-        }
-
-        return list;
-    }
+    ArrayList<Rect> compare(FramebufferDevice fb);
 }
