@@ -48,23 +48,23 @@ JNIEXPORT jboolean JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuff
 
 JNIEXPORT jobject JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_sizeJni(JNIEnv *env, jclass)
 {
-	jobject object = 0;
+    jobject object = 0;
     init();
-	{
-		MutexLocker locker(&mutex);
-		object = getSize(dev, env);
-	}
+    {
+        MutexLocker locker(&mutex);
+        object = getSize(dev, env);
+    }
     return object;
 }
 
 JNIEXPORT jobject JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_formatJni(JNIEnv *env, jclass)
 {
-	jobject object = 0;
+    jobject object = 0;
     init();
-	{
-		MutexLocker locker(&mutex);
-		object = getFormat(dev, env);
-	}
+    {
+        MutexLocker locker(&mutex);
+        object = getFormat(dev, env);
+    }
     return object;
 }
 
@@ -78,22 +78,22 @@ JNIEXPORT jobjectArray JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFrame
     jint height
 )
 {
-	jobjectArray array=0;
+    jobjectArray array=0;
     init();
-	{
-		MutexLocker locker(&mutex);
-		array = getBuffer(dev, env, x, y, width, height);
-	}
+    {
+        MutexLocker locker(&mutex);
+        array = getBuffer(dev, env, x, y, width, height);
+    }
     return array;
 }
 
 JNIEXPORT void JNICALL Java_org_javnce_vnc_server_platform_Win32GdiFramebuffer_takeScreenShotJni(JNIEnv *, jclass)
 {
     init();
-	{
-		MutexLocker locker(&mutex);
-		dev->grab();
-	}
+    {
+        MutexLocker locker(&mutex);
+        dev->grab();
+    }
 }
 
 

@@ -14,7 +14,7 @@ class AbstractFrameBuffer
 {
 public:
 
-    virtual ~AbstractFrameBuffer(){}
+    virtual ~AbstractFrameBuffer() {}
     /**
      * Width getter.
      *

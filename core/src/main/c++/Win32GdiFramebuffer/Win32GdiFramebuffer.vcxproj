@@ -157,6 +157,7 @@
     <ClInclude Include="..\common\abstractframebuffer.h" />
     <ClInclude Include="..\common\framebufferapi.h" />
     <ClInclude Include="..\common\logger.h" />
+    <ClInclude Include="..\common\memorybuffer.h" />
     <ClInclude Include="..\common\mutex.h" />
     <ClInclude Include="..\common\mutexlocker.h" />
     <ClInclude Include="..\common\pixelformat.h" />
@@ -174,6 +175,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\common\memorybuffer_win32.cpp" />
     <ClCompile Include="..\common\mutex-win32.cpp" />
     <ClCompile Include="..\common\pixelformat.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>

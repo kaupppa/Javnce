@@ -18,6 +18,7 @@
 #include "logger.h"
 #include "Bitmap.h"
 #include "DeviceContext.h"
+#include "memorybuffer.h"
 
 namespace Javnce
 {
@@ -44,14 +45,11 @@ public:
         }
 
 
-        if (NULL != buffer)
-        {
-            free(buffer);
-            buffer = NULL;
-        }
+        delete buffer;
+		buffer=0;
     }
     HBITMAP				bitmap;
-    uint8_t				*buffer;
+    MemoryBuffer		*buffer;
     BITMAP				bitmapInfo;
     DWORD				size;
     BITMAPINFO			header;
@@ -68,8 +66,7 @@ Bitmap::Bitmap(HBITMAP bitmap)
     else
     {
         d->size = d->bitmapInfo.bmBitsPixel/8 * d->bitmapInfo.bmWidth * d->bitmapInfo.bmHeight;
-        d->buffer = (uint8_t*) malloc(d->size);
-        memset(d->buffer, 0xff, d->size);
+		d->buffer = new MemoryBuffer(d->size);
         d->header.bmiHeader.biWidth = d->bitmapInfo.bmWidth;
         d->header.bmiHeader.biHeight = d->bitmapInfo.bmHeight;
         d->header.bmiHeader.biPlanes = d->bitmapInfo.bmPlanes;
@@ -93,7 +90,7 @@ void Bitmap::copy()
                        d->bitmap,
                        0,
                        (UINT)d->bitmapInfo.bmHeight,
-                       d->buffer,
+					   d->buffer->get(),
                        &d->header,
                        DIB_RGB_COLORS))
         {
@@ -108,16 +105,17 @@ void Bitmap::fixAlpha()
     //TODO A hack; needs better solution
     if (NULL != d->buffer && 32 == d->bitmapInfo.bmBitsPixel)
     {
+		uint8_t *ptr = d->buffer->get();
         for(DWORD i=3; i < d->size; i +=4)
         {
-            d->buffer[i] = 0xFF;
+            ptr[i] = 0xFF;
         }
     }
 }
 
 uint8_t *Bitmap::getPixels()
 {
-    return d->buffer;
+	return d->buffer->get();
 }
 
 DWORD Bitmap::size() const

@@ -29,7 +29,7 @@ public:
         , isScreen(false)
         , width(GetSystemMetrics(SM_CXSCREEN))
         , height(GetSystemMetrics(SM_CYSCREEN))
-		, operation(SRCCOPY|CAPTUREBLT)
+        , operation(SRCCOPY|CAPTUREBLT)
     {
     }
 
@@ -58,7 +58,7 @@ public:
     bool			isScreen;
     DWORD			width;
     DWORD			height;
-	DWORD			operation;
+    DWORD			operation;
 };
 
 DeviceContext::DeviceContext()
@@ -152,7 +152,7 @@ void DeviceContext::copy(const DeviceContext &source)
         {
             LOG_ERROR("BitBlt failure");
         }
-		d->operation = SRCINVERT|CAPTUREBLT;
+        d->operation = SRCINVERT|CAPTUREBLT;
     }
 }
 
