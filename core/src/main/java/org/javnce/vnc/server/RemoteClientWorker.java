@@ -91,7 +91,7 @@ class RemoteClientWorker extends Thread implements EventSubscriber {
     @Override
     public void event(Event event) {
         if (SocketClosedEvent.eventId().equals(event.Id())) {
-            eventLoop.shutdown();
+            eventLoop.shutdownGroup();
         }
     }
 

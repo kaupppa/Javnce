@@ -439,13 +439,12 @@ public class EventLoop implements Runnable, EventDispatcher {
             state.shutdown();
             processing = state.isProcessing();
         }
+        wakeup();
         if (!processing) {
             try {
                 channelSubscribers.close();
             } catch (Throwable e) {
             }
-        } else {
-            wakeup();
         }
     }
 

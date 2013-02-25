@@ -86,10 +86,10 @@ public class JavnceFx extends Application {
      */
     @Override
     public void stop() throws Exception {
+        EventLoop.shutdownAll();
         if (null != controller) {
             controller.exit();
         }
-        EventLoop.shutdownAll();
     }
 
     /**
