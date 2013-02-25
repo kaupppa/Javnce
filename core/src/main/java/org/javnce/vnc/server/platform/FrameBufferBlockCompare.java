@@ -19,7 +19,6 @@ package org.javnce.vnc.server.platform;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.zip.Adler32;
 import org.javnce.eventing.EventLoop;
 import org.javnce.rfb.types.PixelFormat;
 import org.javnce.rfb.types.Point;
@@ -27,8 +26,11 @@ import org.javnce.rfb.types.Rect;
 import org.javnce.rfb.types.Size;
 
 /**
- * The FrameBufferBlockCompare class calculates CRC32 for n lines in a frame
- * buffer.
+ * The FrameBufferBlockCompare class updates frame buffer and checks if blocks
+ * where changed.
+ *
+ * The block change detection is done by calculating checksum for n lines per
+ * block.
  *
  */
 class FrameBufferBlockCompare implements FrameBufferCompare {
@@ -46,11 +48,7 @@ class FrameBufferBlockCompare implements FrameBufferCompare {
      */
     private Size size;
     /**
-     * The checksum computer.
-     */
-    final private Adler32 adler32;
-    /**
-     * The max count of lines in one CRC32 calculation.
+     * The max count of lines in one checksum calculation.
      */
     static final private int MaxLinesInBlock = 40;
     /**
@@ -62,7 +60,6 @@ class FrameBufferBlockCompare implements FrameBufferCompare {
      * Instantiates a new frame buffer compare.
      */
     public FrameBufferBlockCompare() {
-        adler32 = new Adler32();
         linesInBlock = 1;
     }
 
@@ -89,13 +86,14 @@ class FrameBufferBlockCompare implements FrameBufferCompare {
      */
     @Override
     public ArrayList<Rect> compare(FramebufferDevice fb) {
-        ArrayList<Rect> list = null;
+        ArrayList<Rect> list;
         if (!fb.format().equals(format) || !fb.size().equals(size)) {
             checksums = null;
             format = fb.format();
             size = fb.size();
             linesInBlock = calcLinesInBlock(size);
         }
+
         if (null == checksums) {
             checksums = new long[size.height() / linesInBlock];
             list = new ArrayList<>();
@@ -115,53 +113,52 @@ class FrameBufferBlockCompare implements FrameBufferCompare {
      */
     private ArrayList<Rect> calcChecksums(FramebufferDevice fb) {
         ArrayList<Rect> list = new ArrayList<>();
+
         ByteBuffer buffers[] = fb.buffer(0, 0, size.width(), size.height());
         if (1 != buffers.length) {
             EventLoop.fatalError(this, new RuntimeException("Cannot support buffer arrays"));
-        } else if (buffers[0].hasArray()) {
-            byte[] bytes = buffers[0].array();
-            Rect rect = null;
-            int lastIndex = -2;
-            int offset = 0;
-            final int stride = size.width() * linesInBlock * format.bytesPerPixel();
-            final int width = size.width();
-            final int blockCount = size.height() / linesInBlock;
-            for (int i = 0; i < blockCount; i++, offset += stride) {
-                if (updateCRC32(i, bytes, offset, stride)) {
-
-                    if (null == rect) {
-                        //first changed
-                        rect = new Rect(0, i * linesInBlock, width, linesInBlock);
-                    } else if ((lastIndex + 1) == i) {
-                        //previous was also changed
-                        rect = new Rect(0, rect.y(), width, rect.height() + linesInBlock);
-                    } else {
-                        //previous was not changed
-                        list.add(rect);
-                        rect = new Rect(0, i * linesInBlock, width, linesInBlock);
-                    }
+            return list;
+        }
+        ByteBuffer buffer = buffers[0];
+        Rect rect = null;
+        int lastIndex = -2;
+        int offset = 0;
+        final int stride = size.width() * linesInBlock * format.bytesPerPixel();
+        final int width = size.width();
+        final int blockCount = size.height() / linesInBlock;
+        for (int i = 0; i < blockCount; i++, offset += stride) {
+            if (updateChecksum(i, buffer, offset, stride)) {
+                if (null == rect) {
+                    //first changed
+                    rect = new Rect(0, i * linesInBlock, width, linesInBlock);
+                } else if ((lastIndex + 1) == i) {
+                    //previous was also changed
+                    rect = new Rect(0, rect.y(), width, rect.height() + linesInBlock);
+                } else {
+                    //previous was not changed
+                    list.add(rect);
+                    rect = new Rect(0, i * linesInBlock, width, linesInBlock);
                 }
             }
-            if (null != rect) {
-                list.add(rect);
-            }
+        }
+        if (null != rect) {
+            list.add(rect);
         }
         return list;
     }
 
     /**
-     * Update CRC32 for a block.
+     * Update checksum for a block.
      *
      * @param index the block index
-     * @param bytes the frame buffer bytes
+     * @param buffer the frame buffer in a ByteBuffer
      * @param offset the block offset in frame buffer
      * @param stride the stride is block size in bytes
      * @return true, if block was changed
      */
-    private boolean updateCRC32(int index, byte[] bytes, int offset, int stride) {
-        adler32.reset();
-        adler32.update(bytes, offset, stride);
-        long value = adler32.getValue();
+    private boolean updateChecksum(int index, ByteBuffer buffer, int offset, int stride) {
+        //long value = Checksum.crc32(buffer, offset, stride);
+        long value = Checksum.adler32(buffer, offset, stride);
         boolean changed = (checksums[index] != value);
         checksums[index] = value;
         return changed;

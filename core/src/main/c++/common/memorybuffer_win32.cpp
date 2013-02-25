@@ -57,7 +57,7 @@ void MemoryBuffer::allocate() {
     if (NULL == d->base) {
         d->base = VirtualAlloc(NULL, d->size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
         d->ptr = (uint8_t *) d->base;
-		memset(d->base, 0xff, d->size);
+        memset(d->base, 0xff, d->size);
     }
     if (NULL == d->base) {
         LOG_ERROR("VirtualAlloc-MEM_RESERVE failure");

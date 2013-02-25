@@ -46,7 +46,7 @@ public:
 
 
         delete buffer;
-		buffer=0;
+        buffer=0;
     }
     HBITMAP				bitmap;
     MemoryBuffer		*buffer;
@@ -66,7 +66,7 @@ Bitmap::Bitmap(HBITMAP bitmap)
     else
     {
         d->size = d->bitmapInfo.bmBitsPixel/8 * d->bitmapInfo.bmWidth * d->bitmapInfo.bmHeight;
-		d->buffer = new MemoryBuffer(d->size);
+        d->buffer = new MemoryBuffer(d->size);
         d->header.bmiHeader.biWidth = d->bitmapInfo.bmWidth;
         d->header.bmiHeader.biHeight = d->bitmapInfo.bmHeight;
         d->header.bmiHeader.biPlanes = d->bitmapInfo.bmPlanes;
@@ -90,7 +90,7 @@ void Bitmap::copy()
                        d->bitmap,
                        0,
                        (UINT)d->bitmapInfo.bmHeight,
-					   d->buffer->get(),
+                       d->buffer->get(),
                        &d->header,
                        DIB_RGB_COLORS))
         {
@@ -105,7 +105,7 @@ void Bitmap::fixAlpha()
     //TODO A hack; needs better solution
     if (NULL != d->buffer && 32 == d->bitmapInfo.bmBitsPixel)
     {
-		uint8_t *ptr = d->buffer->get();
+        uint8_t *ptr = d->buffer->get();
         for(DWORD i=3; i < d->size; i +=4)
         {
             ptr[i] = 0xFF;
@@ -115,7 +115,7 @@ void Bitmap::fixAlpha()
 
 uint8_t *Bitmap::getPixels()
 {
-	return d->buffer->get();
+    return d->buffer->get();
 }
 
 DWORD Bitmap::size() const

@@ -62,7 +62,7 @@ class FrameBufferLineCompare implements FrameBufferCompare {
     @Override
     public ArrayList<Rect> compare(FramebufferDevice fb) {
 
-        ArrayList<Rect> list = null;
+        ArrayList<Rect> list;
 
         if (!fb.format().equals(format) || !fb.size().equals(size)) {
             checksums = null;
@@ -78,7 +78,6 @@ class FrameBufferLineCompare implements FrameBufferCompare {
         } else {
             list = calcChecksums(fb);
         }
-
         return list;
     }
 
@@ -93,14 +92,20 @@ class FrameBufferLineCompare implements FrameBufferCompare {
         int min = size.height() + 1;
         int max = -1;
 
-
         ByteBuffer buffers[] = fb.buffer(0, 0, size.width(), size.height());
         if (1 != buffers.length) {
             EventLoop.fatalError(this, new RuntimeException("Cannot support buffer arrays"));
             return list;
         }
-
-        byte[] bytes = buffers[0].array();
+        byte[] bytes;
+        if (buffers[0].hasArray()) {
+            bytes = buffers[0].array();
+        } else {
+            //Nice, we create copy of direct mapped data that will be passed to JNI
+            //FIX in JDK 8 ?
+            bytes = new byte[buffers[0].capacity()];
+            ByteBuffer.wrap(bytes).put(buffers[0]);
+        }
 
         int lineLength = size.width() * format.bytesPerPixel();
         int height = size.height();

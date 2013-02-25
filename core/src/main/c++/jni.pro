@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
 
-SUBDIRS = XShmFramebuffer XTestPointerInputDevice XTestKeyBoard
+SUBDIRS = XShmFramebuffer XTestPointerInputDevice XTestKeyBoard Checksum
