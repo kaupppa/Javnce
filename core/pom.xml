@@ -119,6 +119,24 @@
                             </execution>
                             <execution>
                                 <phase>process-classes</phase>
+                                <id>javah checksum</id>
+                                <configuration>
+                                    <executable>${java.home}/../bin/javah</executable>
+                                    <arguments>
+                                        <argument>-o</argument>
+                                        <argument>${project.basedir}/src/main/c++/Checksum/jni_api.h</argument>
+                                        <argument>-classpath</argument>
+                                        <argument>${project.build.outputDirectory}</argument>
+                                        <argument>-force</argument>
+                                        <argument>org.javnce.vnc.server.platform.Checksum</argument>
+                                    </arguments>
+                                </configuration>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <phase>process-classes</phase>
                                 <id>create linux jni make file</id>
                                 <configuration>
                                     <workingDirectory>${jni.build}</workingDirectory>
@@ -189,7 +207,7 @@
                                     <executable>${java.home}/../bin/javah</executable>
                                     <arguments>
                                         <argument>-o</argument>
-                                        <argument>${project.basedir}/src/main/c++/checksum/jni_api.h</argument>
+                                        <argument>${project.basedir}/src/main/c++/Checksum/jni_api.h</argument>
                                         <argument>-classpath</argument>
                                         <argument>${project.build.outputDirectory}</argument>
                                         <argument>-force</argument>
@@ -200,7 +218,6 @@
                                     <goal>exec</goal>
                                 </goals>
                             </execution>
-
                             <execution>
                                 <phase>process-classes</phase>
                                 <id>build windows 64bit jni</id>
