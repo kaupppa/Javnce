@@ -12,4 +12,5 @@
 target
 *.pyc
 *~
+jni_api.h
 

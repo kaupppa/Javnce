@@ -16,8 +16,11 @@
  */
 package org.javnce.vnc.server;
 
+import java.io.IOException;
+import java.net.StandardSocketOptions;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.javnce.eventing.Event;
 import org.javnce.eventing.EventLoop;
@@ -72,6 +75,11 @@ class ProtocolHandler implements EventSubscriber, ReceiveMessageFactory {
      * The factory mode.
      */
     private boolean factoryMode;
+    /**
+     * The socket channel.
+     */
+    private SocketChannel channel;
+    static private final int MsgHeaderSize = 500;
 
     /**
      * Instantiates a new server protocol handler.
@@ -91,6 +99,7 @@ class ProtocolHandler implements EventSubscriber, ReceiveMessageFactory {
     }
 
     void init(SocketChannel channel) {
+        this.channel = channel;
         receiveMessages.add(new MsgProtocolVersion());
         receiveMessages.add(new MsgSelectedSecurityType());
         receiveMessages.add(new MsgClientInit());
@@ -98,6 +107,15 @@ class ProtocolHandler implements EventSubscriber, ReceiveMessageFactory {
         eventLoop.subscribe(ReceivedMsgEvent.eventId(), this);
         messageHandler = new MessageDispatcher(eventLoop, channel, this);
         eventLoop.publish(new ReceivedMsgEvent(null));
+
+
+        try {
+            Integer bufSize = new Integer(size.width() * size.height() * format.bytesPerPixel() + MsgHeaderSize);
+            channel.setOption(StandardSocketOptions.SO_SNDBUF, bufSize);
+        } catch (IOException ex) {
+            //We don't care if it fails
+        }
+
     }
 
     /* (non-Javadoc)
@@ -252,6 +270,15 @@ class ProtocolHandler implements EventSubscriber, ReceiveMessageFactory {
      * @param msg the message
      */
     private void handle(MsgSetPixelFormat msg) {
+        format = msg.get();
+
+        try {
+            Integer bufSize = new Integer(size.width() * size.height() * format.bytesPerPixel() + MsgHeaderSize);
+            channel.setOption(StandardSocketOptions.SO_SNDBUF, bufSize);
+        } catch (IOException ex) {
+            Logger.getLogger(ProtocolHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         eventLoop.publish(new FbFormatEvent(msg.get()));
     }
 

@@ -16,6 +16,7 @@
  */
 package org.javnce.vnc.common;
 
+import java.net.StandardSocketOptions;
 import java.nio.channels.*;
 import org.javnce.eventing.ChannelSubscriber;
 import org.javnce.eventing.EventLoop;
@@ -23,10 +24,9 @@ import org.javnce.rfb.messages.Message;
 
 /**
  * The Class MessageDispatcher handles sending and receiving messages to
- * non-blocking channel. 
- * The {@link ReceivedMsgEvent} event is published when message is received.
- * The {@link SocketClosedEvent} event is published if socket error occurs for
- * example when host disconnects.
+ * non-blocking channel. The {@link ReceivedMsgEvent} event is published when
+ * message is received. The {@link SocketClosedEvent} event is published if
+ * socket error occurs for example when host disconnects.
  */
 public class MessageDispatcher implements ChannelSubscriber {
     //private static Logger logger = Logger.getLogger(MessageDispatcher.class.getName());
@@ -55,7 +55,7 @@ public class MessageDispatcher implements ChannelSubscriber {
      * @param eventLoop the event loop to which dispatcher attaches
      * @param channel the channel
      * @param factory the incoming message factory
-     * 
+     *
      */
     public MessageDispatcher(EventLoop eventLoop, SocketChannel channel, ReceiveMessageFactory factory) {
         this.channel = channel;
@@ -66,7 +66,7 @@ public class MessageDispatcher implements ChannelSubscriber {
 
         try {
             channel.configureBlocking(false);
-            channel.socket().setTcpNoDelay(true);
+            channel.setOption(StandardSocketOptions.TCP_NODELAY, true);
             updateSocketState();
         } catch (Throwable ex) {
             EventLoop.fatalError(this, ex);

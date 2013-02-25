@@ -16,7 +16,9 @@
  */
 package org.javnce.vnc.client;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.StandardSocketOptions;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,6 +76,11 @@ class VncClient extends Thread implements EventSubscriber, ReceiveMessageFactory
      * The factory mode.
      */
     private boolean factoryMode;
+    /**
+     * The frame buffer size.
+     */
+    private Size size;
+    static private final int MsgHeaderSize = 500;
 
     /**
      * Instantiates a new VNC client.
@@ -181,7 +188,7 @@ class VncClient extends Thread implements EventSubscriber, ReceiveMessageFactory
      * @param event the event
      */
     private void event(FbFormatEvent event) {
-        setPixelFormat(event.get());
+        setFormat(event.get(), size);
         messageHandler.send(new MsgSetPixelFormat(event.get()));
     }
 
@@ -308,7 +315,7 @@ class VncClient extends Thread implements EventSubscriber, ReceiveMessageFactory
 
         messageHandler.send(new MsgSetEncodings(new int[]{Encoding.JaVNCeRLE}));
 
-        setPixelFormat(msg.getFormat());
+        setFormat(msg.getFormat(), msg.getSize());
 
         observer.initFramebuffer(msg.getFormat(), msg.getSize());
     }
@@ -327,8 +334,15 @@ class VncClient extends Thread implements EventSubscriber, ReceiveMessageFactory
      *
      * @param newformat the new pixel format
      */
-    private void setPixelFormat(PixelFormat newformat) {
+    private void setFormat(PixelFormat newformat, Size newSize) {
         format = newformat;
+        size = newSize;
+        Integer bufSize = new Integer(size.width() * size.height() * format.bytesPerPixel() + MsgHeaderSize);
+        try {
+            channel.setOption(StandardSocketOptions.SO_RCVBUF, bufSize);
+        } catch (IOException ex) {
+            //We don't care if this fails
+        }
     }
 
     /* (non-Javadoc)
