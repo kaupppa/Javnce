@@ -24,6 +24,7 @@ import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import org.javnce.rfb.types.PixelFormat;
 import org.javnce.rfb.types.Size;
+import org.javnce.vnc.common.LZ4Encoder;
 
 /**
  * The Class 32bit RgbDataBuffer.
@@ -50,6 +51,7 @@ public class RgbDataBuffer32Bit implements RgbDataBuffer {
      * The Rle item size.
      */
     final static private int rleSize = 5;
+    final private LZ4Encoder lz4Encoder;
 
     /**
      * Instantiates a new buffer.
@@ -63,6 +65,7 @@ public class RgbDataBuffer32Bit implements RgbDataBuffer {
 
         rgbBuffer = IntBuffer.allocate(bufferWidth * bufferHeight);
         dataBuffer = new DataBufferInt(rgbBuffer.array(), rgbBuffer.capacity());
+        lz4Encoder = new LZ4Encoder();
     }
 
     /* (non-Javadoc)
@@ -187,5 +190,11 @@ public class RgbDataBuffer32Bit implements RgbDataBuffer {
 
             row += bufferWidth;
         }
+    }
+
+    @Override
+    public void writeLZ4(int x, int y, int width, int height, ByteBuffer[] buffers) {
+        ByteBuffer buffer = lz4Encoder.decompress(buffers, width * height * 4);
+        writeRaw(x, y, width, height, buffer);
     }
 }

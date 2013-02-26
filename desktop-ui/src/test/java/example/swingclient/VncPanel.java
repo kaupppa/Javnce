@@ -191,12 +191,18 @@ public class VncPanel extends JPanel implements RemoteVncServerObserver {
                         fb.rect().width(),
                         fb.rect().height(),
                         fb.asOneBuffer());
-            } else if (Encoding.JaVNCeRLE == fb.encoding()) {
+            } else if (Encoding.RLE == fb.encoding()) {
                 dataBuffer.writeRle(fb.rect().x(),
                         fb.rect().y(),
                         fb.rect().width(),
                         fb.rect().height(),
                         fb.asOneBuffer());
+            } else if (Encoding.LZ4 == fb.encoding()) {
+                dataBuffer.writeLZ4(fb.rect().x(),
+                        fb.rect().y(),
+                        fb.rect().width(),
+                        fb.rect().height(),
+                        fb.buffers());
             }
         }
         paintImmediately(0, 0, getWidth(), getHeight());

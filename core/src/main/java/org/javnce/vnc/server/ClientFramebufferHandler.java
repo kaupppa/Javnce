@@ -32,6 +32,7 @@ import org.javnce.vnc.common.FbEncodingsEvent;
 import org.javnce.vnc.common.FbFormatEvent;
 import org.javnce.vnc.common.FbRequestEvent;
 import org.javnce.vnc.common.FbUpdateEvent;
+import org.javnce.vnc.common.LZ4Encoder;
 import org.javnce.vnc.server.platform.FramebufferDevice;
 
 /**
@@ -82,6 +83,10 @@ class ClientFramebufferHandler extends Thread implements EventSubscriber {
      * The event loop.
      */
     final private EventLoop eventLoop;
+    /**
+     * The LZ4 encoder.
+     */
+    final private LZ4Encoder lz4Encoder;
 
     /**
      * Instantiates a new client frame buffer.
@@ -98,6 +103,7 @@ class ClientFramebufferHandler extends Thread implements EventSubscriber {
         forceFull = true;
         usedEncoding = Encoding.RAW;
         setName("Javnce-ClientFramebuffer");
+        lz4Encoder = new LZ4Encoder();
     }
 
     void init() {
@@ -152,13 +158,22 @@ class ClientFramebufferHandler extends Thread implements EventSubscriber {
     private void event(FbEncodingsEvent event) {
         supportedEncodings = event.get();
         usedEncoding = Encoding.RAW;
-
+        
+        boolean hasRle = false;
+        boolean hasLz4 = false;
         for (int encoding : supportedEncodings) {
-            if (encoding == Encoding.JaVNCeRLE) {
-                usedEncoding = encoding;
-                break;
+            if (encoding == Encoding.RLE) {
+                hasRle = true;
+            } else if (encoding == Encoding.LZ4) {
+                hasLz4 = true;
             }
         }
+        if (hasLz4) {
+            usedEncoding = Encoding.LZ4;
+        } else if (hasRle) {
+            usedEncoding = Encoding.RLE;
+        }
+
     }
 
     /**
@@ -200,8 +215,10 @@ class ClientFramebufferHandler extends Thread implements EventSubscriber {
     private Framebuffer createFB(Rect rect, ByteBuffer buffers[]) {
         Framebuffer result = null;
 
-        if (usedEncoding == Encoding.JaVNCeRLE) {
-
+        if (usedEncoding == Encoding.LZ4) {
+            ByteBuffer buf = lz4Encoder.compress(buffers);
+            result = new Framebuffer(rect, Encoding.LZ4, new ByteBuffer[]{buf});
+        } else if (usedEncoding == Encoding.RLE) {
             List<ByteBuffer> list = new ArrayList<>();
             int bytesPerPixel = format.bytesPerPixel();
             int orgSize = 0;
@@ -217,7 +234,7 @@ class ClientFramebufferHandler extends Thread implements EventSubscriber {
             }
             // if rle is smaller then use it
             if (rleSize < orgSize) {
-                result = new Framebuffer(rect, Encoding.JaVNCeRLE, list.toArray(new ByteBuffer[list.size()]));
+                result = new Framebuffer(rect, Encoding.RLE, list.toArray(new ByteBuffer[list.size()]));
             }
         }
 

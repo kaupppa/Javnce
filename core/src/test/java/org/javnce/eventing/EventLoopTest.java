@@ -47,8 +47,7 @@ public class EventLoopTest {
         try {
             Thread.sleep(SleepTimeTime);
         } catch (InterruptedException ex) {
-            Logger.getLogger(EventLoopTest.class.getName()).log(Level.SEVERE, null, ex);
-            System.exit(1);
+            EventLoop.fatalError(this, ex);
         }
     }
 

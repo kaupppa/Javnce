@@ -235,7 +235,7 @@ public class MsgFramebufferUpdate extends Message {
             if (null != fb && 0 < fb.length) {
                 size += 12;
 
-                if (fb[0].encoding() == Encoding.JaVNCeRLE) {
+                if (fb[0].encoding() == Encoding.RLE || fb[0].encoding() == Encoding.LZ4) {
                     size += 4;
                 }
             }
@@ -256,7 +256,7 @@ public class MsgFramebufferUpdate extends Message {
                 if (null == buffer) {
                     size = 12;
 
-                    if (fb[i].encoding() == Encoding.JaVNCeRLE) {
+                    if (fb[i].encoding() == Encoding.RLE || fb[i].encoding() == Encoding.LZ4) {
                         size += 4;
                     }
 
@@ -270,7 +270,7 @@ public class MsgFramebufferUpdate extends Message {
                 buffer.putShort((short) fb[i].rect().height());
                 buffer.putInt(fb[i].encoding());
 
-                if (fb[i].encoding() == Encoding.JaVNCeRLE) {
+                if (fb[i].encoding() == Encoding.RLE || fb[i].encoding() == Encoding.LZ4) {
                     int count = 0;
 
                     for (ByteBuffer temp : fb[i].buffers()) {

@@ -17,8 +17,7 @@
 package org.javnce.rfb.types;
 
 /**
- * The Class Encoding provides constants of framebuffer encoding and
- * pseudo-encoding values
+ * The Class Encoding provides constants of frame buffer encoding values.
  *
  */
 public class Encoding {
@@ -28,8 +27,11 @@ public class Encoding {
      */
     public static final int RAW = 0;
     /**
-     * The Run-length Encoding. <p>The format is following:</p> <table
-     * border="1"> <tr><th>No. of
+     * The Run-length Encoding.
+     *
+     * The format is following:
+     *
+     * <table border="1"> <tr><th>No. of
      * bytes</th><th>Type</th><th>Description</th></tr>
      * <tr><td>4</td><td>U32</td><td>Rle data length in bytes</td></tr>
      * <tr><td>N*Rle Pixel</td><td>Rle Pixel</td><td>Array of Rle
@@ -40,5 +42,18 @@ public class Encoding {
      * 0xff=256 runs)</td></tr> <tr><td>n</td><td>Pixel</td><td>Exactly as in
      * Raw format (including alpha)</td></tr> </table>
      */
-    public static final int JaVNCeRLE = -666;
+    public static final int RLE = -666;
+    /**
+     * The LZ4 Encoding.
+     *
+     * The format is following:
+     *
+     * <table border="1"> <tr><th>No. of
+     * bytes</th><th>Type</th><th>Description</th></tr>
+     * <tr><td>4</td><td>U32</td><td>LZ4 data length in bytes</td></tr>
+     * <tr><td>N</td><td>LZ4 compressed data</td><td>See <a
+     * href="http://code.google.com/p/lz4/">LZ4 project page</a> </td></tr>
+     * </table>
+     */
+    public static final int LZ4 = -667;
 }

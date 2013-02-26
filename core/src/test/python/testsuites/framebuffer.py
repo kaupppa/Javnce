@@ -63,7 +63,7 @@ class FrameBuffer(unittest.TestCase):
 
 
 
-    def test1(self):
+    def test1a(self):
         """FrameBuffers:Full RAW Native FrameBuffer"""
         
         incremental = False
@@ -86,7 +86,7 @@ class FrameBuffer(unittest.TestCase):
         self.assertEqual(fb[0].height, height)
         self.assertEqual(fb[0].encoding, 0) 
 
-    def test2(self):
+    def test1b(self):
         """FrameBuffers:Full RLE Native FrameBuffer"""
 
         encoding = -666
@@ -113,7 +113,34 @@ class FrameBuffer(unittest.TestCase):
         self.assertEqual(fb[0].height, height)
         self.assertEqual(fb[0].encoding, encoding) 
 
-    def test3(self):
+    def test1c(self):
+        """FrameBuffers:Full LZ4 Native FrameBuffer"""
+
+        encoding = -667
+        # SetEncodings
+        msg = setencodings.SetEncodings([encoding])
+        self.assertEqual(self.vncSocket.send(msg.pack()), None)
+
+        incremental = False
+        x = 0
+        y = 0 
+        width = self.serverInit.width
+        height = self.serverInit.height
+        bpp = self.serverInit.bits_per_pixel / 8
+        
+        req = framebufferupdaterequest.FramebufferUpdateRequest(incremental, x, y, width, height)
+
+        self.assertEqual(self.vncSocket.send(req.pack()), None)
+            
+        fb = messageutils.receiveFBUpdate(self.vncSocket.socket, bpp)
+        self.assertEqual(len(fb), 1)
+        self.assertEqual(fb[0].x, x)
+        self.assertEqual(fb[0].y, y)
+        self.assertEqual(fb[0].width, width)
+        self.assertEqual(fb[0].height, height)
+        self.assertEqual(fb[0].encoding, encoding) 
+
+    def test2a(self):
         """FrameBuffers:Partial RAW Native FrameBuffer"""
         
         incremental = False
@@ -136,7 +163,7 @@ class FrameBuffer(unittest.TestCase):
         self.assertEqual(fb[0].height, height)
         self.assertEqual(fb[0].encoding, 0) 
 
-    def test4(self):
+    def test2b(self):
         """FrameBuffers:Partial RLE Native FrameBuffer"""
 
         encoding = -666
@@ -163,7 +190,34 @@ class FrameBuffer(unittest.TestCase):
         self.assertEqual(fb[0].height, height)
         self.assertEqual(fb[0].encoding, encoding) 
 
-    def test5(self):
+    def test2c(self):
+        """FrameBuffers:Partial LZ4 Native FrameBuffer"""
+
+        encoding = -667
+        # SetEncodings
+        msg = setencodings.SetEncodings([encoding])
+        self.assertEqual(self.vncSocket.send(msg.pack()), None)
+
+        incremental = False
+        x = 30
+        y = 30 
+        width = self.serverInit.width - 100
+        height = self.serverInit.height - 100
+        bpp = self.serverInit.bits_per_pixel / 8
+        
+        req = framebufferupdaterequest.FramebufferUpdateRequest(incremental, x, y, width, height)
+
+        self.assertEqual(self.vncSocket.send(req.pack()), None)
+            
+        fb = messageutils.receiveFBUpdate(self.vncSocket.socket, bpp)
+        self.assertEqual(len(fb), 1)
+        self.assertEqual(fb[0].x, x)
+        self.assertEqual(fb[0].y, y)
+        self.assertEqual(fb[0].width, width)
+        self.assertEqual(fb[0].height, height)
+        self.assertEqual(fb[0].encoding, encoding) 
+
+    def test3a(self):
         """FrameBuffers:Partial RAW Native FrameBuffer + incremental"""
         
         incremental = True
@@ -186,10 +240,37 @@ class FrameBuffer(unittest.TestCase):
         self.assertEqual(fb[0].height, height)
         self.assertEqual(fb[0].encoding, 0) 
 
-    def test6(self):
+    def test3b(self):
         """FrameBuffers:Partial RLE Native FrameBuffer + incremental"""
 
         encoding = -666
+        # SetEncodings
+        msg = setencodings.SetEncodings([encoding])
+        self.assertEqual(self.vncSocket.send(msg.pack()), None)
+
+        incremental = True
+        x = 30
+        y = 30 
+        width = self.serverInit.width - 100
+        height = self.serverInit.height - 100
+        bpp = self.serverInit.bits_per_pixel / 8
+        
+        req = framebufferupdaterequest.FramebufferUpdateRequest(incremental, x, y, width, height)
+
+        self.assertEqual(self.vncSocket.send(req.pack()), None)
+            
+        fb = messageutils.receiveFBUpdate(self.vncSocket.socket, bpp)
+        self.assertEqual(len(fb), 1)
+        self.assertEqual(fb[0].x, x)
+        self.assertEqual(fb[0].y, y)
+        self.assertEqual(fb[0].width, width)
+        self.assertEqual(fb[0].height, height)
+        self.assertEqual(fb[0].encoding, encoding) 
+
+    def test3c(self):
+        """FrameBuffers:Partial LZ4 Native FrameBuffer + incremental"""
+
+        encoding = -667
         # SetEncodings
         msg = setencodings.SetEncodings([encoding])
         self.assertEqual(self.vncSocket.send(msg.pack()), None)

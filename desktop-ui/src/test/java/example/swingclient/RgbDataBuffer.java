@@ -53,4 +53,15 @@ public interface RgbDataBuffer {
      * @param buffer the buffer
      */
     void writeRle(int x, int y, int width, int height, ByteBuffer buffer);
+
+    /**
+     * Write LZ4 encoded RGB data.
+     *
+     * @param x the x
+     * @param y the y
+     * @param width the width
+     * @param height the height
+     * @param buffers the buffers
+     */
+    void writeLZ4(int x, int y, int width, int height, ByteBuffer[] buffers);
 }

@@ -48,6 +48,7 @@ import org.javnce.vnc.common.KeyEvent;
 import org.javnce.vnc.common.PointerEvent;
 import org.junit.After;
 import static org.junit.Assert.*;
+import org.junit.Before;
 import org.junit.Test;
 
 public class ProtocolHandlerTest {
@@ -79,6 +80,11 @@ public class ProtocolHandlerTest {
         } catch (InterruptedException ex) {
             Logger.getLogger(ProtocolHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        EventLoop.shutdownAll();
     }
 
     @After

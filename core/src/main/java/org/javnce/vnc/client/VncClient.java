@@ -313,7 +313,7 @@ class VncClient extends Thread implements EventSubscriber, ReceiveMessageFactory
     private void handle(MsgServerInit msg) {
         endHandshake();
 
-        messageHandler.send(new MsgSetEncodings(new int[]{Encoding.JaVNCeRLE}));
+        messageHandler.send(new MsgSetEncodings(new int[]{Encoding.RLE, Encoding.LZ4}));
 
         setFormat(msg.getFormat(), msg.getSize());
 

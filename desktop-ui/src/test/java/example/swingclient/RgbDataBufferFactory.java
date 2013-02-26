@@ -17,6 +17,7 @@
  */
 package example.swingclient;
 
+import org.javnce.eventing.EventLoop;
 import org.javnce.rfb.types.PixelFormat;
 import org.javnce.rfb.types.Size;
 
@@ -38,8 +39,7 @@ public class RgbDataBufferFactory {
         try {
             dataBuffer = create(size, format);
         } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
+            EventLoop.fatalError(null, new UnsupportedOperationException());
         }
 
         return dataBuffer;

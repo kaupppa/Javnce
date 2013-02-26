@@ -51,11 +51,12 @@ public class MsgFramebufferUpdateTest {
 
     static Framebuffer[] generateRandomArray(Size size, int bpp) {
 
-        Framebuffer array[] = new Framebuffer[2];
+        Framebuffer array[] = new Framebuffer[3];
 
         Rect rect = new Rect(new Point(0, 0), size);
         array[0] = new Framebuffer(rect, Encoding.RAW, generateRandom(size, bpp));
-        array[1] = new Framebuffer(rect, Encoding.JaVNCeRLE, generateRandom(size, bpp));
+        array[1] = new Framebuffer(rect, Encoding.RLE, generateRandom(size, bpp));
+        array[2] = new Framebuffer(rect, Encoding.LZ4, generateRandom(size, bpp));
         return array;
     }
 
@@ -126,7 +127,7 @@ public class MsgFramebufferUpdateTest {
 
 
         //Only Rle
-        array[0] = new Framebuffer(rect, Encoding.JaVNCeRLE, new ByteBuffer[]{ByteBuffer.allocate(100)});
+        array[0] = new Framebuffer(rect, Encoding.RLE, new ByteBuffer[]{ByteBuffer.allocate(100)});
         msg = new MsgFramebufferUpdate(format, array);
         list = msg.marshal();
         assertEquals(2, list.size());
@@ -177,7 +178,7 @@ public class MsgFramebufferUpdateTest {
 
         Framebuffer array[] = new Framebuffer[1];
         Rect rect = new Rect(new Point(0, 0), new Size(100, 100));
-        array[0] = new Framebuffer(rect, Encoding.JaVNCeRLE, new ByteBuffer[]{ByteBuffer.allocate(100)});
+        array[0] = new Framebuffer(rect, Encoding.RLE, new ByteBuffer[]{ByteBuffer.allocate(100)});
         msg = new MsgFramebufferUpdate(format, array);
 
         text = msg.toString();

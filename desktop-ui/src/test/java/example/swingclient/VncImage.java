@@ -21,6 +21,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import org.javnce.eventing.EventLoop;
 import org.javnce.rfb.types.PixelFormat;
 import org.javnce.rfb.types.Size;
 
@@ -142,12 +143,11 @@ public class VncImage {
             dataBuffer = RgbDataBufferFactory.factory(size, format);
             image = RgbImageFactory.factory(dataBuffer, size, format);
         } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
+            EventLoop.fatalError(this, e);
         }
 
         if (null == image) {
-            System.exit(1);
+            EventLoop.fatalError(this, new UnsupportedOperationException());
         }
 
         return this.format;

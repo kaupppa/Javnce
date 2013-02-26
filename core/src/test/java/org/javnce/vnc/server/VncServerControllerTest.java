@@ -22,9 +22,15 @@ import java.nio.channels.SocketChannel;
 import org.javnce.eventing.EventLoop;
 import org.junit.After;
 import static org.junit.Assert.*;
+import org.junit.Before;
 import org.junit.Test;
 
 public class VncServerControllerTest {
+
+    @Before
+    public void setUp() throws Exception {
+        EventLoop.shutdownAll();
+    }
 
     @After
     public void tearDown() throws Exception {

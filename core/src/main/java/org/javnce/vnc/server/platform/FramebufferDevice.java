@@ -18,8 +18,6 @@
 package org.javnce.vnc.server.platform;
 
 import java.nio.ByteBuffer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.javnce.rfb.types.PixelFormat;
 import org.javnce.rfb.types.Size;
 
@@ -28,28 +26,18 @@ import org.javnce.rfb.types.Size;
  */
 public abstract class FramebufferDevice {
 
+    static private FramebufferDevice implementation = null;
+
     /**
      * Creates FramebufferDevice for current environment.
      *
      * @return the frame buffer device
      */
-    public static FramebufferDevice factory() {
-        FramebufferDevice dev = null;
-
-        if (XShmFramebuffer.isSupported()) {
-            dev = new XShmFramebuffer();
-        } else if (Win32GdiFramebuffer.isSupported()) {
-            dev = new Win32GdiFramebuffer();
-        } else if (RobotFramebufferDevice.isSupported()) {
-            dev = RobotFramebufferDevice.instance();
+    synchronized public static FramebufferDevice factory() {
+        if (null == implementation) {
+            implementation = new FramebufferDeviceImplementation();
         }
-        if (null == dev) {
-            dev = new DummyFramebufferDevice();
-        }
-        Logger.getLogger(FramebufferDevice.class.getName())
-                .log(Level.INFO, "Using {0}", dev.getClass().getName());
-
-        return dev;
+        return implementation;
     }
 
     /**

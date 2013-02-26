@@ -34,6 +34,7 @@ import org.javnce.vnc.common.FbUpdateEvent;
 import org.javnce.vnc.server.platform.FramebufferDevice;
 import org.junit.After;
 import static org.junit.Assert.*;
+import org.junit.Before;
 import org.junit.Test;
 
 public class ClientFramebufferHandlerTest {
@@ -66,11 +67,6 @@ public class ClientFramebufferHandlerTest {
             return temp;
         }
 
-        @After
-        public void tearDown() throws Exception {
-            assertFalse(EventLoop.exists());
-        }
-
         @Override
         synchronized public void event(Event event) {
             if (null != updateEvent) {
@@ -83,6 +79,16 @@ public class ClientFramebufferHandlerTest {
             updateEvent = (FbUpdateEvent) event;
             notifyAll();
         }
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        EventLoop.shutdownAll();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        assertFalse(EventLoop.exists());
     }
 
     @Test
@@ -133,13 +139,13 @@ public class ClientFramebufferHandlerTest {
 
         handler.start();
 
-        tester.eventLoop.publish(new FbEncodingsEvent(new int[]{Encoding.JaVNCeRLE}));
+        tester.eventLoop.publish(new FbEncodingsEvent(new int[]{Encoding.RLE}));
         tester.eventLoop.publish(new FbRequestEvent(false, area));
 
         Framebuffer[] fb = tester.get().get();
         assertEquals(1, fb.length);
         assertEquals(area, fb[0].rect());
-        //The fb[0].encoding() is either RAW or JaVNCeRLE depending on size
+        //The fb[0].encoding() is either RAW or RLE depending on size
         tester.eventLoop.shutdownGroup();
     }
 

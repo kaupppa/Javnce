@@ -22,9 +22,15 @@ import org.javnce.rfb.types.PixelFormat;
 import org.javnce.rfb.types.Rect;
 import org.junit.After;
 import static org.junit.Assert.*;
+import org.junit.Before;
 import org.junit.Test;
 
 public class VncClientControllerTest {
+
+    @Before
+    public void setUp() throws Exception {
+        EventLoop.shutdownAll();
+    }
 
     @After
     public void tearDown() throws Exception {

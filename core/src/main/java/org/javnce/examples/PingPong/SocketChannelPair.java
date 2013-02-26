@@ -24,6 +24,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.javnce.eventing.EventLoop;
 
 /**
  * The SocketChannelPair provides SocketChannel pair that are connected with
@@ -68,9 +69,7 @@ public class SocketChannelPair implements AutoCloseable {
                         try {
                             ch2 = server.accept();
                         } catch (IOException ex) {
-                            Logger.getLogger(SocketChannelPair.class.getName())
-                                    .log(Level.SEVERE, null, ex);
-                            System.exit(1);
+                            EventLoop.fatalError(this, ex);
                         }
                     }
                 });

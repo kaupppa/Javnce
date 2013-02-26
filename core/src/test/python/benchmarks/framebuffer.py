@@ -141,6 +141,47 @@ class FrameBuffer(unittest.TestCase):
 
         tick.output()
 
+    def test3(self):
+        """Benchmarks FrameBuffers : Default LZ4 framebuffer"""
+        
+        encoding = -667
+        # SetEncodings
+        msg = setencodings.SetEncodings([encoding])
+        self.assertEqual(self.vncSocket.send(msg.pack()), None)
+
+        name = " Size=" + str(self.serverInit.width) + "*" + str(self.serverInit.height)
+        name += " Pixel size=" + str(self.serverInit.bits_per_pixel)
+        tick = measurement.Measurement("RLE FrameBuffer" + name, 80)
+        
+        incremental = False
+        x = 0
+        y = 0 
+        width = self.serverInit.width
+        height = self.serverInit.height
+        bpp = self.serverInit.bits_per_pixel / 8
+        
+        req = framebufferupdaterequest.FramebufferUpdateRequest(incremental, x, y, width, height)
+        
+        i = 0
+        while(i < tick.count):
+            i += 1
+            tick.start()
+
+            self.assertEqual(self.vncSocket.send(req.pack()), None)
+            
+            fb = messageutils.receiveFBUpdate(self.vncSocket.socket, bpp)
+            self.assertEqual(len(fb), 1)
+            self.assertEqual(fb[0].x, x)
+            self.assertEqual(fb[0].y, y)
+            self.assertEqual(fb[0].width, width)
+            self.assertEqual(fb[0].height, height)
+            self.assertEqual(fb[0].encoding, encoding) 
+
+
+            tick.stop() 
+
+        tick.output()
+
 def suite():
 
     suite = unittest.TestSuite()

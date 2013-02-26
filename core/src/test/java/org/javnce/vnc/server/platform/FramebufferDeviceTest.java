@@ -28,5 +28,8 @@ public class FramebufferDeviceTest {
 
         //Should not be dummy
         assertFalse(FramebufferDevice.factory() instanceof DummyFramebufferDevice);
+
+        //Is singleton
+        assertTrue(FramebufferDevice.factory() == FramebufferDevice.factory());
     }
 }

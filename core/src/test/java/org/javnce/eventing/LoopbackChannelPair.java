@@ -22,8 +22,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * The LoopbackChannelPair provides two SocketChannels connected with eachother.
@@ -66,9 +64,7 @@ public class LoopbackChannelPair implements AutoCloseable {
                         try {
                             ch2 = server.accept();
                         } catch (IOException ex) {
-                            Logger.getLogger(this.getClass().getName())
-                                    .log(Level.SEVERE, null, ex);
-                            System.exit(1);
+                            EventLoop.fatalError(this, ex);
                         }
                     }
                 });

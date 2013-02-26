@@ -46,8 +46,7 @@ public class ChannelSubscriberListTest {
             try {
                 bytesRead = ch.read(buffer);
             } catch (IOException ex) {
-                Logger.getLogger(ChannelSubscriberListTest.class.getName()).log(Level.SEVERE, null, ex);
-                System.exit(1);
+                EventLoop.fatalError(this, ex);
             }
         }
     }
@@ -66,8 +65,7 @@ public class ChannelSubscriberListTest {
                 try {
                     list.process(0);
                 } catch (IOException ex) {
-                    Logger.getLogger(ChannelSubscriberListTest.class.getName()).log(Level.SEVERE, null, ex);
-                    System.exit(1);
+                    EventLoop.fatalError(this, ex);
                 }
             }
         };

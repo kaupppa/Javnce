@@ -35,7 +35,7 @@ public class EventGroupTest {
 
     @Before
     public void setUp() throws Exception {
-        assertTrue(EventGroup.instance().isEmpty());
+        EventGroup.instance().shutdown();
     }
 
     @After

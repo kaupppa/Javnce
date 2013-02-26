@@ -20,9 +20,11 @@ import java.nio.ByteBuffer;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import org.javnce.eventing.EventLoop;
 import org.javnce.rfb.types.Encoding;
 import org.javnce.rfb.types.Framebuffer;
 import org.javnce.rfb.types.Size;
+import org.javnce.vnc.common.LZ4Encoder;
 
 /**
  * The VNC client image.
@@ -42,10 +44,14 @@ public class VncImage {
      */
     final private PixelWriter writer;
     /**
+     * The LZ4 decoder.
+     */
+    final private LZ4Encoder lz4decoder;
+    /**
      * The image format in FX style.
      */
     @SuppressWarnings("rawtypes")
-	final private PixelFormat fxFormat;
+    final private PixelFormat fxFormat;
 
     /**
      * Convert pixel format.
@@ -54,7 +60,7 @@ public class VncImage {
      * @return the org.javnce.rfb.types. pixel format
      */
     @SuppressWarnings("rawtypes")
-	static public org.javnce.rfb.types.PixelFormat convertPixelFormat(PixelFormat format) {
+    static public org.javnce.rfb.types.PixelFormat convertPixelFormat(PixelFormat format) {
         org.javnce.rfb.types.PixelFormat vncFormat = null;
 
         switch (format.getType()) {
@@ -89,6 +95,7 @@ public class VncImage {
         image = new WritableImage(size.width(), size.height());
         writer = image.getPixelWriter();
         fxFormat = writer.getPixelFormat();
+        lz4decoder = new LZ4Encoder();
     }
 
     /**
@@ -114,11 +121,14 @@ public class VncImage {
 
             if (Encoding.RAW == buffer.encoding()) {
                 writeRaw(buffer.asOneBuffer(), x, y, w, h);
-            } else if (Encoding.JaVNCeRLE == buffer.encoding()) {
+            } else if (Encoding.RLE == buffer.encoding()) {
                 ByteBuffer decoded = rledecode(buffer.asOneBuffer(), w, h, format.bytesPerPixel());
                 writeRaw(decoded, x, y, w, h);
+            } else if (Encoding.LZ4 == buffer.encoding()) {
+                ByteBuffer decoded = lz4decoder.decompress(buffer.buffers(), w * h * format.bytesPerPixel());
+                writeRaw(decoded, x, y, w, h);
             } else {
-                System.exit(1);
+                EventLoop.fatalError(this, new UnsupportedOperationException());
             }
         }
     }
@@ -133,7 +143,7 @@ public class VncImage {
      * @param h the h
      */
     @SuppressWarnings("unchecked")
-	private void writeRaw(ByteBuffer buffer, int x, int y, int w, int h) {
+    private void writeRaw(ByteBuffer buffer, int x, int y, int w, int h) {
         writer.setPixels(x, y, w, h, fxFormat, buffer, w * format.bytesPerPixel());
     }
 

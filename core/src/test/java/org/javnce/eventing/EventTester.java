@@ -21,8 +21,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class EventTester implements EventSubscriber, ChannelSubscriber {
 
@@ -58,8 +56,7 @@ public class EventTester implements EventSubscriber, ChannelSubscriber {
         try {
             ch.read(buffer);
         } catch (IOException ex) {
-            Logger.getLogger(EventTester.class.getName()).log(Level.SEVERE, null, ex);
-            System.exit(1);
+            EventLoop.fatalError(this, ex);
         }
     }
 
