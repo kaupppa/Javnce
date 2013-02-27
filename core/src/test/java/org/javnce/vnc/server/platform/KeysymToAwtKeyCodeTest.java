@@ -46,9 +46,8 @@ public class KeysymToAwtKeyCodeTest {
             new TestData('A', 'A'),
             new TestData('z', 'Z'),
             new TestData('Z', 'Z'),};
-        KeysymToAwtKeyCode map = new KeysymToAwtKeyCode();
         for (int i = 0; i < data.length; i++) {
-            int value = map.keysymToRobotCode(data[i].keysym);
+            int value = KeysymToAwtKeyCode.get(data[i].keysym);
 
             assertEquals(data[i].unicode, value);
         }

@@ -40,106 +40,12 @@ public class RunLengthEncoder {
     static public List<ByteBuffer> encode(ByteBuffer buffer, int bytePerPixel) {
         RlePixelBuffer rleBuffer = new RlePixelBuffer(bytePerPixel);
 
-        switch (bytePerPixel) {
-            case 1:
-                encodeByte(rleBuffer, buffer, bytePerPixel);
-                break;
-            case 2:
-                encodeShort(rleBuffer, buffer, bytePerPixel);
-                break;
-            case 4:
-                encodeInt(rleBuffer, buffer, bytePerPixel);
-                break;
-            default:
-                encodeAnySize(rleBuffer, buffer, bytePerPixel);
-                break;
+        if (4 == bytePerPixel) {
+            encodeInt(rleBuffer, buffer, bytePerPixel);
+        } else {
+            encodeAnySize(rleBuffer, buffer, bytePerPixel);
         }
-
         return rleBuffer.getBuffers();
-    }
-
-    /**
-     * Run-length Encoder method for 8-bit pixels.
-     *
-     * @param rleBuffer the rle buffer
-     * @param buffer the buffer
-     * @param bytePerPixel the byte per pixel
-     */
-    static private void encodeByte(RlePixelBuffer rleBuffer, ByteBuffer buffer, int bytePerPixel) {
-        byte pixel = 0;
-        int count = 0;
-        byte nextpixel;
-
-        while (bytePerPixel <= buffer.remaining()) {
-
-            if (0 == count) {
-                pixel = buffer.get();
-                count++;
-                continue;
-            }
-
-            nextpixel = buffer.get();
-
-            if (nextpixel == pixel) {
-                count++;
-            } else {
-                rleBuffer.putByte(pixel, count);
-                pixel = nextpixel;
-                count = 1;
-            }
-
-            if ((MaxRunLength == count)) {
-                rleBuffer.putByte(pixel, count);
-                count = 0;
-            }
-
-        }
-
-        if (0 != count) {
-            rleBuffer.putByte(pixel, count);
-        }
-    }
-
-    /**
-     * Run-length Encoder method for 16-bit pixels.
-     *
-     * @param rleBuffer the rle buffer
-     * @param buffer the buffer
-     * @param bytePerPixel the byte per pixel
-     */
-    static private void encodeShort(RlePixelBuffer rleBuffer, ByteBuffer buffer, int bytePerPixel) {
-        short pixel = 0;
-        short nextpixel;
-        int count = 0;
-
-        while (bytePerPixel <= buffer.remaining()) {
-
-            if (0 == count) {
-                pixel = buffer.getShort();
-                count++;
-                continue;
-            }
-
-            nextpixel = buffer.getShort();
-
-            if (nextpixel == pixel) {
-                count++;
-            } else {
-                rleBuffer.putShort(pixel, count);
-                pixel = nextpixel;
-                count = 1;
-            }
-
-            if ((MaxRunLength == count)) {
-                rleBuffer.putShort(pixel, count);
-                count = 0;
-            }
-
-        }
-
-        if (0 != count) {
-            rleBuffer.putShort(pixel, count);
-        }
     }
 
     /**
@@ -153,33 +59,28 @@ public class RunLengthEncoder {
 
         int pixel = 0;
         int count = 0;
-        int nextpixel;
 
         while (bytePerPixel <= buffer.remaining()) {
 
             if (0 == count) {
                 pixel = buffer.getInt();
                 count++;
-                continue;
-            }
-
-            nextpixel = buffer.getInt();
-
-            if (nextpixel == pixel) {
-                count++;
             } else {
-                rleBuffer.putInt(pixel, count);
-                pixel = nextpixel;
-                count = 1;
-            }
+                final int nextpixel = buffer.getInt();
 
-            if ((MaxRunLength == count)) {
-                rleBuffer.putInt(pixel, count);
-                count = 0;
+                if (nextpixel == pixel) {
+                    count++;
+                    if ((MaxRunLength == count)) {
+                        rleBuffer.putInt(pixel, count);
+                        count = 0;
+                    }
+                } else {
+                    rleBuffer.putInt(pixel, count);
+                    pixel = nextpixel;
+                    count = 1;
+                }
             }
-
         }
-
         if (0 != count) {
             rleBuffer.putInt(pixel, count);
         }
@@ -194,47 +95,40 @@ public class RunLengthEncoder {
      */
     static private void encodeAnySize(RlePixelBuffer rleBuffer, ByteBuffer buffer, int bytePerPixel) {
 
-        ByteBuffer pixel = ByteBuffer.allocate(bytePerPixel);
-        ByteBuffer nextpixel = ByteBuffer.allocate(bytePerPixel);
+        byte[] pixel = new byte[bytePerPixel];
+        byte[] nextpixel = new byte[bytePerPixel];
         int count = 0;
 
         while (bytePerPixel <= buffer.remaining()) {
 
             if (0 == count) {
-                pixel.clear();
-
-                while (0 != pixel.remaining()) {
-                    pixel.put(buffer.get());
-                }
-
-                count++;
-                continue;
-            }
-
-            nextpixel.clear();
-
-            while (0 != nextpixel.remaining()) {
-                nextpixel.put(buffer.get());
-            }
-
-            if (Arrays.equals(nextpixel.array(), pixel.array())) {
-                count++;
-            } else {
-                rleBuffer.put(pixel.array(), count);
-                ByteBuffer temp = pixel;
-                pixel = nextpixel;
-                nextpixel = temp;
+                buffer.get(pixel);
                 count = 1;
-            }
+            } else {
+                buffer.get(nextpixel);
 
-            if ((MaxRunLength == count)) {
-                rleBuffer.put(pixel.array(), count);
-                count = 0;
+                if (Arrays.equals(nextpixel, pixel)) {
+                    count++;
+                    if ((MaxRunLength == count)) {
+                        rleBuffer.put(pixel, count);
+                        count = 0;
+                    }
+                } else {
+                    rleBuffer.put(pixel, count);
+                    //Swap
+                    byte[] temp = pixel;
+                    pixel = nextpixel;
+                    nextpixel = temp;
+                    count = 1;
+                }
             }
         }
 
         if (0 != count) {
-            rleBuffer.put(pixel.array(), count);
+            rleBuffer.put(pixel, count);
         }
+    }
+
+    private RunLengthEncoder() {
     }
 }

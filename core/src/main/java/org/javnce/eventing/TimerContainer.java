@@ -40,7 +40,7 @@ class TimerContainer {
     /**
      * Instantiates a new timer container.
      */
-    public TimerContainer() {
+    TimerContainer() {
         timers = new ArrayList<>();
         lock = new Object();
     }

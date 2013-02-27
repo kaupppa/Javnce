@@ -88,7 +88,7 @@ class VncClient extends Thread implements EventSubscriber, ReceiveMessageFactory
      * @param address the address of server
      * @param observer the observer
      */
-    public VncClient(InetSocketAddress address, RemoteVncServerObserver observer) {
+    VncClient(InetSocketAddress address, RemoteVncServerObserver observer) {
         this.eventLoop = new EventLoop();
         this.address = address;
         this.observer = observer;

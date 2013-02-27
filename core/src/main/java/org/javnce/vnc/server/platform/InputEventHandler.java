@@ -37,7 +37,7 @@ public class InputEventHandler implements EventSubscriber {
     /**
      * The event loop.
      */
-    private EventLoop eventLoop;
+    final private EventLoop eventLoop;
     /**
      * The pointer device.
      */
@@ -49,7 +49,7 @@ public class InputEventHandler implements EventSubscriber {
     /**
      * The thread.
      */
-    private Thread thread;
+    final private Thread thread;
     /**
      * The access mode.
      */
@@ -59,12 +59,14 @@ public class InputEventHandler implements EventSubscriber {
      * Instantiates a new input event handler.
      *
      * @param fullAccessMode if false then pseudo devices is used.
-     * 
+     *
      * @see KeyBoardDevice
      * @see PointerDevice
      */
     public InputEventHandler(boolean fullAccessMode) {
         this.fullAccessMode = fullAccessMode;
+        eventLoop = new EventLoop();
+        thread = new Thread(eventLoop, "Javnce-InputEventHandler");
     }
 
     /* (non-Javadoc)
@@ -107,16 +109,9 @@ public class InputEventHandler implements EventSubscriber {
      * Launch a thread.
      */
     public synchronized void launch() {
-        if (null == eventLoop) {
-            eventLoop = new EventLoop();
-            eventLoop.subscribe(KeyEvent.eventId(), this);
-            eventLoop.subscribe(PointerEvent.eventId(), this);
-
-        }
-        if (null == thread) {
-            thread = new Thread(eventLoop, "Javnce-InputEventHandler");
-            thread.start();
-        }
+        eventLoop.subscribe(KeyEvent.eventId(), this);
+        eventLoop.subscribe(PointerEvent.eventId(), this);
+        thread.start();
     }
 
     /**

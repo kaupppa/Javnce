@@ -26,7 +26,7 @@ import org.javnce.rfb.types.Size;
  */
 public abstract class FramebufferDevice {
 
-    static private FramebufferDevice implementation = null;
+    static private FramebufferDeviceImplementation implementation = null;
 
     /**
      * Creates FramebufferDevice for current environment.

@@ -24,44 +24,6 @@ import org.junit.Test;
 public class ChecksumTest {
 
     @Test
-    public void testcrc32Full() {
-
-        byte data[] = new byte[100];
-        for (int i = 0; i < data.length; i++) {
-            data[i] = (byte) i;
-        }
-        ByteBuffer buffer1 = ByteBuffer.allocateDirect(data.length);
-        buffer1.put(data);
-
-        long result1 = Checksum.crc32(buffer1, 0, buffer1.capacity());
-
-        ByteBuffer buffer2 = ByteBuffer.allocateDirect(data.length);
-        buffer2.put(data);
-        long result2 = Checksum.crc32(buffer2, 0, buffer2.capacity());
-        assertEquals(result1, result2);
-    }
-
-    @Test
-    public void testcrc32() {
-
-        int offset = 30;
-        int length = 30;
-        byte data[] = new byte[100];
-        for (int i = 0; i < data.length; i++) {
-            data[i] = (byte) i;
-        }
-        ByteBuffer buffer1 = ByteBuffer.allocateDirect(data.length);
-        buffer1.put(data);
-
-        long result1 = Checksum.crc32(buffer1, offset, length);
-
-        ByteBuffer buffer2 = ByteBuffer.allocateDirect(data.length);
-        buffer2.put(data);
-        long result2 = Checksum.crc32(buffer2, offset, length);
-        assertEquals(result1, result2);
-    }
-
-    @Test
     public void testadler32Full() {
 
         byte data[] = new byte[100];
@@ -73,7 +35,7 @@ public class ChecksumTest {
 
         long result1 = Checksum.adler32(buffer1, 0, buffer1.capacity());
 
-        ByteBuffer buffer2 = ByteBuffer.allocateDirect(data.length);
+        ByteBuffer buffer2 = ByteBuffer.allocate(data.length);
         buffer2.put(data);
         long result2 = Checksum.adler32(buffer2, 0, buffer2.capacity());
         assertEquals(result1, result2);
@@ -93,7 +55,7 @@ public class ChecksumTest {
 
         long result1 = Checksum.adler32(buffer1, offset, length);
 
-        ByteBuffer buffer2 = ByteBuffer.allocateDirect(data.length);
+        ByteBuffer buffer2 = ByteBuffer.allocate(data.length);
         buffer2.put(data);
         long result2 = Checksum.adler32(buffer2, offset, length);
         assertEquals(result1, result2);

@@ -18,6 +18,6 @@
  * Package provides platform related classes.
  *
  * The platform related classes are for example to inject input event or to
- * grabbing frame buffer.
+ * grab frame buffer.
  */
 package org.javnce.vnc.server.platform;

@@ -29,15 +29,11 @@ public class RlePixelBufferTest {
 
         RlePixelBuffer r = new RlePixelBuffer(4);
 
-        r.putByte((byte) 1, 1);
-        r.putShort((short) 1, 1);
         r.putInt(1, 1);
-        r.put(new byte[]{1, 2, 3}, 2);
+        r.put(new byte[]{1, 2, 3, 4}, 2);
 
         List<ByteBuffer> list = r.getBuffers();
         assertTrue(0 < list.size());
 
-        ByteBuffer buffer = r.getByteBuffer();
-        assertTrue(0 < buffer.capacity());
     }
 }

@@ -23,7 +23,7 @@ import org.fourthline.cling.model.types.UDAServiceId;
 /**
  * The Class Upnp provides constants for UPnP.
  */
-class Upnp {
+interface Upnp {
 
     /**
      * The UPnP service name.

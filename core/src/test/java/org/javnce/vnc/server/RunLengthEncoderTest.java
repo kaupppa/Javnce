@@ -20,6 +20,9 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Random;
 import org.javnce.rfb.messages.MyByteBufferHelper;
+import org.javnce.rfb.types.PixelFormat;
+import org.javnce.rfb.types.Size;
+import org.javnce.vnc.server.platform.FramebufferDevice;
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -191,6 +194,24 @@ public class RunLengthEncoderTest {
             List<ByteBuffer> list = RunLengthEncoder.encode(fb32Bit[i], bytePerPixel);
             assertNotNull(list);
             assertEquals(0, fb32Bit[i].remaining());
+        }
+    }
+
+    @Test
+    public void testRealFrame() {
+        FramebufferDevice dev = FramebufferDevice.factory();
+        Size size = dev.size();
+        PixelFormat format = dev.format();
+
+        ByteBuffer[] buffers = dev.buffer(0, 0, size.width(), size.height());
+
+        int bytePerPixel = format.bytesPerPixel();
+
+        for (int i = 0; i < 10; i++) {
+            //Encode
+            List<ByteBuffer> list = RunLengthEncoder.encode(buffers[0], bytePerPixel);
+            assertNotNull(list);
+            assertEquals(0, buffers[0].remaining());
         }
     }
 }

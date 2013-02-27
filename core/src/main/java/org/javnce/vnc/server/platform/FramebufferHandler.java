@@ -41,27 +41,28 @@ public class FramebufferHandler implements TimeOutCallback {
     /**
      * The event loop.
      */
-    private EventLoop eventLoop;
+    final private EventLoop eventLoop;
     /**
      * The thread.
      */
-    private Thread thread;
+    final private Thread thread;
     /**
      * The dev.
      */
-    private FramebufferDevice dev;
+    final private FramebufferDevice dev;
     /**
      * The change detector.
      */
-    final private FrameBufferCompare compare;
+    final private FrameBufferBlockCompare compare;
 
     /**
      * Instantiates a new frame buffer handler.
      */
     public FramebufferHandler() {
-        //compare = new FrameBufferLineCompare();
-        compare = new FrameBufferBlockCompare();
-
+        dev = FramebufferDevice.factory();
+        compare = new FrameBufferBlockCompare(dev);
+        eventLoop = new EventLoop();
+        thread = new Thread(eventLoop, "Javnce-FramebufferHandler");
     }
 
     /* (non-Javadoc)
@@ -69,19 +70,12 @@ public class FramebufferHandler implements TimeOutCallback {
      */
     @Override
     public void timeout() {
-        if (null == dev) {
-            dev = FramebufferDevice.factory();
-        }
         dev.grabScreen();
-        ArrayList<Rect> list = compare.compare(dev);
-        int waitTime = FrameGrappingIntervalInMs;
-        if (list.isEmpty()) {
-            //If nothing changed then increase wait time to reduce cpu load
-            waitTime += FrameGrappingIntervalInMs;
-        } else {
+        ArrayList<Rect> list = compare.compare();
+        if (!list.isEmpty()) {
             eventLoop.publish(new FbChangeEvent(list));
         }
-        Timer timer = new Timer(this, waitTime);
+        Timer timer = new Timer(this, FrameGrappingIntervalInMs);
         eventLoop.addTimer(timer);
     }
 
@@ -89,15 +83,9 @@ public class FramebufferHandler implements TimeOutCallback {
      * Launch.
      */
     public synchronized void launch() {
-        if (null == eventLoop) {
-            eventLoop = new EventLoop();
-            Timer timer = new Timer(this, 10);
-            eventLoop.addTimer(timer);
-        }
-        if (null == thread) {
-            thread = new Thread(eventLoop, "Javnce-FramebufferHandler");
-            thread.start();
-        }
+        Timer timer = new Timer(this, 10);
+        eventLoop.addTimer(timer);
+        thread.start();
     }
 
     /**

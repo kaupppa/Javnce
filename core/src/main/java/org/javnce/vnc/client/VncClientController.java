@@ -59,7 +59,6 @@ public class VncClientController implements RemoteVncServerObserver {
      * Can be called once.
      *
      * @param address the address of server
-     * @param observer the observer
      */
     synchronized public void launch(InetSocketAddress address) {
         if (null == client) {

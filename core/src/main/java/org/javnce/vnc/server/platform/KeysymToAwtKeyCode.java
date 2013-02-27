@@ -28,24 +28,23 @@ import org.javnce.vnc.common.KeyMap;
 class KeysymToAwtKeyCode {
 
     /**
-     * The map.
+     * The map with keysym as key and AWT key code as value
      */
-    final private Map<Integer, Integer> map; //keysym as key and AWT key code as value
+    final static private Map<Integer, Integer> keySymMap = createMap();
 
     /**
      * Instantiates a new KeysymToAwtKeyCode.
      */
-    KeysymToAwtKeyCode() {
-        map = new HashMap<>();
-        init();
+    private KeysymToAwtKeyCode() {
     }
 
     /**
-     * Inits the map.
+     * Creates the map.
      */
-    private void init() {
-
+    static private Map<Integer, Integer> createMap() {
+        Map<Integer, Integer> map = new HashMap<>();
         //TODO The real thing. Read keyboard layout and build real code and modifier mapping. 
+
         //Add a-z & A-Z
         for (int i = 'A'; i <= 'Z'; i++) {
             //Capital
@@ -162,6 +161,7 @@ class KeysymToAwtKeyCode {
         map.put(new Integer(KeyMap.XK_underscore), new Integer(KeyEvent.VK_UNDERSCORE));
         map.put(new Integer(KeyMap.XK_Undo), new Integer(KeyEvent.VK_UNDO));
         map.put(new Integer(KeyMap.XK_Up), new Integer(KeyEvent.VK_UP));
+        return map;
     }
 
     /**
@@ -170,11 +170,11 @@ class KeysymToAwtKeyCode {
      * @param keysym the keysym
      * @return the key code or KeyEvent.VK_UNDEFINED is most cases
      */
-    int keysymToRobotCode(int keysym) {
+    static int get(int keysym) {
         int code = KeyEvent.VK_UNDEFINED;
 
-        if (map.containsKey(keysym)) {
-            code = map.get(keysym).intValue();
+        if (keySymMap.containsKey(keysym)) {
+            code = keySymMap.get(keysym).intValue();
         }
         return code;
     }

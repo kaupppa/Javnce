@@ -140,7 +140,7 @@ class Win32GdiFramebuffer extends FramebufferDevice {
     /**
      * Instantiates a new win32 gdi framebuffer.
      */
-    public Win32GdiFramebuffer() {
+    Win32GdiFramebuffer() {
         //Make sure that first screenshot is taken
         grab();
     }

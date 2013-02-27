@@ -125,7 +125,6 @@ public class UpnpClient implements Runnable {
                                 @SuppressWarnings("rawtypes")
                                 @Override
                                 public void failure(ActionInvocation reply, UpnpResponse operation, String defaultMsg) {
-                                    System.err.println(defaultMsg);
                                 }
                             });
                 }

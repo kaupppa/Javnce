@@ -70,6 +70,7 @@ public class MsgProtocolVersion extends Message {
     /* (non-Javadoc)
      * @see org.javnce.rfb.messages.Message#demarshal(java.nio.ByteBuffer)
      */
+    @Override
     public boolean demarshal(ByteBuffer buffer) {
         boolean allBytesRead = false;
         this.setValid(false);

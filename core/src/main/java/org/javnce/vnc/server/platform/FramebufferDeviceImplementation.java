@@ -73,11 +73,8 @@ class FramebufferDeviceImplementation extends FramebufferDevice {
             dev = new XShmFramebuffer();
         } else if (Win32GdiFramebuffer.isSupported()) {
             dev = new Win32GdiFramebuffer();
-        } else if (RobotFramebufferDevice.isSupported()) {
-            dev = RobotFramebufferDevice.instance();
-        }
-        if (null == dev) {
-            dev = new DummyFramebufferDevice();
+        } else {
+            throw new RuntimeException("No FramebufferDevice implementation found");
         }
         Logger.getLogger(FramebufferDeviceImplementation.class.getName())
                 .log(Level.INFO, "Using {0}", dev.getClass().getName());

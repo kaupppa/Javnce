@@ -32,7 +32,7 @@ import java.nio.ByteBuffer;
 public class Checksum {
 
     /**
-     * The Constant libName.
+     * The JNI lib name.
      */
     final static private String libName = getLibName();
 
@@ -62,27 +62,14 @@ public class Checksum {
     private Checksum() {
     }
 
-    static public long crc32(ByteBuffer buffer, int offset, int length) {
-        if (null == buffer) {
-            throw new NullPointerException();
-        }
-        if (offset < 0 || length < 0) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
-        if (buffer.capacity() < (offset + length)) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
-        long crc = 0;
-        if (buffer.isDirect()) {
-            crc = crc32ByteBuffer(buffer, offset, length);
-        } else if (buffer.hasArray()) {
-            crc = crc32ByteArray(buffer.array(), offset, length);
-        } else {
-            throw new UnsupportedOperationException();
-        }
-        return crc;
-    }
-
+    /**
+     * Calculate Adler32 checksum.
+     *
+     * @param buffer the buffer
+     * @param offset the offset
+     * @param length the length
+     * @return the checksum
+     */
     static public long adler32(ByteBuffer buffer, int offset, int length) {
         if (null == buffer) {
             throw new NullPointerException();
@@ -104,11 +91,25 @@ public class Checksum {
         return crc;
     }
 
-    private native static long crc32ByteArray(byte[] buffer, int offset, int length);
-
-    private native static long crc32ByteBuffer(ByteBuffer buffer, int offset, int length);
-
+    /**
+     * Native Adler32 from given byte array
+     *
+     * @param buffer the buffer
+     * @param offset the offset
+     * @param length the length
+     * @return the long
+     */
     private native static long adler32ByteArray(byte[] buffer, int offset, int length);
 
+    /**
+     * Native Adler32 from given ByteBuffer.
+     *
+     * Note that ByteBuffer must be direct allocated.
+     *
+     * @param buffer the buffer
+     * @param offset the offset
+     * @param length the length
+     * @return the long
+     */
     private native static long adler32ByteBuffer(ByteBuffer buffer, int offset, int length);
 }

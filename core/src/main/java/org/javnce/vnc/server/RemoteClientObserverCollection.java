@@ -43,7 +43,7 @@ class RemoteClientObserverCollection implements RemoteClientObserver {
     /**
      * Instantiates a new remote client observer collection.
      */
-    public RemoteClientObserverCollection() {
+    RemoteClientObserverCollection() {
         observers = new HashSet<>();
         lock = new Object();
     }

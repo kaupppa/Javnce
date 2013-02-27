@@ -51,9 +51,13 @@ public class Encoding {
      * <table border="1"> <tr><th>No. of
      * bytes</th><th>Type</th><th>Description</th></tr>
      * <tr><td>4</td><td>U32</td><td>LZ4 data length in bytes</td></tr>
-     * <tr><td>N</td><td>LZ4 compressed data</td><td>See <a
-     * href="http://code.google.com/p/lz4/">LZ4 project page</a> </td></tr>
+     * <tr><td>N</td><td>compressed data</td><td>LZ4 compressed data.</td></tr>
      * </table>
+     * 
+     * @see <a href="http://code.google.com/p/lz4/">http://code.google.com/p/lz4/</a>
      */
     public static final int LZ4 = -667;
+
+    private Encoding() {
+    }
 }

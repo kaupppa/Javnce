@@ -25,7 +25,7 @@ import net.jpountz.lz4.LZ4Factory;
 /**
  * The Class LZ4Encoder wraps the LZ4 compressor from net.jpountz.lz4.
  *
- * For more info see {@link http://code.google.com/p/lz4/}.
+ * @see <a href="http://code.google.com/p/lz4/">http://code.google.com/p/lz4/</a>
  */
 public class LZ4Encoder {
 

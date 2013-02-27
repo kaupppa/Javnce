@@ -26,9 +26,10 @@ public class FrameBufferBlockCompareTest {
 
     @Test
     public void testCompareFirst() {
-        FrameBufferBlockCompare compare = new FrameBufferBlockCompare();
         TestFramebufferDevice dev = new TestFramebufferDevice();
-        ArrayList<Rect> list = compare.compare(dev);
+        FrameBufferBlockCompare compare = new FrameBufferBlockCompare(dev);
+
+        ArrayList<Rect> list = compare.compare();
 
         assertEquals(1, list.size());
         assertEquals(dev.rect, list.get(0));
@@ -36,10 +37,11 @@ public class FrameBufferBlockCompareTest {
 
     @Test
     public void testCompareOnePixelChange() {
-        FrameBufferBlockCompare compare = new FrameBufferBlockCompare();
         TestFramebufferDevice dev = new TestFramebufferDevice();
+        FrameBufferBlockCompare compare = new FrameBufferBlockCompare(dev);
+
         //Get first
-        ArrayList<Rect> list = compare.compare(dev);
+        ArrayList<Rect> list = compare.compare();
 
         Rect[] areas = new Rect[]{new Rect(0, 0, 1, 1),
             new Rect(dev.size.width() - 1, 0, 1, 1),
@@ -50,7 +52,7 @@ public class FrameBufferBlockCompareTest {
 
         for (int i = 0; i < areas.length; i++) {
             dev.change(areas[i]);
-            list = compare.compare(dev);
+            list = compare.compare();
             assertEquals(1, list.size());
             assertTrue(list.get(0).contains(areas[i]));
         }
@@ -58,10 +60,12 @@ public class FrameBufferBlockCompareTest {
 
     @Test
     public void testCompareSeveralChange() {
-        FrameBufferBlockCompare compare = new FrameBufferBlockCompare();
         TestFramebufferDevice dev = new TestFramebufferDevice();
+        FrameBufferBlockCompare compare = new FrameBufferBlockCompare(dev);
+
         //Get first
-        ArrayList<Rect> list = compare.compare(dev);
+        ArrayList<Rect> list = compare.compare();
+
         Rect[] areas = new Rect[]{new Rect(0, 0, 10, 10),
             new Rect(dev.size.width() - 11, 0, 10, 10),
             new Rect(0, dev.size.height() - 11, 10, 10),
@@ -72,7 +76,7 @@ public class FrameBufferBlockCompareTest {
         for (int i = 0; i < areas.length; i++) {
             dev.change(areas[i]);
         }
-        list = compare.compare(dev);
+        list = compare.compare();
 
         //Check that all areas are in list
         for (int i = 0; i < areas.length; i++) {

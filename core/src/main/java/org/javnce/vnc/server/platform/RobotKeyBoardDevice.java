@@ -35,10 +35,6 @@ class RobotKeyBoardDevice extends KeyBoardDevice {
      * The robot.
      */
     private Robot robot;
-    /**
-     * The keysym to AWT key code mapping.
-     */
-    final private KeysymToAwtKeyCode map;
 
     /**
      * Instance.
@@ -75,7 +71,6 @@ class RobotKeyBoardDevice extends KeyBoardDevice {
      * Instantiates a new robot key board device.
      */
     private RobotKeyBoardDevice() {
-        map = new KeysymToAwtKeyCode();
         try {
             robot = new Robot();
         } catch (AWTException ex) {
@@ -88,7 +83,7 @@ class RobotKeyBoardDevice extends KeyBoardDevice {
     @Override
     public void keyEvent(boolean down, long key) {
         int keysym = (int) (key & 0xFFFFFFFFl);
-        int code = map.keysymToRobotCode(keysym);
+        int code = KeysymToAwtKeyCode.get(keysym);
 
         if (KeyEvent.VK_UNDEFINED != code) {
             try {

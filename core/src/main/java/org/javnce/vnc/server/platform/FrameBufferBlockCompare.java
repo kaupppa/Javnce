@@ -33,34 +33,59 @@ import org.javnce.rfb.types.Size;
  * block.
  *
  */
-class FrameBufferBlockCompare implements FrameBufferCompare {
+class FrameBufferBlockCompare {
 
     /**
-     * The current checksums.
+     * The checksums.
      */
-    private long[] checksums;
+    final private long[] checksums;
     /**
-     * The frame buffer format.
-     */
-    private PixelFormat format;
-    /**
-     * The frame buffer size.
-     */
-    private Size size;
-    /**
-     * The max count of lines in one checksum calculation.
+     * The max amount of lines in ablock.
      */
     static final private int MaxLinesInBlock = 40;
     /**
-     * The count of lines in one CRC32 calculation.
+     * The lines in block.
      */
-    private int linesInBlock;
+    final private int linesInBlock;
+    /**
+     * The dev.
+     */
+    final private FramebufferDevice dev;
+    /**
+     * The first compare call.
+     */
+    private boolean first;
+    /**
+     * The block size in bytes.
+     */
+    final private int blockSizeInBytes;
+    /**
+     * The width.
+     */
+    final private int width;
+    /**
+     * The block count.
+     */
+    final private int blockCount;
+    /**
+     * The size.
+     */
+    final private Size size;
 
     /**
-     * Instantiates a new frame buffer compare.
+     * Instantiates a new frame buffer block compare.
      */
-    public FrameBufferBlockCompare() {
-        linesInBlock = 1;
+    FrameBufferBlockCompare(FramebufferDevice dev) {
+        this.dev = dev;
+        first = true;
+
+        PixelFormat format = dev.format();
+        size = dev.size();
+        linesInBlock = calcLinesInBlock(size);
+        blockSizeInBytes = size.width() * linesInBlock * format.bytesPerPixel();
+        width = size.width();
+        blockCount = size.height() / linesInBlock;
+        checksums = new long[size.height() / linesInBlock];
     }
 
     /**
@@ -81,40 +106,36 @@ class FrameBufferBlockCompare implements FrameBufferCompare {
         return count;
     }
 
-    /* (non-Javadoc)
-     * @see org.javnce.vnc.server.platform.FrameBufferCompare#compare(org.javnce.vnc.server.platform.FramebufferDevice)
+    /**
+     * Compare.
+     *
+     * First time called it returns list with one area == whole frame buffer.
+     *
+     * @return the array of change since previous call
      */
-    @Override
-    public ArrayList<Rect> compare(FramebufferDevice fb) {
+    public ArrayList<Rect> compare() {
         ArrayList<Rect> list;
-        if (!fb.format().equals(format) || !fb.size().equals(size)) {
-            checksums = null;
-            format = fb.format();
-            size = fb.size();
-            linesInBlock = calcLinesInBlock(size);
-        }
 
-        if (null == checksums) {
-            checksums = new long[size.height() / linesInBlock];
+        if (first) {
+            first = false;
             list = new ArrayList<>();
             list.add(new Rect(new Point(0, 0), size));
-            calcChecksums(fb);
+            calcChecksums();
         } else {
-            list = calcChecksums(fb);
+            list = calcChecksums();
         }
         return list;
     }
 
     /**
-     * Calculates checksums.
+     * Calculates checksums for each block.
      *
-     * @param fb the frame buffer device
      * @return the list of changed areas in frame buffer.
      */
-    private ArrayList<Rect> calcChecksums(FramebufferDevice fb) {
+    private ArrayList<Rect> calcChecksums() {
         ArrayList<Rect> list = new ArrayList<>();
 
-        ByteBuffer buffers[] = fb.buffer(0, 0, size.width(), size.height());
+        ByteBuffer buffers[] = dev.buffer(0, 0, size.width(), size.height());
         if (1 != buffers.length) {
             EventLoop.fatalError(this, new RuntimeException("Cannot support buffer arrays"));
             return list;
@@ -122,12 +143,8 @@ class FrameBufferBlockCompare implements FrameBufferCompare {
         ByteBuffer buffer = buffers[0];
         Rect rect = null;
         int lastIndex = -2;
-        int offset = 0;
-        final int stride = size.width() * linesInBlock * format.bytesPerPixel();
-        final int width = size.width();
-        final int blockCount = size.height() / linesInBlock;
-        for (int i = 0; i < blockCount; i++, offset += stride) {
-            if (updateChecksum(i, buffer, offset, stride)) {
+        for (int i = 0; i < blockCount; i++) {
+            if (updateChecksum(i, buffer, i * blockSizeInBytes)) {
                 if (null == rect) {
                     //first changed
                     rect = new Rect(0, i * linesInBlock, width, linesInBlock);
@@ -156,9 +173,9 @@ class FrameBufferBlockCompare implements FrameBufferCompare {
      * @param stride the stride is block size in bytes
      * @return true, if block was changed
      */
-    private boolean updateChecksum(int index, ByteBuffer buffer, int offset, int stride) {
+    private boolean updateChecksum(int index, ByteBuffer buffer, int offset) {
         //long value = Checksum.crc32(buffer, offset, stride);
-        long value = Checksum.adler32(buffer, offset, stride);
+        long value = Checksum.adler32(buffer, offset, blockSizeInBytes);
         boolean changed = (checksums[index] != value);
         checksums[index] = value;
         return changed;

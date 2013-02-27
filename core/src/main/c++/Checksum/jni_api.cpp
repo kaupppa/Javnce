@@ -18,64 +18,35 @@
 #include "logger.h"
 #include "checksum.h"
 
-JNIEXPORT jlong JNICALL Java_org_javnce_vnc_server_platform_Checksum_crc32ByteArray(JNIEnv *env, jclass, jbyteArray byteArray, jint offset, jint length)
-{
-    jlong crc=0;
-    uint8_t  *buffer = (uint8_t  *)env->GetPrimitiveArrayCritical((jarray )byteArray, 0);
-    if (NULL != buffer)
-    {
-        crc = Javnce::crc32(buffer + offset, length);
-        env->ReleasePrimitiveArrayCritical(byteArray, buffer, 0);
-    }
-    else
-    {
-        LOG_ERROR("GetPrimitiveArrayCritical failure");
-    }
-    return crc;
-}
 
-JNIEXPORT jlong JNICALL Java_org_javnce_vnc_server_platform_Checksum_crc32ByteBuffer(JNIEnv *env, jclass, jobject byteBuffer, jint offset, jint length)
-{
-    jlong crc=0;
-    uint8_t *buffer = (uint8_t*)env->GetDirectBufferAddress(byteBuffer);
-    if (NULL != buffer)
-    {
-        crc = Javnce::crc32(buffer + offset, length);
-    }
-    else
-    {
-        LOG_ERROR("GetDirectBufferAddress failure");
-    }
-    return crc;
-}
 JNIEXPORT jlong JNICALL Java_org_javnce_vnc_server_platform_Checksum_adler32ByteArray(JNIEnv *env, jclass, jbyteArray byteArray, jint offset, jint length)
 {
-    jlong crc=0;
+    jlong checksum=0;
     uint8_t  *buffer = (uint8_t  *)env->GetPrimitiveArrayCritical((jarray )byteArray, 0);
     if (NULL != buffer)
     {
-        crc = Javnce::adler32(buffer + offset, length);
+        checksum = Javnce::adler32(buffer + offset, length);
         env->ReleasePrimitiveArrayCritical(byteArray, buffer, 0);
     }
     else
     {
         LOG_ERROR("GetPrimitiveArrayCritical failure");
     }
-    return crc;
+    return checksum;
 }
 
 JNIEXPORT jlong JNICALL Java_org_javnce_vnc_server_platform_Checksum_adler32ByteBuffer(JNIEnv *env, jclass, jobject byteBuffer, jint offset, jint length)
 {
-    jlong crc=0;
+    jlong checksum=0;
     uint8_t *buffer = (uint8_t*)env->GetDirectBufferAddress(byteBuffer);
     if (NULL != buffer)
     {
-        crc = Javnce::adler32(buffer + offset, length);
+        checksum = Javnce::adler32(buffer + offset, length);
     }
     else
     {
         LOG_ERROR("GetDirectBufferAddress failure");
     }
-    return crc;
+    return checksum;
 }
 

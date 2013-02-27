@@ -98,7 +98,7 @@ public class UpnPServer implements Runnable {
             for (int i = 0; i < mac.length; i++) {
                 sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
             }
-            salt = salt + sb.toString();
+            salt += sb.toString();
         } catch (Throwable ex) {
         }
         return salt;
@@ -126,7 +126,7 @@ public class UpnPServer implements Runnable {
 
         @SuppressWarnings("unchecked")
         LocalService<VncService> service = new AnnotationLocalServiceBinder().read(VncService.class);
-        service.setManager(new DefaultServiceManager<VncService>(service, VncService.class));
+        service.setManager(new DefaultServiceManager<>(service, VncService.class));
         service.getManager().getImplementation().setPort(port);
         return new LocalDevice(identity, type, details, icon, service);
     }

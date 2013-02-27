@@ -56,36 +56,6 @@ class RlePixelBuffer {
     }
 
     /**
-     * Gets the run-length encoded buffer.
-     *
-     * @return the byte buffer
-     */
-    ByteBuffer getByteBuffer() {
-
-        int count = 0;
-
-        for (ByteBuffer bb : list) {
-            count += bb.capacity();
-        }
-
-        count += buffer.position();
-
-        byte array[] = new byte[count];
-        int pos = 0;
-
-        for (ByteBuffer bb : list) {
-            System.arraycopy(bb.array(), 0, array, pos, bb.capacity());
-            pos += bb.capacity();
-        }
-
-        if (0 != buffer.position()) {
-            System.arraycopy(buffer.array(), 0, array, pos, buffer.position());
-        }
-
-        return ByteBuffer.wrap(array);
-    }
-
-    /**
      * Gets the run-length encoded buffers.
      *
      * @return the list of buffers
@@ -115,32 +85,6 @@ class RlePixelBuffer {
     }
 
     /**
-     * Put a 8-bit run-length encoded pixel.
-     *
-     * @param pixel the pixel
-     * @param count the count
-     */
-    void putByte(byte pixel, int count) {
-
-        refesh();
-        buffer.put((byte) ((count - 1) & 0xFF));
-        buffer.put(pixel);
-    }
-
-    /**
-     * Put a 16-bit run-length encoded pixel.
-     *
-     * @param pixel the pixel
-     * @param count the count
-     */
-    void putShort(short pixel, int count) {
-
-        refesh();
-        buffer.put((byte) ((count - 1) & 0xFF));
-        buffer.putShort(pixel);
-    }
-
-    /**
      * Put a 32-bit run-length encoded pixel.
      *
      * @param pixel the pixel
@@ -163,9 +107,6 @@ class RlePixelBuffer {
 
         refesh();
         buffer.put((byte) ((count - 1) & 0xFF));
-
-        for (int i = 0; i < array.length; i++) {
-            buffer.put(array[i]);
-        }
+        buffer.put(array);
     }
 }

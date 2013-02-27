@@ -56,7 +56,6 @@ class RemoteClientWorker extends Thread implements EventSubscriber {
         eventLoop = new EventLoop();
         eventLoop.moveToNewChildGroup();
 
-        eventLoop.subscribe(SocketClosedEvent.eventId(), this);
         handler = new ProtocolHandler(eventLoop);
         setName("Javnce-RemoteClientWorker");
     }
@@ -68,6 +67,8 @@ class RemoteClientWorker extends Thread implements EventSubscriber {
     public void run() {
         SocketChannel channel = client.giveChannel();
         if (RemoteClient.State.Connected == client.state() && null != channel) {
+            eventLoop.subscribe(SocketClosedEvent.eventId(), this);
+            
             //Create framebuffer handler
             frameHandler = new ClientFramebufferHandler(eventLoop);
             frameHandler.init();
@@ -79,7 +80,7 @@ class RemoteClientWorker extends Thread implements EventSubscriber {
             try {
                 channel.close();
             } catch (IOException ex) {
-                EventLoop.fatalError(this, ex);
+                //We don't care if close fails
             }
         }
         shutdown();
