@@ -27,12 +27,13 @@ import org.javnce.rfb.types.Framebuffer;
 import org.javnce.rfb.types.PixelFormat;
 import org.javnce.rfb.types.Rect;
 import org.javnce.rfb.types.Size;
+import org.javnce.util.LZ4Encoder;
+import org.javnce.util.RunLengthEncoder;
 import org.javnce.vnc.common.FbChangeEvent;
 import org.javnce.vnc.common.FbEncodingsEvent;
 import org.javnce.vnc.common.FbFormatEvent;
 import org.javnce.vnc.common.FbRequestEvent;
 import org.javnce.vnc.common.FbUpdateEvent;
-import org.javnce.vnc.common.LZ4Encoder;
 import org.javnce.vnc.server.platform.FramebufferDevice;
 
 /**
@@ -158,7 +159,7 @@ class ClientFramebufferHandler extends Thread implements EventSubscriber {
     private void event(FbEncodingsEvent event) {
         supportedEncodings = event.get();
         usedEncoding = Encoding.RAW;
-        
+
         boolean hasRle = false;
         boolean hasLz4 = false;
         for (int encoding : supportedEncodings) {
@@ -219,23 +220,8 @@ class ClientFramebufferHandler extends Thread implements EventSubscriber {
             ByteBuffer buf = lz4Encoder.compress(buffers);
             result = new Framebuffer(rect, Encoding.LZ4, new ByteBuffer[]{buf});
         } else if (usedEncoding == Encoding.RLE) {
-            List<ByteBuffer> list = new ArrayList<>();
-            int bytesPerPixel = format.bytesPerPixel();
-            int orgSize = 0;
-            for (int i = 0; i < buffers.length; i++) {
-                buffers[i].clear();
-                orgSize += buffers[i].capacity();
-                list.addAll(RunLengthEncoder.encode(buffers[i], bytesPerPixel));
-                buffers[i].clear();
-            }
-            int rleSize = 0;
-            for (ByteBuffer temp : list) {
-                rleSize += temp.capacity();
-            }
-            // if rle is smaller then use it
-            if (rleSize < orgSize) {
-                result = new Framebuffer(rect, Encoding.RLE, list.toArray(new ByteBuffer[list.size()]));
-            }
+            List<ByteBuffer> list = RunLengthEncoder.encode(buffers, format.bytesPerPixel());
+            result = new Framebuffer(rect, Encoding.RLE, list.toArray(new ByteBuffer[list.size()]));
         }
 
         if (null == result) {

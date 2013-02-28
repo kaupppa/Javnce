@@ -19,6 +19,7 @@ package org.javnce.rfb.messages;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import org.javnce.rfb.types.*;
+import org.javnce.util.ByteBuffers;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,7 +71,7 @@ public class MsgServerInitTest {
             assertTrue(msg.isValid());
 
             msg = new MsgServerInit();
-            assertTrue(msg.demarshal(MyByteBufferHelper.arrayListToBuffer(list)));
+            assertTrue(msg.demarshal(ByteBuffers.asBuffer(list)));
             assertTrue(msg.isValid());
 
             assertEquals(array[i].format, msg.getFormat());
@@ -138,7 +139,7 @@ public class MsgServerInitTest {
         msg = new MsgServerInit();
         String text = msg.toString();
         assertNotNull(text);
-        
+
         msg = new MsgServerInit(format, size, name);
         text = msg.toString();
         assertNotNull(text);

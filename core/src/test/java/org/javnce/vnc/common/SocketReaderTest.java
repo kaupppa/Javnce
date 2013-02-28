@@ -18,7 +18,6 @@ package org.javnce.vnc.common;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import org.javnce.eventing.LoopbackChannelPair;
 import org.javnce.rfb.messages.Message;
 import org.javnce.rfb.messages.MsgBell;
 import org.javnce.rfb.messages.MsgClientCutText;
@@ -33,7 +32,6 @@ import org.javnce.rfb.messages.MsgServerCutText;
 import org.javnce.rfb.messages.MsgSetColourMapEntries;
 import org.javnce.rfb.messages.MsgSetEncodings;
 import org.javnce.rfb.messages.MsgSetPixelFormat;
-import org.javnce.rfb.messages.MyByteBufferHelper;
 import org.javnce.rfb.types.Color;
 import org.javnce.rfb.types.Framebuffer;
 import org.javnce.rfb.types.PixelFormat;
@@ -42,6 +40,8 @@ import org.javnce.rfb.types.Rect;
 import org.javnce.rfb.types.SecurityType;
 import org.javnce.rfb.types.Size;
 import org.javnce.rfb.types.Version;
+import org.javnce.util.ByteBuffers;
+import org.javnce.util.LoopbackChannelPair;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -147,7 +147,7 @@ public class SocketReaderTest {
             for (int i = 0; i < f.msgs.length; i++) {
                 ArrayList<ByteBuffer> list = toBeSent[i].marshal();
 
-                ByteBuffer data = MyByteBufferHelper.arrayListToBuffer(list);
+                ByteBuffer data = ByteBuffers.asBuffer(list);
                 loopback.channel1().write(data);
                 //logger.info("Write " + toBeSent[i]);
 
@@ -170,7 +170,7 @@ public class SocketReaderTest {
 
             for (int i = 0; i < toBeSent.length; i++) {
                 ArrayList<ByteBuffer> list = toBeSent[i].marshal();
-                loopback.channel1().write(MyByteBufferHelper.arrayListToBuffer(list));
+                loopback.channel1().write(ByteBuffers.asBuffer(list));
                 //logger.info("Write " + toBeSent[i]);
             }
 
@@ -194,7 +194,7 @@ public class SocketReaderTest {
 
             for (int i = 0; i < f.msgs.length; i++) {
                 ArrayList<ByteBuffer> list = toBeSent[i].marshal();
-                ByteBuffer data = MyByteBufferHelper.arrayListToBuffer(list);
+                ByteBuffer data = ByteBuffers.asBuffer(list);
                 Message msg = null;
 
                 while (0 != data.remaining() && null == msg) {

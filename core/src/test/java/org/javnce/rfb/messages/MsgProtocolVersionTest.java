@@ -20,6 +20,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import org.javnce.rfb.types.Version;
+import org.javnce.util.ByteBuffers;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -98,7 +99,7 @@ public class MsgProtocolVersionTest {
 
             ArrayList<ByteBuffer> list = msg.marshal();
             assertEquals(1, list.size());
-            assertTrue(Arrays.equals(array[i].array, MyByteBufferHelper.arrayListToBuffer(list).array()));
+            assertTrue(Arrays.equals(array[i].array, ByteBuffers.asBuffer(list).array()));
         }
 
         //Not valid

@@ -26,6 +26,7 @@ import org.javnce.rfb.types.PixelFormat;
 import org.javnce.rfb.types.Point;
 import org.javnce.rfb.types.Rect;
 import org.javnce.rfb.types.Size;
+import org.javnce.util.ByteBuffers;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -78,7 +79,7 @@ public class MsgFramebufferUpdateTest {
             assertTrue(msg.isValid());
 
             msg = new MsgFramebufferUpdate(format);
-            ByteBuffer rec = MyByteBufferHelper.arrayListToBuffer(list);
+            ByteBuffer rec = ByteBuffers.asBuffer(list);
             assertTrue(msg.demarshal(rec));
             assertTrue(msg.isValid());
             assertEquals(0, rec.remaining());
@@ -106,7 +107,7 @@ public class MsgFramebufferUpdateTest {
         assertTrue(msg.isValid());
 
         msg = new MsgFramebufferUpdate(format);
-        ByteBuffer rec = MyByteBufferHelper.arrayListToBuffer(list);
+        ByteBuffer rec = ByteBuffers.asBuffer(list);
         assertTrue(msg.demarshal(rec));
         assertTrue(msg.isValid());
         assertEquals(0, rec.remaining());

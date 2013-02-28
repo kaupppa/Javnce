@@ -14,12 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
-package org.javnce.vnc.server;
+package org.javnce.util;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import org.javnce.rfb.messages.MyByteBufferHelper;
 import org.javnce.rfb.types.PixelFormat;
 import org.javnce.rfb.types.Size;
 import org.javnce.vnc.server.platform.FramebufferDevice;
@@ -105,7 +105,7 @@ public class RunLengthEncoderTest {
                     assertEquals(0, buffer.remaining());
                 }
 
-                ByteBuffer encBuffer = MyByteBufferHelper.arrayListToBuffer(list);
+                ByteBuffer encBuffer = ByteBuffers.asBuffer(list);
                 assertEquals(bytePerPixel + 1, encBuffer.capacity());
 
                 int count = encBuffer.get() & 0xff;
@@ -113,7 +113,6 @@ public class RunLengthEncoderTest {
                 assertEquals(count, buffer.capacity() / bytePerPixel);
             }
         }
-
     }
 
     @Test
@@ -137,7 +136,7 @@ public class RunLengthEncoderTest {
                     assertEquals(0, buffer.remaining());
                 }
 
-                ByteBuffer encBuffer = MyByteBufferHelper.arrayListToBuffer(list);
+                ByteBuffer encBuffer = ByteBuffers.asBuffer(list);
                 assertEquals((bytePerPixel + 1) * 2, encBuffer.capacity());
             }
         }
@@ -213,5 +212,19 @@ public class RunLengthEncoderTest {
             assertNotNull(list);
             assertEquals(0, buffers[0].remaining());
         }
+    }
+
+    @Test
+    public void testRledecode() {
+        Size size = new Size(1400, 900);
+
+        ByteBuffer buffer = generateRandom(size.width() * size.height(), 4);
+
+        //Encode
+        List<ByteBuffer> list = RunLengthEncoder.encode(buffer, 4);
+
+
+        ByteBuffer res = RunLengthEncoder.decode(ByteBuffers.asBuffer(list), size.width(), size.height(), 4);
+        assertTrue(Arrays.equals(buffer.array(), res.array()));
     }
 }

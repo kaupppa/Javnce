@@ -19,6 +19,7 @@ package org.javnce.rfb.messages;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import org.javnce.rfb.types.SecurityType;
+import org.javnce.util.ByteBuffers;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -51,7 +52,7 @@ public class MsgSelectedSecurityTypeTest {
             msg = new MsgSelectedSecurityType(array[i]);
             ArrayList<ByteBuffer> list = msg.marshal();
             assertEquals(1, list.size());
-            byte type = MyByteBufferHelper.arrayListToBuffer(list).get();
+            byte type = ByteBuffers.asBuffer(list).get();
             assertEquals(type, (byte) i);
         }
 

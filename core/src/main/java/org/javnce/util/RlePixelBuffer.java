@@ -1,3 +1,5 @@
+package org.javnce.util;
+
 /*
  * Copyright (C) 2012  Pauli Kauppinen
  * 
@@ -14,8 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
-package org.javnce.vnc.server;
-
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,12 +63,10 @@ class RlePixelBuffer {
     List<ByteBuffer> getBuffers() {
 
         refesh();
-
         if (0 != buffer.position()) {
             buffer.flip();
             list.add(buffer.slice());
         }
-
         return list;
     }
 
@@ -81,7 +79,6 @@ class RlePixelBuffer {
             buffer.clear();
             buffer = ByteBuffer.allocate((bytePerPixel + 1) * PixelsPerBuffer);
         }
-
     }
 
     /**

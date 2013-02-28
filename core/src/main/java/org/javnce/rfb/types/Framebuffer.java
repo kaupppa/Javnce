@@ -88,36 +88,4 @@ public class Framebuffer {
     public ByteBuffer[] buffers() {
         return buffers;
     }
-
-    /**
-     * Gets buffers as one ByteBuffer
-     *
-     * @return buffers in single ByteBuffer
-     */
-    public ByteBuffer asOneBuffer() {
-        ByteBuffer buffer = null;
-
-        if (null != buffers) {
-            if (1 == buffers.length) {
-                buffer = buffers[0];
-            } else {
-                int count = 0;
-
-                for (ByteBuffer temp : buffers) {
-                    count += temp.capacity();
-                }
-
-                buffer = ByteBuffer.allocate(count);
-
-                for (ByteBuffer temp : buffers) {
-                    buffer.put(temp);
-                    temp.clear();
-                }
-
-                buffer.clear();
-            }
-        }
-
-        return buffer;
-    }
 }

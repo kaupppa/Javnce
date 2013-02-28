@@ -23,6 +23,7 @@ import org.javnce.rfb.types.PixelFormat;
 import org.javnce.rfb.types.Point;
 import org.javnce.rfb.types.Rect;
 import org.javnce.rfb.types.Size;
+import org.javnce.util.ByteBuffers;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -42,7 +43,7 @@ public class MsgServerFactoryTest {
 
         public TestData(Message msg) {
             ArrayList<ByteBuffer> list = msg.marshal();
-            this.data = MyByteBufferHelper.arrayListToBuffer(list).array();
+            this.data = ByteBuffers.asBuffer(list).array();
             this.id = msg.getId();
         }
     }

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import org.javnce.rfb.types.Point;
 import org.javnce.rfb.types.Rect;
 import org.javnce.rfb.types.Size;
+import org.javnce.util.ByteBuffers;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,7 +64,7 @@ public class MsgFramebufferUpdateRequestTest {
 
 
             msg = new MsgFramebufferUpdateRequest();
-            assertTrue(msg.demarshal(MyByteBufferHelper.arrayListToBuffer(list)));
+            assertTrue(msg.demarshal(ByteBuffers.asBuffer(list)));
             assertTrue(msg.isValid());
 
             assertEquals(array[i].incremental, msg.getIncremental());

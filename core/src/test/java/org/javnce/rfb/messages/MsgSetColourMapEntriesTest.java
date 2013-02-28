@@ -19,6 +19,7 @@ package org.javnce.rfb.messages;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import org.javnce.rfb.types.Color;
+import org.javnce.util.ByteBuffers;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +44,7 @@ public class MsgSetColourMapEntriesTest {
         assertTrue(msg.isValid());
 
         msg = new MsgSetColourMapEntries();
-        assertTrue(msg.demarshal(MyByteBufferHelper.arrayListToBuffer(list)));
+        assertTrue(msg.demarshal(ByteBuffers.asBuffer(list)));
         assertTrue(msg.isValid());
 
         assertEquals(firstColour, msg.getFirstColour());

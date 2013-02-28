@@ -28,8 +28,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
 import javafx.scene.layout.AnchorPane;
 import org.javnce.rfb.types.Framebuffer;
 import org.javnce.rfb.types.PixelFormat;
@@ -53,7 +51,7 @@ public class ClientView extends View implements Initializable, RemoteVncServerOb
     /**
      * The remote frame buffer .
      */
-    private VncImage image;
+    private ARGB888Image image;
     /**
      * The mouse event dispatcher.
      */
@@ -176,18 +174,6 @@ public class ClientView extends View implements Initializable, RemoteVncServerOb
     }
 
     /**
-     * Gets the pixel format of WritableImage.
-     *
-     * @return the native
-     */
-    private org.javnce.rfb.types.PixelFormat getNative() {
-
-        WritableImage temp = new WritableImage(1, 1);
-        PixelWriter writer = temp.getPixelWriter();
-        return VncImage.convertPixelFormat(writer.getPixelFormat());
-    }
-
-    /**
      * Inits the image view.
      */
     private void initImageView() {
@@ -216,19 +202,15 @@ public class ClientView extends View implements Initializable, RemoteVncServerOb
      * @param format the format
      * @param size the size
      */
-    private void config(org.javnce.rfb.types.PixelFormat format, Size size) {
+    private void config(PixelFormat format, Size size) {
 
-        org.javnce.rfb.types.PixelFormat nativeFormat = getNative();
-
-        if (null == nativeFormat) {
-            //Cannot handle the format
-            Platform.exit();
-        } else if (!nativeFormat.equals(format)) {
-            VncClientController.setFormat(nativeFormat);
+        if (!format.equals(PixelFormat.createARGB888())) {
+            getController().previousView();
+            new MessageBox("Unsupported server image format", "Unsupported format", "Ok").exec();
         }
 
         rect = new Rect(0, 0, size.width(), size.height());
-        image = new VncImage(nativeFormat, size);
+        image = new ARGB888Image(size);
 
         initImageView();
         initResizeObservers();

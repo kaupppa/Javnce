@@ -16,5 +16,7 @@ are shared. All you need to do is pick one and wait that it is accepted.
 # Documentation  and third party SW links
 1. [Javance Wiki] (https://github.com/kaupppa/Javnce/wiki)
 1. [Cling - Java/Android UPnP library and tools] (http://4thline.org/projects/cling/)
-1. [The org.javnce.vnc.server.platform.Checksum is based on zlib code] (http://zlib.net/)
+1. [Javnce uses code based on zlib (adler32 by Mark Adler)] (http://zlib.net/)
+1. [LZ4 compression by Adrien Grand.] (https://github.com/jpountz/lz4-java)
+
 

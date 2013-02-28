@@ -21,11 +21,11 @@ import java.util.ArrayList;
 import org.javnce.eventing.Event;
 import org.javnce.eventing.EventLoop;
 import org.javnce.eventing.EventSubscriber;
-import org.javnce.eventing.LoopbackChannelPair;
 import org.javnce.rfb.messages.Message;
 import org.javnce.rfb.messages.MsgPointerEvent;
 import org.javnce.rfb.messages.MsgServerFactory;
 import org.javnce.rfb.types.Point;
+import org.javnce.util.LoopbackChannelPair;
 import static org.junit.Assert.*;
 import org.junit.Test;
 

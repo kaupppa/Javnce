@@ -20,6 +20,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import org.javnce.rfb.types.SecurityType;
+import org.javnce.util.ByteBuffers;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -41,7 +42,7 @@ public class MsgSecurityTypeListTest {
             assertTrue(array[i].isValid());
 
             msg = new MsgSecurityTypeList();
-            assertTrue(msg.demarshal(MyByteBufferHelper.arrayListToBuffer(list)));
+            assertTrue(msg.demarshal(ByteBuffers.asBuffer(list)));
             assertTrue(msg.isValid());
 
             assertEquals(array[i].getText(), msg.getText());

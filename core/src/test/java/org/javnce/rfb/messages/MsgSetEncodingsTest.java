@@ -18,6 +18,7 @@ package org.javnce.rfb.messages;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import org.javnce.util.ByteBuffers;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -41,7 +42,7 @@ public class MsgSetEncodingsTest {
             assertEquals(1, list.size());
             assertTrue(msg.isValid());
 
-            ByteBuffer temp = MyByteBufferHelper.arrayListToBuffer(list);
+            ByteBuffer temp = ByteBuffers.asBuffer(list);
             msg = new MsgSetEncodings();
             assertTrue(msg.demarshal(temp));
             assertTrue(msg.isValid());

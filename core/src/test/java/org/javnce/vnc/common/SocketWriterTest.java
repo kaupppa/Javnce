@@ -17,7 +17,6 @@
 package org.javnce.vnc.common;
 
 import java.nio.ByteBuffer;
-import org.javnce.eventing.LoopbackChannelPair;
 import org.javnce.rfb.messages.Message;
 import org.javnce.rfb.messages.MsgBell;
 import org.javnce.rfb.messages.MsgClientCutText;
@@ -35,6 +34,7 @@ import org.javnce.rfb.types.PixelFormat;
 import org.javnce.rfb.types.Point;
 import org.javnce.rfb.types.Rect;
 import org.javnce.rfb.types.Size;
+import org.javnce.util.LoopbackChannelPair;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;

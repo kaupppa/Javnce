@@ -18,6 +18,7 @@ package org.javnce.rfb.messages;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import org.javnce.util.ByteBuffers;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -50,14 +51,14 @@ public class MsgClientInitTest {
         ArrayList<ByteBuffer> list = msg.marshal();
         assertEquals(1, list.size());
 
-        value = MyByteBufferHelper.arrayListToBuffer(list).get();
+        value = ByteBuffers.asBuffer(list).get();
         assertEquals((byte) 1, value);
 
         msg = new MsgClientInit(false);
         list = msg.marshal();
         assertEquals(1, list.size());
 
-        value = MyByteBufferHelper.arrayListToBuffer(list).get();
+        value = ByteBuffers.asBuffer(list).get();
         assertEquals((byte) 0, value);
 
         //Not valid

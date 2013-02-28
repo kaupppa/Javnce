@@ -22,6 +22,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.javnce.util.LoopbackChannelPair;
 import static org.junit.Assert.*;
 import org.junit.Test;
 

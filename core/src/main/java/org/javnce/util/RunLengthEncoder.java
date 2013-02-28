@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
-package org.javnce.vnc.server;
+package org.javnce.util;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -33,11 +33,22 @@ public class RunLengthEncoder {
     /**
      * Run-length Encoder method.
      *
+     * @param buffers the array of RAW frame buffers
+     * @param bytePerPixel the byte per pixel
+     * @return the list of run-length encoded buffers
+     */
+    static public List<ByteBuffer> encode(ByteBuffer[] buffers, int bytePerPixel) {
+        return encode(ByteBuffers.asBuffer(buffers), bytePerPixel);
+    }
+
+    /**
+     * Run-length Encoder method.
+     *
      * @param buffer the RAW frame buffer
      * @param bytePerPixel the byte per pixel
      * @return the list of run-length encoded buffers
      */
-    static public List<ByteBuffer> encode(ByteBuffer buffer, int bytePerPixel) {
+    static List<ByteBuffer> encode(ByteBuffer buffer, int bytePerPixel) {
         RlePixelBuffer rleBuffer = new RlePixelBuffer(bytePerPixel);
 
         if (4 == bytePerPixel) {
@@ -127,6 +138,51 @@ public class RunLengthEncoder {
         if (0 != count) {
             rleBuffer.put(pixel, count);
         }
+    }
+
+    /**
+     * Convert Run-length encoded data.
+     *
+     * @param buffers the RLE coded buffers
+     * @param width the width
+     * @param height the height
+     * @param bytesPerPixel bytes per pixel
+     * @return the byte buffer
+     */
+    static public ByteBuffer decode(ByteBuffer[] buffers, int width, int height, int bytesPerPixel) {
+        return decode(ByteBuffers.asBuffer(buffers), width, height, bytesPerPixel);
+    }
+
+    /**
+     * Convert Run-length encoded data.
+     *
+     * @param buffer the RLE coded buffer
+     * @param width the width
+     * @param height the height
+     * @return the byte buffer
+     */
+    static ByteBuffer decode(ByteBuffer src, int width, int height, int bytesPerPixel) {
+
+        byte[] pixel = new byte[bytesPerPixel];
+
+        ByteBuffer dst = ByteBuffer.allocate(width * height * bytesPerPixel);
+
+        int rleSize = bytesPerPixel + 1;
+
+        while ((rleSize) <= src.remaining() && bytesPerPixel <= dst.remaining()) {
+
+            int count = src.get() & 0xff;
+            count += 1;
+
+            src.get(pixel);
+
+            for (int i = 0; i < count; i++) {
+                dst.put(pixel);
+            }
+        }
+
+        dst.clear();
+        return dst;
     }
 
     private RunLengthEncoder() {

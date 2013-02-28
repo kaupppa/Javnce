@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.javnce.vnc.common;
+package org.javnce.util;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -43,7 +43,7 @@ public class LZ4EncoderTest {
         LZ4Encoder coder = new LZ4Encoder();
 
         ByteBuffer[] buffers = dev.buffer(0, 0, size.width(), size.height());
-        byte[] data = LZ4Encoder.asOneBuffer(buffers).array();
+        byte[] data = ByteBuffers.asBuffer(buffers).array();
 
         ByteBuffer decoded = coder.compress(data);
         assertNotNull(decoded);
@@ -69,7 +69,7 @@ public class LZ4EncoderTest {
         ByteBuffer encoded = coder.decompress(new ByteBuffer[]{decoded}, count);
         assertNotNull(encoded);
 
-        ByteBuffer org = LZ4Encoder.asOneBuffer(buffers);
+        ByteBuffer org = ByteBuffers.asBuffer(buffers);
 
         assertTrue(Arrays.equals(org.array(), encoded.array()));
     }

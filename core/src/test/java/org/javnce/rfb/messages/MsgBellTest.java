@@ -18,6 +18,7 @@ package org.javnce.rfb.messages;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import org.javnce.util.ByteBuffers;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -42,8 +43,8 @@ public class MsgBellTest {
         ArrayList<ByteBuffer> list = msg.marshal();
         assertEquals(1, list.size());
 
-        assertEquals(1, MyByteBufferHelper.arrayListToBuffer(list).capacity());
-        assertEquals(2, MyByteBufferHelper.arrayListToBuffer(list).get());
+        assertEquals(1, ByteBuffers.asBuffer(list).capacity());
+        assertEquals(2, ByteBuffers.asBuffer(list).get());
     }
 
     @Test

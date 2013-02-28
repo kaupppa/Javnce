@@ -18,6 +18,7 @@ package org.javnce.rfb.messages;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import org.javnce.util.ByteBuffers;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -40,7 +41,7 @@ public class MsgSecurityResultTest {
             assertTrue(array[i].isValid());
 
             msg = new MsgSecurityResult();
-            assertTrue(msg.demarshal(MyByteBufferHelper.arrayListToBuffer(list)));
+            assertTrue(msg.demarshal(ByteBuffers.asBuffer(list)));
             assertTrue(msg.isValid());
 
             assertEquals(array[i].getText(), msg.getText());

@@ -18,6 +18,7 @@ package org.javnce.rfb.messages;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import org.javnce.util.ByteBuffers;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +42,7 @@ public class MsgClientCutTextTest {
         assertTrue(msg.isValid());
 
         msg = new MsgClientCutText();
-        assertTrue(msg.demarshal(MyByteBufferHelper.arrayListToBuffer(list)));
+        assertTrue(msg.demarshal(ByteBuffers.asBuffer(list)));
         assertTrue(msg.isValid());
 
         assertEquals(data, msg.get());

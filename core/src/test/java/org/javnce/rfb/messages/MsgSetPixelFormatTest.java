@@ -20,6 +20,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import org.javnce.rfb.types.Color;
 import org.javnce.rfb.types.PixelFormat;
+import org.javnce.util.ByteBuffers;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +47,7 @@ public class MsgSetPixelFormatTest {
             assertEquals(1, list.size());
 
             msg = new MsgSetPixelFormat();
-            assertTrue(msg.demarshal(MyByteBufferHelper.arrayListToBuffer(list)));
+            assertTrue(msg.demarshal(ByteBuffers.asBuffer(list)));
             assertTrue(msg.isValid());
 
             assertEquals(array[i], msg.get());

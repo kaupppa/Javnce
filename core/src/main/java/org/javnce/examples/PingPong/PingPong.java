@@ -28,19 +28,15 @@ import org.javnce.eventing.EventLoop;
 import org.javnce.eventing.EventSubscriber;
 import org.javnce.eventing.TimeOutCallback;
 import org.javnce.eventing.Timer;
+import org.javnce.util.LoopbackChannelPair;
 
 /**
  * The PingPong is a example of using {@link org.javnce.eventing.EventLoop},
  * {@link org.javnce.eventing.ChannelSubscriber}, {@link org.javnce.eventing.EventSubscriber}
- * and {@link org.javnce.eventing.Timer}.
- * <p>
- * The PingPong is done in functional-programming style and has three threads;
- * Ping, Pong and Main thread.
- * </p><p>
- * The Ping and Pong threads handles both socket and events.
- * </p><p>
- * The Main thread uses a timer to stop the threads.
- * </p>
+ * and {@link org.javnce.eventing.Timer}. <p> The PingPong is done in
+ * functional-programming style and has three threads; Ping, Pong and Main
+ * thread. </p><p> The Ping and Pong threads handles both socket and events.
+ * </p><p> The Main thread uses a timer to stop the threads. </p>
  */
 public class PingPong {
 
@@ -64,7 +60,7 @@ public class PingPong {
             ByteBuffer buffer = ByteBuffer.allocate(1000);
             socketChannel.read(buffer);
             buffer.flip();
-            string = new String(buffer.array(),0, buffer.remaining());
+            string = new String(buffer.array(), 0, buffer.remaining());
         }
         return string;
     }
@@ -87,9 +83,10 @@ public class PingPong {
     /**
      * Creates the ping thread.
      *
-     * The Ping thread replies with {@link org.javnce.examples.PingPong.EventPong} 
-     * when an {@link org.javnce.examples.PingPong.EventPing} arrives.  The thread 
-     * writes string "Pong-message" to socket when it gets incoming data.
+     * The Ping thread replies with
+     * {@link org.javnce.examples.PingPong.EventPong} when an
+     * {@link org.javnce.examples.PingPong.EventPing} arrives. The thread writes
+     * string "Pong-message" to socket when it gets incoming data.
      *
      * @param socket the socket to be listen
      * @return the ping thread
@@ -130,9 +127,10 @@ public class PingPong {
     /**
      * Creates the pong thread.
      *
-     * The Pong thread replies with {@link org.javnce.examples.PingPong.EventPing} 
-     * when it gets data from socket. The thread writes string "Ping-message" to 
-     * socket when an {@link org.javnce.examples.PingPong.EventPong} arrives.
+     * The Pong thread replies with
+     * {@link org.javnce.examples.PingPong.EventPing} when it gets data from
+     * socket. The thread writes string "Ping-message" to socket when an
+     * {@link org.javnce.examples.PingPong.EventPong} arrives.
      *
      * @param socket the socket to be listen
      * @return the pong thread
@@ -186,7 +184,7 @@ public class PingPong {
         //Register own error handler
         EventLoop.setErrorHandler(new MyLogger());
 
-        try (SocketChannelPair sockets = new SocketChannelPair()) {
+        try (LoopbackChannelPair sockets = new LoopbackChannelPair()) {
 
             MyLogger.threadSays("Creating threads");
             Thread ping = createPingThread(sockets.channel1());

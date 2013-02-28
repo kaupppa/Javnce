@@ -60,14 +60,4 @@ public class FramebufferTest {
         fb = new Framebuffer(rect, encoding, null);
         assertNull(fb.buffers());
     }
-
-    @Test
-    public void testAsOneBuffer() {
-        assertNotNull(fb.asOneBuffer());
-        fb = new Framebuffer(rect, encoding, new ByteBuffer[]{ByteBuffer.allocate(100), ByteBuffer.allocate(100)});
-        assertEquals(200, fb.asOneBuffer().capacity());
-
-        fb = new Framebuffer(rect, encoding, null);
-        assertNull(fb.asOneBuffer());
-    }
 }

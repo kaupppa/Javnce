@@ -18,7 +18,7 @@
 package org.javnce.vnc.server;
 
 import org.javnce.eventing.EventLoop;
-import org.javnce.eventing.LoopbackChannelPair;
+import org.javnce.util.LoopbackChannelPair;
 import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Before;
