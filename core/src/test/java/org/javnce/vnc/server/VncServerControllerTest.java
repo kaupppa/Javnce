@@ -64,6 +64,7 @@ public class VncServerControllerTest {
         }
         controller.removeObserver(tester);
         controller.shutdown();
+        Thread.sleep(100);
     }
 
     @Test
@@ -79,7 +80,8 @@ public class VncServerControllerTest {
             assertEquals(RemoteClient.State.PendingConnection, client.state());
             client.connect();
             controller.removeObserver(tester);
-            controller.shutdown();
         }
+        controller.shutdown();
+        Thread.sleep(100);
     }
 }

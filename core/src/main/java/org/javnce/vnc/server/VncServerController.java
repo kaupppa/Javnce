@@ -179,22 +179,15 @@ public class VncServerController implements RemoteClientObserver {
     }
 
     private void stopHandlers() {
-        boolean stopped = false;
         synchronized (lock) {
             if (null != inputEventHandler) {
                 inputEventHandler.shutdown();
                 inputEventHandler = null;
-                stopped = true;
             }
             if (null != framebufferHandler) {
                 framebufferHandler.shutdown();
                 framebufferHandler = null;
-                stopped = true;
             }
-        }
-        if (stopped) {
-            //Now there should be lots to clean up so we run cleaner
-            System.gc();
         }
     }
 }

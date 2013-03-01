@@ -16,6 +16,7 @@
  */
 package org.javnce.vnc.common;
 
+import java.io.IOException;
 import java.net.StandardSocketOptions;
 import java.nio.channels.*;
 import org.javnce.eventing.ChannelSubscriber;
@@ -119,6 +120,11 @@ public class MessageDispatcher implements ChannelSubscriber {
     public void send(Message msg) {
         //logger.info("" + msg);
         writer.add(msg);
+        try {
+            writer.write(channel);
+        } catch (IOException e) {
+            close();
+        }
         updateSocketState();
     }
 
