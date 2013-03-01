@@ -147,14 +147,6 @@ public class VncServerController implements RemoteClientObserver {
                 listener.shutdown();
                 listener = null;
             }
-            if (null != inputEventHandler) {
-                inputEventHandler.shutdown();
-                inputEventHandler = null;
-            }
-            if (null != framebufferHandler) {
-                framebufferHandler.shutdown();
-                framebufferHandler = null;
-            }
             list = new ArrayList<>(clients);
         }
         for (Iterator<RemoteClient> i = list.iterator(); i.hasNext();) {

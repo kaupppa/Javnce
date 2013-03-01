@@ -191,6 +191,14 @@ public class ServerView extends View implements Initializable, RemoteClientObser
             client.connect();
         } else {
             client.disconnect();
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    //Client gone.
+                    //Run gc later on in event loop 
+                    System.gc();
+                }
+            });
         }
     }
 }

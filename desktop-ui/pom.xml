@@ -135,7 +135,7 @@
                                                  keyPass="$(my.keystore.key.password)" ......
                                         -->
                                         <fx:platform>
-                                            <fx:jvmarg value="-Xmx128m"/>
+                                            <fx:jvmarg value="-Xms32m -Xmx256m"/>
                                         </fx:platform>
 
                                         <fx:deploy width="${applet.width}"
