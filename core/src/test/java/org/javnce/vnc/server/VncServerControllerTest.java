@@ -64,7 +64,6 @@ public class VncServerControllerTest {
         }
         controller.removeObserver(tester);
         controller.shutdown();
-        Thread.sleep(100);
     }
 
     @Test
@@ -77,11 +76,15 @@ public class VncServerControllerTest {
 
         try (SocketChannel ch = SocketChannel.open(new InetSocketAddress(port))) {
             RemoteClient client = tester.client();
-            assertEquals(RemoteClient.State.PendingConnection, client.state());
-            client.connect();
+            
+            //Remove Observer as it block
             controller.removeObserver(tester);
+
+            assertEquals(RemoteClient.State.PendingConnection, client.state());
+            
+            client.connect();
+            
         }
         controller.shutdown();
-        Thread.sleep(100);
     }
 }
