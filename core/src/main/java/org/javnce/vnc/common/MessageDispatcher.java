@@ -134,7 +134,7 @@ public class MessageDispatcher implements ChannelSubscriber {
     private void updateSocketState() {
 
         if (channel.isConnected() && channel.isOpen()) {
-            int newOps = SelectionKey.OP_READ | SelectionKey.OP_CONNECT;
+            int newOps = SelectionKey.OP_READ;
 
             if (!writer.isEmpty()) {
                 newOps |= SelectionKey.OP_WRITE;
